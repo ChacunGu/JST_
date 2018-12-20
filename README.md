@@ -8,7 +8,7 @@ Consists of a JavaScript and HTLM5 implementation of a Linux terminal.
 
 Neuchâtel, 2018-2019.
 
-Developped for the 3^rd^ year's course "Conception OS" of the "Développement Logiciel et Multimédia" Bachelor in [HE-Arc](https://www.he-arc.ch/ingenierie).
+Developped for the 3rd year's course "Conception OS" of the "Développement Logiciel et Multimédia" Bachelor in [HE-Arc](https://www.he-arc.ch/ingenierie).
 
 ## Team
 
