@@ -1,0 +1,49 @@
+
+/* Font by HKGrotesk by Alfredo Marco Pradil (hello@hanken.co) */
+@font-face {
+    font-family: "HKGrotesk";
+    src: url("../fonts/HKGrotesk-LightLegacy.eot");                                    /* IE9 Compat Modes */
+    src: url("../fonts/HKGrotesk-LightLegacy.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */
+         url("../fonts/HKGrotesk-LightLegacy.woff") format("woff"),                    /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+         url("../fonts/HKGrotesk-LightLegacy.ttf") format("truetype");                 /* Chrome 4+, Firefox 3.5, Opera 10+, Safari 3—5 */
+}
+
+body {
+    overflow-x: hidden;
+    background-color: black;
+    font: 16px "HKGrotesk";
+    color: white;
+    text-decoration: none;
+}
+
+#input {
+    width: 100vw;
+    max-width: 100vw;
+    min-height: 18px;
+}
+
+[contenteditable]:focus {
+    outline: 0px solid transparent;
+}
+
+#terminal {
+    overflow-y: hidden;
+    overflow-x: hidden;
+    max-width: 100%;
+    width: 100%;
+    height: 95vh;
+    vertical-align: bottom;
+    display: table-cell;
+}
+
+.terminal-blocks {
+    overflow-y: hidden;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+#inputEditable {
+    margin-left: 6px;
+    min-width: 18px;
+    min-height: 18px;
+}
