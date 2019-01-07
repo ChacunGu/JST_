@@ -11,6 +11,7 @@ class Kernel {
 
         this.terminal = new Terminal(this.user, this.hostname, this.path);   
 
+        this.root = new Directory("");
         this._initEvents();
     }
     
