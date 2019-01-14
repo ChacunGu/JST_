@@ -6,7 +6,7 @@ class CommandClear extends AbstractCommand {
     constructor(kernel) {
         super(kernel, "clear");
 
-        this.maxNumberOptions = 1;
+        this.maxNumberOptions = 1; // minimum 1 for '-?'
         this.maxNumberParams = 0;
     }
 

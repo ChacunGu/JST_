@@ -53,10 +53,12 @@ class Kernel {
         // create binary files
         this.root.find("bin").addChild(new CommandClear(this));
         this.root.find("bin").addChild(new CommandHistory(this));
+        this.root.find("bin").addChild(new CommandLS(this));
 
         // reference commands
         this.commands["clear"] = this.root.find("bin").find("clear");
         this.commands["history"] = this.root.find("bin").find("history");
+        this.commands["ls"] = this.root.find("bin").find("ls");
     }
 
     /**
