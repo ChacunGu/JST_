@@ -8,6 +8,21 @@ class Directory extends AbstractFile {
 
         this.children = [];
     }
+    
+    /**
+     * find
+     * finds a file or directory named {filename} directly inside the directory
+     * and returns it (return null if not exist)
+     * @param {String} filename 
+     */
+    find(filename) {
+        this.children.forEach(element => {
+            if(element.name == filename) {
+                return element;
+            }
+        });
+        return null;
+    }
 
     /**
      * addChild

@@ -13,7 +13,7 @@ class Kernel {
         this.commands = {"clear": new CommandClear(this)};
         this.history = [];
 
-        this.root = new Directory("");
+        this._initRoot();
         this._initEvents();
     }
     
@@ -23,6 +23,24 @@ class Kernel {
      */
     _initEvents() {
         window.addEventListener("submit", event => this._processInput(event.detail));
+    }
+
+    /**
+     * _initRoot
+     * initialize the root directory and all its children
+     */
+    _initRoot() {
+        this.root = new Directory("");
+        this.root.addChild(new Directory("bin")); // put all commands here
+        this.root.addChild(new Directory("boot"));
+        this.root.addChild(new Directory("dev"));
+        this.root.addChild(new Directory("etc"));
+        this.root.addChild(new Directory("home"));
+        this.root.addChild(new Directory("tmp"));
+        this.root.addChild(new Directory("var"));
+        this.root.addChild(new Directory("root"));
+
+        this.currentDirectory = this.root;
     }
 
     /**
