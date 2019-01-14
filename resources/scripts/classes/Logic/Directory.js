@@ -16,11 +16,11 @@ class Directory extends AbstractFile {
      * @param {String} filename 
      */
     find(filename) {
-        for (let i = 0; i < this.children.length; i++) { 
-            if(this.children[i].name == filename) {
-                return this.children[i];
+        this.children.forEach(element => {
+            if(element.name == filename) {
+                return element;
             }
-        }
+        });
         return null;
     }
 

@@ -23,9 +23,13 @@ class Kernel {
         window.addEventListener("submit", event => this._processInput(event.detail));
     }
 
+    /**
+     * _initRoot
+     * initialize the root directory and all its children
+     */
     _initRoot() {
         this.root = new Directory("");
-        this.root.addChild(new Directory("bin"));
+        this.root.addChild(new Directory("bin")); // put all commands here
         this.root.addChild(new Directory("boot"));
         this.root.addChild(new Directory("dev"));
         this.root.addChild(new Directory("etc"));
