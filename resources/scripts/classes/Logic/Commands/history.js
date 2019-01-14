@@ -1,10 +1,10 @@
 /**
- * Class CommandClear
- * Represents command clear. Clears terminal.
+ * Class CommandHistory
+ * Represents command history. Displays commands history.
  */
-class CommandClear extends AbstractCommand {
+class CommandHistory extends AbstractCommand {
     constructor(kernel) {
-        super(kernel, "clear");
+        super(kernel, "history");
 
         this.maxNumberOptions = 1;
         this.maxNumberParams = 0;
@@ -33,8 +33,20 @@ class CommandClear extends AbstractCommand {
             }
 
             // execute command
-            this.kernel.terminal.clear();
+            this.kernel.displayBlock(this._getHistory());
         }
+    }
+
+    /**
+     * _getHistory
+     * Returns the commands history representation.
+     */
+    _getHistory() {
+        let history = this.kernel.getHistory();
+        let historyRepr = "";
+        for (let i=0; i<history.length-1; i++)
+            historyRepr += history[i] + "<br/>";
+        return historyRepr;
     }
 
     /**
@@ -42,6 +54,6 @@ class CommandClear extends AbstractCommand {
      * Returns the command's help.
      */
     help() {
-        return "Clears screen.";
+        return "Displays commands history.";
     }
 }

@@ -58,7 +58,7 @@ class AbstractCommand extends AbstractFile {
         throw new TypeError("Options/Params must be of type Array.");
         
         if (options.length > this.maxNumberOptions || params.length > this.maxNumberParams) {
-            this.kernel._displayBlock(this._getErrorTooManyArguments());
+            this.kernel.displayBlock(this._getErrorTooManyArguments());
             return false;
         }
         return true;

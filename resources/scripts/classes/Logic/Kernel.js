@@ -52,9 +52,11 @@ class Kernel {
 
         // create binary files
         this.root.find("bin").addChild(new CommandClear(this));
+        this.root.find("bin").addChild(new CommandHistory(this));
 
         // reference commands
         this.commands["clear"] = this.root.find("bin").find("clear");
+        this.commands["history"] = this.root.find("bin").find("history");
     }
 
     /**
@@ -72,7 +74,7 @@ class Kernel {
             this.commands[commandName].execute(args.options, args.params);
         } catch (e) {
             if (e instanceof TypeError)
-                this._displayBlock("Unknown command");
+                this.displayBlock("Unknown command");
             else
                 console.log(e);
         }
@@ -117,11 +119,19 @@ class Kernel {
     }
 
     /**
-     * _displayBlock
+     * getHistory
+     * Returns commands history.
+     */
+    getHistory() {
+        return this.history;
+    }
+
+    /**
+     * displayBlock
      * Creates and displays a new block with the last command and its given value.
      * @param {String} value : last command's result
      */
-    _displayBlock(value) {
+    displayBlock(value) {
         this.terminal.addBlock(this.getHeader(), this._getLastCommand(), value);
     }
 
