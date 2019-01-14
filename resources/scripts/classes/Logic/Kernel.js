@@ -10,11 +10,11 @@ class Kernel {
         this.path = Kernel.DEFAULT_PATH;
 
         this.terminal = new Terminal(this.user, this.hostname, this.path);
-        this.commands = {"clear": new CommandClear(this)};
         this.history = [];
-
+        
         this._initRoot();
         this._initEvents();
+        this._initCommands();
     }
     
     /**
@@ -44,6 +44,20 @@ class Kernel {
     }
 
     /**
+     * _initCommands
+     * Creates the commands file and references them.
+     */
+    _initCommands() {
+        this.commands = {};
+
+        // create binary files
+        this.root.find("bin").addChild(new CommandClear(this));
+
+        // reference commands
+        this.commands["clear"] = this.root.find("bin").find("clear");
+    }
+
+    /**
      * _processInput
      * Processes a given user input.
      * @param {String} userInput : command the user submitted
@@ -58,7 +72,7 @@ class Kernel {
             this.commands[commandName].execute(args.options, args.params);
         } catch (e) {
             if (e instanceof TypeError)
-                this.displayBlock("Unknown command");
+                this._displayBlock("Unknown command");
             else
                 console.log(e);
         }
@@ -103,21 +117,21 @@ class Kernel {
     }
 
     /**
+     * _displayBlock
+     * Creates and displays a new block with the last command and its given value.
+     * @param {String} value : last command's result
+     */
+    _displayBlock(value) {
+        this.terminal.addBlock(this.getHeader(), this._getLastCommand(), value);
+    }
+
+    /**
      * getHeader
      * Returns a string containing some global informations like the current user, the hostname and 
      * the current path.
      */
     getHeader() {
         return this.user + "@" + this.hostname + " " + this.path;
-    }
-
-    /**
-     * displayBlock
-     * Creates and displays a new block with the last command and its given value.
-     * @param {String} value : last command's result
-     */
-    displayBlock(value) {
-        this.terminal.addBlock(this.getHeader(), this._getLastCommand(), value);
     }
 }
 

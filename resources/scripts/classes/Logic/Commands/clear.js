@@ -24,10 +24,10 @@ class CommandClear extends AbstractCommand {
             for (let i=0; i<options.length; i++) {
                 switch(options[i]) {
                     case "?":
-                        this.kernel.displayBlock(this.help());
+                        this.kernel._displayBlock(this.help());
                         return
                     default: // invalid option
-                        this.kernel.displayBlock(this._getErrorOptions(options[i]));
+                        this.kernel._displayBlock(this._getErrorOptions(options[i]));
                         return;
                 }
             }
