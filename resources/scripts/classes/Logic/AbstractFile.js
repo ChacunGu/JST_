@@ -14,6 +14,7 @@ class AbstractFile {
         if (new.target === AbstractFile)
             throw new TypeError("Cannot construct AbstractFile instances directly.");
     }
+    
     /**
      * getPath
      * returns the complete path from root to this file
