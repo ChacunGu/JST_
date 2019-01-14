@@ -44,7 +44,11 @@ class Terminal {
         block.append(document.createTextNode(command));
 
         block.append(document.createElement("br"));
-        block.append(document.createTextNode(result));
+
+        // block.append(document.createTextNode(result));
+        let resultContainer = document.createElement("span");
+        resultContainer.innerHTML = result;
+        block.append(resultContainer);
         
         block.append(document.createElement("br"));
         block.append(document.createElement("br"));

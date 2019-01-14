@@ -12,7 +12,7 @@ class AbstractFile {
 
         // avoid instantiation (abstract class)
         if (new.target === AbstractFile)
-            throw new TypeError("Cannot construct AbstractFile instances directly.");
+            throw new Error("Cannot construct AbstractFile instances directly.");
     }
     /**
      * getPath

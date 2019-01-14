@@ -18,6 +18,7 @@ class Directory extends AbstractFile {
         if(file instanceof AbstractFile) {
             file.parent = this;
             this.children.push(file);
-        }
+        } else
+            throw new TypeError("File must be of type AbstractFile.");
     }
 }
