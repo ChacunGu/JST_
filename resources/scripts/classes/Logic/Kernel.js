@@ -9,7 +9,8 @@ class Kernel {
         this.hostname = Kernel.DEFAULT_HOSTNAME;
         this.path = Kernel.DEFAULT_PATH;
 
-        this.terminal = new Terminal(this.user, this.hostname, this.path);   
+        this.terminal = new Terminal(this.user, this.hostname, this.path);
+        // this.commands = {"clear": new CommandClear(this)};
 
         this._initEvents();
     }
@@ -28,8 +29,14 @@ class Kernel {
      * @param {String} userInput : command the user submitted
      */
     _processInput(userInput) {
-        // temporary behaviour :
-        this.terminal.addBlock(this.getHeader(), userInput, "Unknown command");
+        let inputs = userInput.split(" ");
+        let commandName = inputs.shift();
+        let commandArgs = inputs;
+        try {
+            this.commands[commandName].execute(commandArgs);
+        } catch {
+            this.terminal.addBlock(this.getHeader(), userInput, "Unknown command");
+        }
     }
 
     /**
