@@ -6,8 +6,10 @@ class CommandClear extends AbstractCommand {
     constructor(kernel) {
         super(kernel, "clear");
 
-        this.maxNumberOptions = 1; // minimum 1 for '-?'
+        this.maxNumberOptions = 1; // at least 1 for '-?'
+        this.minNumberOptions = 0;
         this.maxNumberParams = 0;
+        this.minNumberParams = 0;
     }
 
     /**
@@ -42,6 +44,6 @@ class CommandClear extends AbstractCommand {
      * Returns the command's help.
      */
     help() {
-        return "Clears screen.";
+        return "Clears screen.<br/>usage: clear";
     }
 }

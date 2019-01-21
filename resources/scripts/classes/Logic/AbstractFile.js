@@ -1,6 +1,6 @@
 /**
  * Class that represent an Abstract File type
- * has a name, date and a parent to find the path in file system
+ * Contains a name, a date and a parent to find the path in file system.
  */
 class AbstractFile {
     constructor(name) {
@@ -17,7 +17,7 @@ class AbstractFile {
     
     /**
      * getPath
-     * returns the complete path from root to this file
+     * Returns the complete path from root to this file.
      */
     getPath() {
         let file = this;

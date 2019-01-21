@@ -13,11 +13,11 @@ class Input {
      * _create
      * Creates a terminal's input and initializes its events.
      * @param {DOM node} terminal : terminal's DOM node
-     * @param {String} user : current user
-     * @param {String} hostname : current hostname
-     * @param {String} path : current path
+     * @param {String} user : current kernel user
+     * @param {String} hostname : current kernel hostname
+     * @param {String} path : current kernel path
      */
-    _create(terminal, user, hostname, path) {
+    _create(terminal, header) {
         let insideSpan = document.createElement("span");
         insideSpan.id = Input.EDITABLE_NODE_ID;
         insideSpan.contentEditable = "true";
@@ -33,14 +33,13 @@ class Input {
             }
         });
         
-        let prefixNode = document.createElement("span");
-        prefixNode.append(document.createTextNode(user + "@" + hostname + " " + path));
-        prefixNode.append(document.createElement("br"));
-        prefixNode.append(document.createTextNode("$"));
+        this.headerNode = document.createElement("span");
+        this.headerNode.id = Input.HEADER_ID;
+        this.updateHeader(header);
         
         let inputNode = document.createElement("div");
         inputNode.id = Input.NODE_ID;
-        inputNode.appendChild(prefixNode);
+        inputNode.appendChild(this.headerNode);
         inputNode.appendChild(insideSpan);
         terminal.append(inputNode);
         return inputNode;
@@ -60,6 +59,18 @@ class Input {
      */
     _submit() {
         window.dispatchEvent(new CustomEvent("submit", {detail: this.editableNode.innerHTML}));
+    }
+
+    /**
+     * updateHeader
+     * Updates the input's header.
+     * @param {String} header : new terminal's input header
+     */
+    updateHeader(header) {
+        this.headerNode.innerHTML = "";
+        this.headerNode.append(document.createTextNode(header));
+        this.headerNode.append(document.createElement("br"));
+        this.headerNode.append(document.createTextNode("$"));
     }
 
     /**
@@ -98,3 +109,4 @@ class Input {
 
 Input.NODE_ID = "input";
 Input.EDITABLE_NODE_ID = "inputEditable";
+Input.HEADER_ID = "inputHeader";

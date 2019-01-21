@@ -39,6 +39,14 @@ class AbstractCommand extends AbstractFile {
     }
 
     /**
+     * _getErrorNotEnoughArguments
+     * Returns the "arguments missing" error message.
+     */
+    _getErrorNotEnoughArguments() {
+        return "Arguments missing.<br/>" + this.help();
+    }
+
+    /**
      * _getErrorOptions
      * Returns the "invalid option" error message.
      * @param {String} option : invalid option
@@ -59,6 +67,9 @@ class AbstractCommand extends AbstractFile {
         
         if (options.length > this.maxNumberOptions || params.length > this.maxNumberParams) {
             this.kernel.displayBlock(this._getErrorTooManyArguments());
+            return false;
+        } else if (options.length < this.minNumberOptions || params.length < this.minNumberParams) {
+            this.kernel.displayBlock(this._getErrorNotEnoughArguments());
             return false;
         }
         return true;

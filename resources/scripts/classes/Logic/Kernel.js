@@ -7,14 +7,15 @@ class Kernel {
     constructor() {
         this.user = Kernel.DEFAULT_USER;
         this.hostname = Kernel.DEFAULT_HOSTNAME;
-        this.path = Kernel.DEFAULT_PATH;
-
-        this.terminal = new Terminal(this.user, this.hostname, this.path);
         this.history = [];
         
         this._initRoot();
+        this._initHome();
         this._initEvents();
         this._initCommands();
+        
+        this.currentDirectory = this.root;
+        this.terminal = new Terminal(this.getHeader());
     }
     
     /**
@@ -27,7 +28,7 @@ class Kernel {
 
     /**
      * _initRoot
-     * initialize the root directory and all its children
+     * Initialize the root directory and all its children.
      */
     _initRoot() {
         this.root = new Directory("");
@@ -39,8 +40,15 @@ class Kernel {
         this.root.addChild(new Directory("tmp"));
         this.root.addChild(new Directory("var"));
         this.root.addChild(new Directory("root"));
+    }
 
-        this.currentDirectory = this.root;
+    /**
+     * _initHome
+     * Initializes the home directory and its children.
+     */
+    _initHome() {
+        this.homeDirectory = this.root.find("home");
+        // this.homeDirectory.addChild(new Directory(Kernel.DEFAULT_USER));
     }
 
     /**
@@ -54,11 +62,13 @@ class Kernel {
         this.root.find("bin").addChild(new CommandClear(this));
         this.root.find("bin").addChild(new CommandHistory(this));
         this.root.find("bin").addChild(new CommandLS(this));
+        this.root.find("bin").addChild(new CommandCD(this));
 
         // reference commands
         this.commands["clear"] = this.root.find("bin").find("clear");
         this.commands["history"] = this.root.find("bin").find("history");
         this.commands["ls"] = this.root.find("bin").find("ls");
+        this.commands["cd"] = this.root.find("bin").find("cd");
     }
 
     /**
@@ -143,7 +153,38 @@ class Kernel {
      * the current path.
      */
     getHeader() {
-        return this.user + "@" + this.hostname + " " + this.path;
+        return this.user + "@" + this.hostname + " ~" + this.currentDirectory.getPath();
+    }
+
+    /**
+     * Returns root directory.
+     */
+    getRootDirectory() {
+        return this.root;
+    }
+
+    /**
+     * Returns home directory.
+     */
+    getHomeDirectory() {
+        return this.homeDirectory;
+    }
+
+    /**
+     * Returns current directory.
+     */
+    getCurrentDirectory() {
+        return this.currentDirectory;
+    }
+
+    /**
+     * setCurrentDirectory
+     * Changes current directory.
+     * @param {Directory} newCurrentDirectory : new current directory
+     */
+    setCurrentDirectory(newCurrentDirectory) {
+        this.currentDirectory = newCurrentDirectory;
+        this.terminal.updateHeader(this.getHeader());
     }
 }
 

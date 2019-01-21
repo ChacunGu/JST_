@@ -50,7 +50,8 @@ class Terminal {
         resultContainer.innerHTML = result;
         block.append(resultContainer);
         
-        block.append(document.createElement("br"));
+        if (result.length > 0)
+            block.append(document.createElement("br"));
         block.append(document.createElement("br"));
         this._append(block);
     }
@@ -65,6 +66,15 @@ class Terminal {
             elementsToRemove[0].parentNode.removeChild(elementsToRemove[0]);
         }
         this.input.focus();
+    }
+
+    /**
+     * updateHeader
+     * Updates the terminal's input header.
+     * @param {String} header : new terminal's input header
+     */
+    updateHeader(header) {
+        this.input.updateHeader(header);
     }
 }
 
