@@ -28,10 +28,10 @@ class CommandLS extends AbstractCommand {
             for (let i=0; i<options.length; i++) {
                 switch(options[i]) {
                     case "l":
-                        optHiddenFiles = true;
+                        optVerbose = true;
                         break;
                     case "a":
-                        optVerbose = true;
+                    optHiddenFiles = true;
                         break;
                     case "?":
                         this.kernel.displayBlock(this.help());
@@ -42,13 +42,38 @@ class CommandLS extends AbstractCommand {
                 }
             }
 
+            let path = this.kernel.currentDirectory;
             // handle parameters
             for (let i=0; i<params.length; i++) {
                 // TODO : verify parameter's validity (in this case if it is a valid directory file)
+                //this.path =     
             }
 
-            // execute command
-            // TODO : execute the command with given options and parameters
+            let listContent = "";
+                
+            if (path instanceof Directory) {
+                for (let i=0; i < path.children.length; i++) { 
+                    if (optHiddenFiles) {
+                        if (optVerbose) {
+                            //TODO : list all with file dates and access
+                        } else {
+                            listContent += path.children[i].name + "<br>";
+                        }
+                    } else {
+                        if (optVerbose) {
+                            //TODO : list all with file dates and access
+                        } else {
+                            if (path.children[i].name[0] != ".") {
+                                listContent += path.children[i].name + "<br>";
+                            }
+                        }
+                    }
+                }   
+            } else {
+                listContent = "Not a Directory";
+            }
+
+            this.kernel.displayBlock(listContent);
         }
     }
 

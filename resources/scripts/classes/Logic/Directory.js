@@ -18,7 +18,7 @@ class Directory extends AbstractFile {
     find(filename) {
         for (let i=0; i<this.children.length; i++) { 
             if(this.children[i].name == filename) {
-                return this.children[i];
+                return this.children[i].getFile();
             }
         }
         return null;
@@ -32,7 +32,15 @@ class Directory extends AbstractFile {
     addChild(file) {
         if(file instanceof AbstractFile) {
             file.parent = this;
+            if (this.children.length == 0) {
+                this.children.push(new SymbolicLink(".", this));
+                if (this.parent != null) {
+                    this.children.push(new SymbolicLink("..", this.parent));
+                }
+            }
+            
             this.children.push(file);
+            
         } else
             throw new TypeError("File must be of type AbstractFile.");
     }

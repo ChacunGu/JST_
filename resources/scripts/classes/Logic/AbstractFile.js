@@ -16,6 +16,14 @@ class AbstractFile {
     }
     
     /**
+     * getFile
+     * return the reference to the file
+     */
+    getFile() {
+        return this;
+    }
+
+    /**
      * getPath
      * returns the complete path from root to this file
      */

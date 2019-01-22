@@ -51,14 +51,10 @@ class Kernel {
         this.commands = {};
 
         // create binary files
-        this.root.find("bin").addChild(new CommandClear(this));
-        this.root.find("bin").addChild(new CommandHistory(this));
-        this.root.find("bin").addChild(new CommandLS(this));
-
-        // reference commands
-        this.commands["clear"] = this.root.find("bin").find("clear");
-        this.commands["history"] = this.root.find("bin").find("history");
-        this.commands["ls"] = this.root.find("bin").find("ls");
+        let bin = this.root.find("bin");
+        bin.addChild(new CommandClear(this));
+        bin.addChild(new CommandHistory(this));
+        bin.addChild(new CommandLS(this));
     }
 
     /**
@@ -73,7 +69,7 @@ class Kernel {
         this._addToHistory(userInput);
 
         try {
-            this.commands[commandName].execute(args.options, args.params);
+            this.root.find("bin").find(commandName).execute(args.options, args.params);
         } catch (e) {
             if (e instanceof TypeError)
                 this.displayBlock("Unknown command");
