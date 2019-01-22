@@ -21,6 +21,7 @@ class Input {
         let insideSpan = document.createElement("span");
         insideSpan.id = Input.EDITABLE_NODE_ID;
         insideSpan.contentEditable = "true";
+        insideSpan.spellcheck = false;
         
         // Event for Enter key pressed
         let _this = this;

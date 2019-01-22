@@ -3,10 +3,16 @@
  * has children (Directory or Files)
  */
 class Directory extends AbstractFile {
-    constructor(name) {
+    constructor(name, parent) {
         super(name);
 
         this.children = [];
+        this.children.push(new SymbolicLink(".", this));
+
+        if (parent != null) {
+            parent.addChild(this);
+            this.children.push(new SymbolicLink("..", this.parent));
+        }
     }
     
     /**
@@ -18,7 +24,7 @@ class Directory extends AbstractFile {
     find(filename) {
         for (let i=0; i<this.children.length; i++) { 
             if(this.children[i].name == filename) {
-                return this.children[i];
+                return this.children[i].getFile();
             }
         }
         return null;

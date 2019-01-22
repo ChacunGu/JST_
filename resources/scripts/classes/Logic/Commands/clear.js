@@ -35,7 +35,7 @@ class CommandClear extends AbstractCommand {
             }
 
             // execute command
-            this.kernel.terminal.clear();
+            this.kernel.clearTerminal();
         }
     }
 

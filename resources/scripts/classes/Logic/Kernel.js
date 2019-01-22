@@ -14,7 +14,7 @@ class Kernel {
         this._initEvents();
         this._initCommands();
         
-        this.currentDirectory = this.root;
+        this.currentDirectory = this.homeDirectory;
         this.terminal = new Terminal(this.getHeader());
     }
     
@@ -32,14 +32,14 @@ class Kernel {
      */
     _initRoot() {
         this.root = new Directory("");
-        this.root.addChild(new Directory("bin")); // put all commands here
-        this.root.addChild(new Directory("boot"));
-        this.root.addChild(new Directory("dev"));
-        this.root.addChild(new Directory("etc"));
-        this.root.addChild(new Directory("home"));
-        this.root.addChild(new Directory("tmp"));
-        this.root.addChild(new Directory("var"));
-        this.root.addChild(new Directory("root"));
+        new Directory("bin", this.root); // put all commands here
+        new Directory("boot", this.root);
+        new Directory("dev", this.root);
+        new Directory("etc", this.root);
+        new Directory("home", this.root);
+        new Directory("tmp", this.root);
+        new Directory("var", this.root);
+        new Directory("root", this.root);
     }
 
     /**
@@ -48,7 +48,7 @@ class Kernel {
      */
     _initHome() {
         this.homeDirectory = this.root.find("home");
-        // this.homeDirectory.addChild(new Directory(Kernel.DEFAULT_USER));
+        new Directory(Kernel.DEFAULT_USER, this.homeDirectory);
     }
 
     /**
@@ -59,16 +59,11 @@ class Kernel {
         this.commands = {};
 
         // create binary files
-        this.root.find("bin").addChild(new CommandClear(this));
-        this.root.find("bin").addChild(new CommandHistory(this));
-        this.root.find("bin").addChild(new CommandLS(this));
-        this.root.find("bin").addChild(new CommandCD(this));
-
-        // reference commands
-        this.commands["clear"] = this.root.find("bin").find("clear");
-        this.commands["history"] = this.root.find("bin").find("history");
-        this.commands["ls"] = this.root.find("bin").find("ls");
-        this.commands["cd"] = this.root.find("bin").find("cd");
+        let bin = this.root.find("bin");
+        bin.addChild(new CommandClear(this));
+        bin.addChild(new CommandHistory(this));
+        bin.addChild(new CommandLS(this));
+        bin.addChild(new CommandCD(this));
     }
 
     /**
@@ -83,7 +78,7 @@ class Kernel {
         this._addToHistory(userInput);
 
         try {
-            this.commands[commandName].execute(args.options, args.params);
+            this.root.find("bin").find(commandName).execute(args.options, args.params);
         } catch (e) {
             if (e instanceof TypeError)
                 this.displayBlock("Unknown command");
@@ -153,7 +148,7 @@ class Kernel {
      * the current path.
      */
     getHeader() {
-        return this.user + "@" + this.hostname + " ~" + this.currentDirectory.getPath();
+        return this.user + "@" + this.hostname + ": " + this.currentDirectory.getPath();
     }
 
     /**
@@ -185,6 +180,14 @@ class Kernel {
     setCurrentDirectory(newCurrentDirectory) {
         this.currentDirectory = newCurrentDirectory;
         this.terminal.updateHeader(this.getHeader());
+    }
+
+    /**
+     * clearTerminal
+     * Clears terminal.
+     */
+    clearTerminal() {
+        this.terminal.clear();
     }
 }
 

@@ -63,8 +63,13 @@ class CommandCD extends AbstractCommand {
             }
 
             if (directory != null) {
-                this.kernel.displayBlock("");
-                this.kernel.setCurrentDirectory(directory);
+                if (directory instanceof Directory) {
+                    this.kernel.displayBlock("");
+                    this.kernel.setCurrentDirectory(directory);
+                } else {
+                    this.kernel.displayBlock(paramDir + ": Not a directory.");
+                    return;
+                }
             } else {
                 this.kernel.displayBlock(paramDir + ": No such file or directory.");
                 return;
