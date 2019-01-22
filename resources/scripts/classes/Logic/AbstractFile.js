@@ -16,8 +16,16 @@ class AbstractFile {
     }
     
     /**
+     * getName
+     * returns the name of the file
+     */
+    getName() {
+        return this.name;
+    }
+
+    /**
      * getFile
-     * return the reference to the file
+     * returns the reference to the file
      */
     getFile() {
         return this;

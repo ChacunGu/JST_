@@ -6,6 +6,11 @@ class AbstractCommand extends AbstractFile {
     constructor(kernel, name) {
         super(name);
 
+        this.maxNumberOptions = 1; // at least 1 for '-?'
+        this.minNumberOptions = 0;
+        this.maxNumberParams = 0;
+        this.minNumberParams = 0;
+
         if(kernel instanceof Kernel)
             this.kernel = kernel;
         else 

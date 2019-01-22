@@ -59,14 +59,14 @@ class CommandLS extends AbstractCommand {
                         if (optVerbose) {
                             //TODO : list all with file dates and access
                         } else {
-                            listContent += path.children[i].name + "<br/>";
+                            listContent += path.children[i].getName() + "<br/>";
                         }
                     } else {
                         if (optVerbose) {
                             //TODO : list all with file dates and access
                         } else {
-                            if (path.children[i].name[0] != ".") {
-                                listContent += path.children[i].name + "<br/>";
+                            if (path.children[i].getName()[0] != ".") {
+                                listContent += path.children[i].getName() + "<br/>";
                             }
                         }
                     }
