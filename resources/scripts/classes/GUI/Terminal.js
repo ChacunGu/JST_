@@ -85,6 +85,14 @@ class Terminal {
     setInputContent(value) {
         this.input.setValue(value);
     }
+
+    /**
+     * focus
+     * Puts focus on the terminal's input.
+     */
+    focusInput() {
+        this.input.focus();
+    }
 }
 
 Terminal.NODE_ID = "terminal";

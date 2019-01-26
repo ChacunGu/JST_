@@ -69,6 +69,7 @@ class Kernel {
         bin.addChild(new CommandCD(this));
         bin.addChild(new CommandPWD(this));
         bin.addChild(new CommandEcho(this));
+        bin.addChild(new CommandMan(this));
     }
 
     /**
@@ -77,19 +78,22 @@ class Kernel {
      * @param {String} userInput : command the user submitted
      */
     _processInput(userInput) {
-        let inputs = userInput.split(" ");
-        let commandName = inputs.shift();
-        let args = this._processArgs(inputs);
-        this._addToHistory(userInput);
+        if (userInput.length > 0) {
+            let inputs = userInput.split(" ");
+            let commandName = inputs.shift();
+            let args = this._processArgs(inputs);
+            this._addToHistory(userInput);
 
-        try {
-            this.root.find("bin").find(commandName).execute(args.options, args.params);
-        } catch (e) {
-            if (e instanceof TypeError)
-                this.displayBlock("Unknown command");
-            else
-                console.log(e);
-        }
+            try {
+                this.root.find("bin").find(commandName).execute(args.options, args.params);
+            } catch (e) {
+                if (e instanceof TypeError)
+                    this.displayBlock("Unknown command");
+                else
+                    console.log(e);
+            }
+        } else
+            this.terminal.addBlock(this.getHeader(), "", "");
     }
 
     /**
@@ -151,10 +155,12 @@ class Kernel {
             }
         }
         // set terminal's input value
-        if (canBrowseHistory)
+        if (canBrowseHistory) {
             this.terminal.setInputContent(this.historySelectedCmdIndex >= 0 ?
                                           this.history[this.history.length - 1 - this.historySelectedCmdIndex] :
                                           "");
+            this.focusTerminalInput();
+        }
     }
 
     /**
@@ -228,6 +234,14 @@ class Kernel {
      */
     clearTerminal() {
         this.terminal.clear();
+    }
+
+    /**
+     * focusTerminalInput
+     * Focuses terminal's input.
+     */
+    focusTerminalInput() {
+        this.terminal.focusInput();
     }
 }
 
