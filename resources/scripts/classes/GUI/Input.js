@@ -23,16 +23,7 @@ class Input {
         insideSpan.contentEditable = "true";
         insideSpan.spellcheck = false;
         
-        // Event for Enter key pressed
-        let _this = this;
-        insideSpan.addEventListener("keydown", event => {
-            if (event.keyCode === 13) {
-                event.preventDefault();
-                _this._submit();
-                _this._clear();
-                return false;
-            }
-        });
+        this._initEvents(insideSpan);
         
         this.headerNode = document.createElement("span");
         this.headerNode.id = Input.HEADER_ID;
@@ -44,6 +35,35 @@ class Input {
         inputNode.appendChild(insideSpan);
         terminal.append(inputNode);
         return inputNode;
+    }
+
+    /**
+     * _initEvents
+     * Initializes terminal's input events.
+     * @param {DOM node} insideSpan : content editable node
+     */
+    _initEvents(insideSpan) {
+        let _this = this;
+        insideSpan.addEventListener("keydown", event => {
+            if (event.keyCode === 13) { // Enter key pressed
+                event.preventDefault();
+                _this._submit();
+                _this._clear();
+                return false;
+            } else if (event.keyCode === 38) { // Up arrow
+                event.preventDefault();
+                window.dispatchEvent(new Event("historyup"));
+                return false;
+            } else if (event.keyCode === 40) { // Down arrow
+                event.preventDefault();
+                window.dispatchEvent(new Event("historydown"));
+                return false;
+            } else if (event.keyCode === 27) { // Escape
+                event.preventDefault();
+                this._clear();
+                return false;
+            }
+        });
     }
 
     /**
@@ -105,6 +125,15 @@ class Input {
         if (value == " ") 
             value = "\u00A0";
         this.editableNode.append(document.createTextNode(value));
+    }
+
+    /**
+     * setValue
+     * Sets the terminal's input value
+     * @param {String} value : value to set
+     */
+    setValue(value) {
+        this.editableNode.innerHTML = value;
     }
 }
 

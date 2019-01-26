@@ -76,6 +76,15 @@ class Terminal {
     updateHeader(header) {
         this.input.updateHeader(header);
     }
+
+    /**
+     * setInputContent
+     * Sets terminal's input content.
+     * @param {String} value : terminal's input value to set
+     */
+    setInputContent(value) {
+        this.input.setValue(value);
+    }
 }
 
 Terminal.NODE_ID = "terminal";

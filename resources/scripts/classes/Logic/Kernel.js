@@ -8,6 +8,7 @@ class Kernel {
         this.user = Kernel.DEFAULT_USER;
         this.hostname = Kernel.DEFAULT_HOSTNAME;
         this.history = [];
+        this.historySelectedCmdIndex = -1;
         
         this._initRoot();
         this._initHome();
@@ -24,6 +25,8 @@ class Kernel {
      */
     _initEvents() {
         window.addEventListener("submit", event => this._processInput(event.detail));
+        window.addEventListener("historyup", event => this._browseHistory(true));
+        window.addEventListener("historydown", event => this._browseHistory(false));
     }
 
     /**
@@ -125,6 +128,41 @@ class Kernel {
      */
     _getLastCommand() {
         return this.history[this.history.length-1];
+    }
+
+    /**
+     * _browseHistory
+     * Browse commands history and sets terminal's input value.
+     * @param {bool} isBrowsingUpward : true if browsing older commands (up) false otherwise
+     */
+    _browseHistory(isBrowsingUpward) {
+        let canBrowseHistory = false;
+
+        // browse history
+        if (isBrowsingUpward) {
+            if (this.historySelectedCmdIndex < this.history.length-1) {
+                this.historySelectedCmdIndex++;
+                canBrowseHistory = true;
+            }
+        } else {
+            if (this.historySelectedCmdIndex >= 0) {
+                this.historySelectedCmdIndex--;
+                canBrowseHistory = true;
+            }
+        }
+        // set terminal's input value
+        if (canBrowseHistory)
+            this.terminal.setInputContent(this.historySelectedCmdIndex >= 0 ?
+                                          this.history[this.history.length - 1 - this.historySelectedCmdIndex] :
+                                          "");
+    }
+
+    /**
+     * resetHistorySelectedCmdIndex
+     * Resets history selected command index.
+     */
+    resetHistorySelectedCmdIndex() {
+        this.historySelectedCmdIndex = -1;
     }
 
     /**

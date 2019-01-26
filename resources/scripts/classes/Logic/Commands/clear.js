@@ -35,6 +35,7 @@ class CommandClear extends AbstractCommand {
             }
 
             // execute command
+            this.kernel.resetHistorySelectedCmdIndex();
             this.kernel.clearTerminal();
         }
     }
