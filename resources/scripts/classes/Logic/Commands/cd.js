@@ -37,9 +37,8 @@ class CommandCD extends AbstractCommand {
             }
 
             // handle parameters
-            for (let i=0; i<params.length; i++) {
+            for (let i=0; i<params.length; i++)
                 paramDir = params[i];
-            }
 
             // execute command
             // verify path existance

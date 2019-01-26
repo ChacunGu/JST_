@@ -70,7 +70,8 @@ class AbstractCommand extends AbstractFile {
         if (!(options instanceof Array) || !(params instanceof Array))
         throw new TypeError("Options/Params must be of type Array.");
         
-        if (options.length > this.maxNumberOptions || params.length > this.maxNumberParams) {
+        if ((options.length > this.maxNumberOptions && this.maxNumberOptions != -1) || 
+            (params.length > this.maxNumberParams && this.maxNumberParams != -1)) {
             this.kernel.displayBlock(this._getErrorTooManyArguments());
             return false;
         } else if (options.length < this.minNumberOptions || params.length < this.minNumberParams) {

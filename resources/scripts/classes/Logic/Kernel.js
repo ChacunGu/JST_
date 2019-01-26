@@ -65,6 +65,7 @@ class Kernel {
         bin.addChild(new CommandLS(this));
         bin.addChild(new CommandCD(this));
         bin.addChild(new CommandPWD(this));
+        bin.addChild(new CommandEcho(this));
     }
 
     /**
