@@ -70,6 +70,7 @@ class Kernel {
         bin.addChild(new CommandPWD(this));
         bin.addChild(new CommandEcho(this));
         bin.addChild(new CommandMan(this));
+        bin.addChild(new CommandDate(this));
     }
 
     /**
