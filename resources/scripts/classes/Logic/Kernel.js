@@ -43,7 +43,6 @@ class Kernel {
         new Directory("tmp", this.root);
         new Directory("var", this.root);
         new Directory("root", this.root);
-        new Directory("mon test", this.root);
     }
 
     /**

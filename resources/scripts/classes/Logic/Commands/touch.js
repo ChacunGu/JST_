@@ -36,7 +36,7 @@ class CommandTouch extends AbstractCommand {
             let filename = params[0];
             
             // remove possible quote marks
-            filename = kernel.removePossibleInputQuotes(filename);
+            filename = this.kernel.removePossibleInputQuotes(filename);
             
             // get new file's parent directory
             let directory = null;
