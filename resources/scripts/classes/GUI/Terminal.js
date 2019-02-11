@@ -32,8 +32,9 @@ class Terminal {
      * @param {String} header : header's content (user, hostname, path)
      * @param {String} command : user's command
      * @param {String} result : command's result
+     * @param {boolean} addBreakLine : true if a break line should be added after the given content false otherwise
      */
-    addBlock(header, command, result="") {
+    addBlock(header, command, result="", addBreakLine=true) {
         let block = document.createElement("div");
         block.classList.add(Terminal.BLOCK_NODE_CLS);
         
@@ -50,7 +51,7 @@ class Terminal {
         resultContainer.innerHTML = result;
         block.append(resultContainer);
         
-        if (result.length > 0)
+        if (result.length > 0 && addBreakLine)
             block.append(document.createElement("br"));
         block.append(document.createElement("br"));
         this._append(block);

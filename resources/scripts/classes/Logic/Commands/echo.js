@@ -38,11 +38,10 @@ class CommandEcho extends AbstractCommand {
 
             // handle parameters
             for (let i=0; i<params.length; i++)
-                paramText += params[i] + " ";
+                paramText += params[i] + (i<params.length-1 ? " " : "");
 
             // remove possible quote marks
-            if (paramText[0] == "\"" && paramText[paramText.length-2] == "\"")
-                paramText = paramText.slice(1, paramText.length-2);
+            paramText = kernel.removePossibleInputQuotes(paramText);
 
             // execute command
             this.kernel.displayBlock(paramText);

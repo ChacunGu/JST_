@@ -32,19 +32,49 @@ class CommandTouch extends AbstractCommand {
                 }
             }
 
-            // handle params
-            let fileName = params[0];
-            let file = this.kernel.getCurrentDirectory().find(fileName);
-            if(file != null) { // if the file already exists
-                if (file instanceof File) {
-                    file.update();
+            // handle parameters
+            let filename = params[0];
+            
+            // remove possible quote marks
+            filename = kernel.removePossibleInputQuotes(filename);
+            
+            // get new file's parent directory
+            let directory = null;
+            if (filename.includes("/")) { // specified path 
+                let directoryPath = filename.slice(0, filename.lastIndexOf("/"));
+                directory = this.kernel.findDirectoryFromPath(directoryPath);
+                filename = filename.slice(filename.lastIndexOf("/")+1, filename.length);
+
+                if (directory != null) {
+                    if (!directory instanceof Directory) {
+                        this.kernel.displayBlock(directoryPath + ": Not a directory.");
+                        return;
+                    }
                 } else {
-                    this.kernel.displayBlock("Not a File");
+                    this.kernel.displayBlock(directoryPath + ": No such file or directory.");
                     return;
                 }
-            } else {
-                this.kernel.getCurrentDirectory().addChild(new File(fileName));
+            } else // implicit path
+                directory = this.kernel.getCurrentDirectory();
+            
+            // handle invalid filename
+            if (AbstractFile.containsSpecialCharacters(filename)) { // invalid special characters in filename
+                this.kernel.displayBlock(this._getErrorSpecialChar());
+                return;
             }
+
+            // file creation / update
+            let file = directory.find(filename);
+            if(file != null) { // if the file already exists
+                if (file instanceof File)
+                    file.update();
+                else {
+                    this.kernel.displayBlock(paramDir + ": Not a File");
+                    return;
+                }
+            } else
+                directory.addChild(new File(filename));
+            this.kernel.displayBlock("");
         }
     }
 

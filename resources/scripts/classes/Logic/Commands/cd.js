@@ -37,8 +37,10 @@ class CommandCD extends AbstractCommand {
             }
 
             // handle parameters
-            for (let i=0; i<params.length; i++)
-                paramDir = params[i];
+            paramDir = params[0];
+            
+            // remove possible quote marks
+            paramDir = kernel.removePossibleInputQuotes(paramDir);
 
             // execute command
             let directory = this.kernel.findDirectoryFromPath(paramDir);

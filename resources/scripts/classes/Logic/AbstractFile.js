@@ -53,4 +53,18 @@ class AbstractFile {
         }
         return path.length > 0 ? path : "/";
     }
+
+    /**
+     * containsSpecialCharacters
+     * Returns true if the given filename contains special characters false otherwise.
+     * @param {String} filename 
+     */
+    static containsSpecialCharacters(filename) {
+        let specialCharacters = ["\\", "/", ":", "*", "?", "\"", "<", ">", "|"];
+        for (let i=0; i<specialCharacters.length; i++) {
+            if (filename.includes(specialCharacters[i]))
+                return true;
+        }
+        return false;
+    }
 }

@@ -61,6 +61,14 @@ class AbstractCommand extends AbstractFile {
     }
 
     /**
+     * _getErrorSpecialChar
+     * Returns the "special characters" error message.
+     */
+    _getErrorSpecialChar() {
+        return "Filename can not contain special characters : \ / : * ? \" < > |";
+    }
+
+    /**
      * _verifyExecuteArgs
      * Verifies commands options and parameters validity. Returns true if valid false otherwise.
      * @param {Array} options : command's option(s)

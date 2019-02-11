@@ -43,6 +43,7 @@ class Kernel {
         new Directory("tmp", this.root);
         new Directory("var", this.root);
         new Directory("root", this.root);
+        new Directory("mon test", this.root);
     }
 
     /**
@@ -81,7 +82,7 @@ class Kernel {
      */
     _processInput(userInput) {
         if (userInput.length > 0) {
-            let inputs = userInput.split(" ");
+            let inputs = this._splitArgs(userInput);
             let commandName = inputs.shift();
             let args = this._processArgs(inputs);
             this._addToHistory(userInput);
@@ -101,8 +102,42 @@ class Kernel {
 
     /**
      * _processArgs
+     * Returns raw command's options and parameters splitted by spaces and quotes.
+     * @param {Array} args : array of arguments to process
+     */
+    _splitArgs(args) {
+        let splittedArgs = args.split(" ");
+        let foundQuote = false;
+        let counterArgsSinceQuote = 0;
+        let preparedArgs = [];
+        for (let i=0; i<splittedArgs.length; i++) {
+            if (splittedArgs[i][0] == "\"" && splittedArgs[i][splittedArgs[i].length-1] == "\"" && !foundQuote)
+                preparedArgs.push(splittedArgs[i]);
+            else {
+                if (splittedArgs[i][0] == "\"")
+                    foundQuote = true;
+                if (splittedArgs[i][splittedArgs[i].length-1] == "\"" && foundQuote) {
+                    preparedArgs[preparedArgs.length-1] += " " + splittedArgs[i];
+                    for (let j=0; j<counterArgsSinceQuote-1; j++) {
+                        preparedArgs[preparedArgs.length-2] += " " + preparedArgs[preparedArgs.length-1];
+                        preparedArgs.pop();
+                    }
+                    
+                    foundQuote = false;
+                    counterArgsSinceQuote = 0;
+                } else {
+                    if (foundQuote)
+                        counterArgsSinceQuote++;
+                    preparedArgs.push(splittedArgs[i]);
+                }
+            }
+        }
+        return preparedArgs;
+    }
+
+    /**
+     * _processArgs
      * Returns command's options and parameters in a dictionnary.
-     * 
      * @param {Array} args : array of arguments to process
      */
     _processArgs(args) {
@@ -186,9 +221,10 @@ class Kernel {
      * displayBlock
      * Creates and displays a new block with the last command and its given value.
      * @param {String} value : last command's result
+     * @param {boolean} addBreakLine : true if a break line should be added after the given content false otherwise
      */
-    displayBlock(value) {
-        this.terminal.addBlock(this.getHeader(), this._getLastCommand(), value);
+    displayBlock(value, addBreakLine=true) {
+        this.terminal.addBlock(this.getHeader(), this._getLastCommand(), value, addBreakLine);
     }
 
     /**
@@ -275,6 +311,17 @@ class Kernel {
         }
 
         return directory;
+    }
+
+    /**
+     * removePossibleInputQuotes
+     * Removes possible quotes surrounding given input.
+     * @param {String} input : text possibly surrouded by quotes
+     */
+    removePossibleInputQuotes(input) {
+        return input.length > 2 && input[0] == "\"" && input[input.length-1] == "\"" ? 
+               (input.length == 3 ? input[1] : input.slice(1, input.length-1)) : 
+               input;
     }
 
     /**
