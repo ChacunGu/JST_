@@ -71,6 +71,7 @@ class Kernel {
         bin.addChild(new CommandEcho(this));
         bin.addChild(new CommandMan(this));
         bin.addChild(new CommandDate(this));
+        bin.addChild(new CommandTouch(this));
     }
 
     /**
@@ -88,10 +89,11 @@ class Kernel {
             try {
                 this.root.find("bin").find(commandName).execute(args.options, args.params);
             } catch (e) {
-                if (e instanceof TypeError)
+                if (e instanceof TypeError) {
                     this.displayBlock("Unknown command");
-                else
+                } else {
                     console.log(e);
+                }
             }
         } else
             this.terminal.addBlock(this.getHeader(), "", "");
@@ -243,6 +245,62 @@ class Kernel {
      */
     focusTerminalInput() {
         this.terminal.focusInput();
+    }
+
+    /**
+     * findDirectoryFromPath
+     * finds a directory if exist from a string Path
+     * if not returns null
+     * @param {String} path 
+     */
+    findDirectoryFromPath(path) {
+        // verify path existance
+        let listFilenames = path.split("/");
+        let startingDirectory = null;
+
+        if (path[0] == "/") { // absolute path
+            listFilenames.shift();
+            startingDirectory = this.getRootDirectory();                
+        } else if (path[0] == "~") { // home
+            listFilenames.shift();
+            startingDirectory = this.getHomeDirectory();
+        } else { // relative path
+            startingDirectory = this.getCurrentDirectory();
+        }
+
+        let directory = startingDirectory;
+        for (let i=0; i<listFilenames.length && (i==0 || directory!=null); i++) {
+            if (listFilenames[i].length > 0)
+                directory = directory.find(listFilenames[i])
+        }
+
+        return directory;
+    }
+
+    /**
+     * displayDate
+     * displays a date in format DD MMM YYYY HH:MM
+     * @param {Date} date 
+     */
+    static displayDate(date) {
+        let month=new Array();
+        month[0]="Jan";
+        month[1]="Feb";
+        month[2]="Mar";
+        month[3]="Apr";
+        month[4]="May";
+        month[5]="Jun";
+        month[6]="Jul";
+        month[7]="Aug";
+        month[8]="Sep";
+        month[9]="Oct";
+        month[10]="Nov";
+        month[11]="Dec";
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        var strTime = hours + ':' + minutes;
+        return date.getDate() + " " + month[date.getMonth()] + " " + date.getFullYear() + " " + strTime;
     }
 }
 

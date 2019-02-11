@@ -47,3 +47,12 @@ body {
     min-width: 18px;
     min-height: 18px;
 }
+
+td {
+    padding-right: 10px;
+    text-align: right;
+}
+
+td:last-of-type {
+    text-align: left;
+}

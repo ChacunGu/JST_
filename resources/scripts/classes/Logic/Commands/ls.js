@@ -24,7 +24,6 @@ class CommandLS extends AbstractCommand {
 
             let optVerbose = false;     // -l
             let optHiddenFiles = false; // -a
-            let paramDir = null;        // dir
 
             // handle options
             for (let i=0; i<options.length; i++) {
@@ -46,38 +45,83 @@ class CommandLS extends AbstractCommand {
 
             let path = this.kernel.getCurrentDirectory();
             // handle parameters
-            for (let i=0; i<params.length; i++) {
-                // TODO : verify parameter's validity (in this case if it is a valid directory file)
-                //this.path =     
-            }
+            if (params.length == 1) {
+                
+                let paramDir = params[0];
 
+                path = this.kernel.findDirectoryFromPath(paramDir);
+
+                if (path != null) {
+                    if (path instanceof Directory) {
+                        // good to go!
+                    } else {
+                        this.kernel.displayBlock(paramDir + ": Not a directory.");
+                        return;
+                    }
+                } else {
+                    this.kernel.displayBlock(paramDir + ": No such file or directory.");
+                    return;
+                }
+            }
+            
             let listContent = "";
                 
             if (path instanceof Directory) {
-                for (let i=0; i < path.children.length; i++) { 
+                listContent += "<table>";
+                for (let i=0; i < path.children.length; i++) {
+                    
                     if (optHiddenFiles) {
+                        listContent += "<tr>";
                         if (optVerbose) {
-                            //TODO : list all with file dates and access
+                            listContent += CommandLS.displayAll(path.children[i]);
                         } else {
-                            listContent += path.children[i].getName() + "<br/>";
+                            listContent += "<td>" + path.children[i].getName() + "</td>";
                         }
+                        listContent += "</tr>";
                     } else {
-                        if (optVerbose) {
-                            //TODO : list all with file dates and access
-                        } else {
-                            if (path.children[i].getName()[0] != ".") {
-                                listContent += path.children[i].getName() + "<br/>";
+                        if (path.children[i].getName()[0] != ".") {
+                            listContent += "<tr>";       
+                            if (optVerbose) {
+                                listContent += CommandLS.displayAll(path.children[i]);
+                            } else {
+                                listContent += "<td>" + path.children[i].getName() + "</td>";
                             }
+                            listContent += "</tr>";
                         }
                     }
-                }   
+                }
+                listContent += "</table>";
             } else {
                 this.kernel.displayBlock("Not a Directory");
                 return;
             }
 
-            this.kernel.displayBlock(listContent.slice(0, listContent.length-5));
+            this.kernel.displayBlock(listContent.slice(0, listContent.length));
         }
+    }
+
+    static displayAll(file) {
+        let fileType = "";
+        let numberOfFilesInside = 1;
+        if (file instanceof File) {
+            fileType = "-";
+        } else if (file instanceof Directory) {
+            fileType = "d";
+            numberOfFilesInside = file.children.length;
+        } else if (file instanceof SymbolicLink) {
+            fileType = "l";
+        }
+
+        return  "<td>" + fileType + "</td>" +                                   // file type (-, d, l)
+                "<td>" + "" + "</td>" +                                         // permissions of the owner
+                "<td>" + "" + "</td>" +                                         // permission of the group
+                "<td>" + "" + "</td>" +                                         // permission of everybody else
+                "<td>" + numberOfFilesInside + "</td>" +                        // number of files or links inside
+                "<td>" + "" + "</td>" +                                         // name of the owner
+                "<td>" + "" + "</td>" +                                         // name of the group
+                "<td>" + file.size + "</td>" +                                  // size in Byte
+                "<td>" + Kernel.displayDate(file.lastEditDate) + "</td>" +      // last edit date 
+                "<td>" + file.getName() + "</td>";   // name of file
     }
 
     /**

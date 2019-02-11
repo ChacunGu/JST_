@@ -1,17 +1,15 @@
 /**
- * Class CommandCD
- * Represents command cd. Changes current directory.
+ *  class CommandTouch
+ *  show the path of th current directory
  */
-class CommandCD extends AbstractCommand {
+class CommandTouch extends AbstractCommand {
     constructor(kernel) {
-        super(kernel, "cd");
+        super(kernel, "touch");
 
-        this.maxNumberOptions = 1; // at least 1 for '-?'
-        this.minNumberOptions = 0;
         this.maxNumberParams = 1;
         this.minNumberParams = 1;
     }
-
+    
     /**
      * execute
      * Executes the command with given options and parameters.
@@ -21,9 +19,7 @@ class CommandCD extends AbstractCommand {
     execute(options=[], params=[]) { 
         // handle invalid options / parameters
         if (this._verifyExecuteArgs(options, params)) {
-
-            let paramDir = null;        // dir
-
+            
             // handle options
             for (let i=0; i<options.length; i++) {
                 switch(options[i]) {
@@ -36,24 +32,18 @@ class CommandCD extends AbstractCommand {
                 }
             }
 
-            // handle parameters
-            for (let i=0; i<params.length; i++)
-                paramDir = params[i];
-
-            // execute command
-            let directory = this.kernel.findDirectoryFromPath(paramDir);
-
-            if (directory != null) {
-                if (directory instanceof Directory) {
-                    this.kernel.displayBlock("");
-                    this.kernel.setCurrentDirectory(directory);
+            // handle params
+            let fileName = params[0];
+            let file = this.kernel.getCurrentDirectory().find(fileName);
+            if(file != null) { // if the file already exists
+                if (file instanceof File) {
+                    file.update();
                 } else {
-                    this.kernel.displayBlock(paramDir + ": Not a directory.");
+                    this.kernel.displayBlock("Not a File");
                     return;
                 }
             } else {
-                this.kernel.displayBlock(paramDir + ": No such file or directory.");
-                return;
+                this.kernel.getCurrentDirectory().addChild(new File(fileName));
             }
         }
     }
@@ -63,6 +53,6 @@ class CommandCD extends AbstractCommand {
      * Returns the command's help.
      */
     help() {
-        return "Changes current directory.<br/>usage: cd [dir]";
+        return "Create a new file in the current repository or modify the modification date of an existing file<br/>usage: touch [fileName]";
     }
 }

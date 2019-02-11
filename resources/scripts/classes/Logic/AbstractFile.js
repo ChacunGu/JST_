@@ -5,8 +5,9 @@
 class AbstractFile {
     constructor(name) {
         this.name = name;
-        this.creationDate = Date();
-        this.lastEditDate = Date();
+        this.creationDate = new Date();
+        this.lastEditDate = new Date();
+        this.size = 0;
 
         this.parent = null;
 
@@ -29,6 +30,14 @@ class AbstractFile {
      */
     getFile() {
         return this;
+    }
+
+    /**
+     * update
+     * updates the last edit Date
+     */
+    update() {
+        this.lastEditDate = new Date();
     }
 
     /**

@@ -7,5 +7,7 @@ class File extends AbstractFile {
         super(name);
 
         this.content = "";
+
+        this.size = this.content.length;
       }
 }

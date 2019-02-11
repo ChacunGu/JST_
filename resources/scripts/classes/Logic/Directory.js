@@ -5,6 +5,8 @@
 class Directory extends AbstractFile {
     constructor(name, parent) {
         super(name);
+        
+        this.size = 4096;
 
         this.children = [];
         this.children.push(new SymbolicLink(".", this));

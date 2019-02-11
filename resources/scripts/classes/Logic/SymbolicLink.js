@@ -5,6 +5,9 @@
 class SymbolicLink extends AbstractFile {
     constructor(name, file) {
         super(name);
+
+        this.size = 7;
+
         if(file instanceof AbstractFile) {
             this.file = file;
         } else {
