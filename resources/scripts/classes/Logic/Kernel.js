@@ -27,6 +27,7 @@ class Kernel {
         window.addEventListener("submit", event => this._processInput(event.detail));
         window.addEventListener("historyup", event => this._browseHistory(true));
         window.addEventListener("historydown", event => this._browseHistory(false));
+        window.addEventListener("autocomplete", event => this._autocomplete());
     }
 
     /**
@@ -61,7 +62,7 @@ class Kernel {
     _initCommands() {
         this.commands = {};
 
-        // create binary files
+        // create binary files for commands
         let bin = this.root.find("bin");
         bin.addChild(new CommandClear(this));
         bin.addChild(new CommandHistory(this));
@@ -199,6 +200,14 @@ class Kernel {
                                           "");
             this.focusTerminalInput();
         }
+    }
+
+    /**
+     * _autocomplete
+     * complete the user's input if exists
+     */
+    _autocomplete() {
+        // TODO
     }
 
     /**

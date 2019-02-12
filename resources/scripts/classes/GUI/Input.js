@@ -62,6 +62,10 @@ class Input {
                 event.preventDefault();
                 this._clear();
                 return false;
+            } else if (event.keyCode === 9) { // TAB
+                event.preventDefault();
+                window.dispatchEvent(new Event("autocomplete"));
+                return false;
             }
         });
     }
