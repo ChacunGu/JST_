@@ -49,6 +49,10 @@ class CommandLS extends AbstractCommand {
                 
                 let paramDir = params[0];
 
+                // remove possible quote marks
+                paramDir = this.kernel.removePossibleInputQuotes(paramDir);
+                
+                // find directory
                 path = this.kernel.findDirectoryFromPath(paramDir);
 
                 if (path != null) {
@@ -96,7 +100,7 @@ class CommandLS extends AbstractCommand {
                 return;
             }
 
-            this.kernel.displayBlock(listContent.slice(0, listContent.length));
+            this.kernel.displayBlock(listContent.slice(0, listContent.length), false);
         }
     }
 
