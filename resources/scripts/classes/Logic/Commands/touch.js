@@ -1,6 +1,6 @@
 /**
  *  class CommandTouch
- *  show the path of th current directory
+ *  Create new file.
  */
 class CommandTouch extends AbstractCommand {
     constructor(kernel) {
@@ -39,14 +39,14 @@ class CommandTouch extends AbstractCommand {
             filename = this.kernel.removePossibleInputQuotes(filename);
             
             // get new file's parent directory
-            let directory = null;
+            let parentDirectory = null;
             if (filename.includes("/")) { // specified path 
                 let directoryPath = filename.slice(0, filename.lastIndexOf("/"));
-                directory = this.kernel.findDirectoryFromPath(directoryPath);
+                parentDirectory = this.kernel.findDirectoryFromPath(directoryPath.length > 0 ? directoryPath : "/");
                 filename = filename.slice(filename.lastIndexOf("/")+1, filename.length);
 
-                if (directory != null) {
-                    if (!directory instanceof Directory) {
+                if (parentDirectory != null) {
+                    if (!parentDirectory instanceof Directory) {
                         this.kernel.displayBlock(directoryPath + ": Not a directory.");
                         return;
                     }
@@ -55,7 +55,7 @@ class CommandTouch extends AbstractCommand {
                     return;
                 }
             } else // implicit path
-                directory = this.kernel.getCurrentDirectory();
+                parentDirectory = this.kernel.getCurrentDirectory();
             
             // handle invalid filename
             if (AbstractFile.containsSpecialCharacters(filename)) { // invalid special characters in filename
@@ -64,16 +64,16 @@ class CommandTouch extends AbstractCommand {
             }
 
             // file creation / update
-            let file = directory.find(filename);
+            let file = parentDirectory.find(filename);
             if(file != null) { // if the file already exists
-                if (file instanceof File)
+                if (file instanceof File) // update existing file
                     file.update();
                 else {
-                    this.kernel.displayBlock(paramDir + ": Not a File");
+                    this.kernel.displayBlock(filename + ": Not a file");
                     return;
                 }
             } else
-                directory.addChild(new File(filename));
+                parentDirectory.addChild(new File(filename)); // create new file
             this.kernel.displayBlock("");
         }
     }
@@ -83,6 +83,6 @@ class CommandTouch extends AbstractCommand {
      * Returns the command's help.
      */
     help() {
-        return "Create a new file in the current repository or modify the modification date of an existing file<br/>usage: touch [fileName]";
+        return "Create a new file or modify the modification date of an existing file<br/>usage: touch [fileName]";
     }
 }
