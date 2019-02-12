@@ -33,6 +33,14 @@ class AbstractFile {
     }
 
     /**
+     * getSize
+     * returns the size of the file
+     */
+    getSize() {
+        return this.size;
+    }
+
+    /**
      * update
      * updates the last edit Date
      */

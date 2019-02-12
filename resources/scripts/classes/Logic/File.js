@@ -9,5 +9,14 @@ class File extends AbstractFile {
         this.content = "";
 
         this.size = this.content.length;
-      }
+    }
+
+    /**
+     * getSize
+     * returns the size of the file
+     */
+    getSize() {
+        return this.content.length;
+    }
+
 }

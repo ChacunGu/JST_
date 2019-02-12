@@ -123,7 +123,7 @@ class CommandLS extends AbstractCommand {
                 "<td>" + numberOfFilesInside + "</td>" +                        // number of files or links inside
                 "<td>" + "" + "</td>" +                                         // name of the owner
                 "<td>" + "" + "</td>" +                                         // name of the group
-                "<td>" + file.size + "</td>" +                                  // size in Byte
+                "<td>" + file.getSize() + "</td>" +                             // size in Byte
                 "<td>" + Kernel.displayDate(file.lastEditDate) + "</td>" +      // last edit date 
                 "<td>" + file.getName() + "</td>";   // name of file
     }
