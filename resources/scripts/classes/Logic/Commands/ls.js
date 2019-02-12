@@ -32,11 +32,11 @@ class CommandLS extends AbstractCommand {
                         optVerbose = true;
                         break;
                     case "a":
-                    optHiddenFiles = true;
+                        optHiddenFiles = true;
                         break;
                     case "?":
                         this.kernel.displayBlock(this.help());
-                        return
+                        return;
                     default: // invalid option
                         this.kernel.displayBlock(this._getErrorOptions(options[i]));
                         return;

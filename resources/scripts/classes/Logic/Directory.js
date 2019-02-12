@@ -32,6 +32,15 @@ class Directory extends AbstractFile {
         return null;
     }
 
+    remove(filename) {
+        for (let i=0; i<this.children.length; i++) { 
+            if(this.children[i].name == filename) {
+                this.children.splice(i,1);
+                return;
+            }
+        }
+    }
+
     /**
      * addChild
      * adds a File or Directory to the children of this Directory.

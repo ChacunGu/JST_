@@ -22,7 +22,7 @@ class CommandPWD extends AbstractCommand {
                 switch(options[i]) {
                     case "?":
                         this.kernel.displayBlock(this.help());
-                        return
+                        return;
                     default: // invalid option
                         this.kernel.displayBlock(this._getErrorOptions(options[i]));
                         return;
