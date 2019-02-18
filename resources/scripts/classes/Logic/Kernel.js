@@ -92,6 +92,7 @@ class Kernel {
         bin.addChild(new CommandDate(this));
         bin.addChild(new CommandTouch(this));
         bin.addChild(new CommandRM(this));
+        bin.addChild(new CommandMKDIR(this));
     }
 
     /**
