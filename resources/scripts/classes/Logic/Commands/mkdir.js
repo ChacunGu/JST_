@@ -124,6 +124,6 @@ class CommandMKDIR extends AbstractCommand {
      * Returns the command's help.
      */
     help() {
-        return "Create a new repository or modify the modification date of an existing directory<br/>usage: mkdir [fileName]";
+        return "Create a new repository or modify the modification date of an existing directory<br/>usage: mkdir directory";
     }
 }

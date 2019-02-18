@@ -5,11 +5,6 @@
 class CommandHistory extends AbstractCommand {
     constructor(kernel) {
         super(kernel, "history");
-
-        this.maxNumberOptions = 1; // at least 1 for '-?'
-        this.minNumberOptions = 0; 
-        this.maxNumberParams = 0;
-        this.minNumberParams = 0;
     }
 
     /**

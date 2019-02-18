@@ -70,6 +70,6 @@ class CommandTouch extends AbstractCommand {
      * Returns the command's help.
      */
     help() {
-        return "Create a new file or modify the modification date of an existing file<br/>usage: touch [fileName]";
+        return "Create a new file or modify the modification date of an existing file<br/>usage: touch file";
     }
 }

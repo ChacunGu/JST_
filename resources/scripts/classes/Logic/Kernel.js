@@ -52,6 +52,11 @@ class Kernel {
     _initHome() {
         this.homeDirectory = this.root.find("home");
         new Directory(Kernel.DEFAULT_USER, this.homeDirectory);
+        
+        let tmp_test_file = new File("tmp_test_file", "super contenu");
+        let tmp_test_symboliclink = new SymbolicLink("tmp_test_symboliclink", tmp_test_file);
+        this.homeDirectory.addChild(tmp_test_file);
+        this.homeDirectory.addChild(tmp_test_symboliclink);
     }
 
     /**
@@ -73,6 +78,7 @@ class Kernel {
         bin.addChild(new CommandDate(this));
         bin.addChild(new CommandTouch(this));
         bin.addChild(new CommandMKDIR(this));
+        bin.addChild(new CommandCP(this));
     }
 
     /**
@@ -90,7 +96,6 @@ class Kernel {
             try {
                 this.root.find("bin").find(commandName).execute(args.options, args.params);
             } catch (e) {
-                console.log(e);
                 if (e instanceof TypeError) {
                     this.displayBlock("Unknown command");
                 } else {
@@ -289,8 +294,9 @@ class Kernel {
      * finds a directory if exist from a string Path
      * if not returns null
      * @param {String} path 
+     * @param {bool} followingSymbolicLink : true if we follow the symbolic files pointer false if we return them
      */
-    findElementFromPath(path) {
+    findElementFromPath(path, followingSymbolicLink=true) {
         // verify path existance
         let listFilenames = path.split("/");
         let startingDirectory = null;
@@ -305,13 +311,13 @@ class Kernel {
             startingDirectory = this.getCurrentDirectory();
         }
 
-        let directory = startingDirectory;
-        for (let i=0; i<listFilenames.length && (i==0 || directory!=null); i++) {
+        let element = startingDirectory;
+        for (let i=0; i<listFilenames.length && (i==0 || element!=null); i++) {
             if (listFilenames[i].length > 0)
-                directory = directory.find(listFilenames[i])
+                element = element.find(listFilenames[i], followingSymbolicLink);
         }
 
-        return directory;
+        return element;
     }
 
     /**

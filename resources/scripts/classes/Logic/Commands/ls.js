@@ -7,9 +7,7 @@ class CommandLS extends AbstractCommand {
         super(kernel, "ls");
 
         this.maxNumberOptions = 2; // at least 1 for '-?'
-        this.minNumberOptions = 0;
         this.maxNumberParams = 1;
-        this.minNumberParams = 0;
     }
 
     /**
@@ -131,6 +129,6 @@ class CommandLS extends AbstractCommand {
      * Returns the command's help.
      */
     help() {
-        return "Lists files, directories and more informations if specified in options.<br/>usage: ls [-l][-a][dir]";
+        return "Lists files, directories and more informations if specified in options.<br/>usage: ls [-l][-a] [dir]";
     }
 }

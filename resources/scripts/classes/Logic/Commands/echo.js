@@ -6,10 +6,7 @@ class CommandEcho extends AbstractCommand {
     constructor(kernel) {
         super(kernel, "echo");
 
-        this.maxNumberOptions = 1; // at least 1 for '-?'
-        this.minNumberOptions = 0;
         this.maxNumberParams = -1; // undefined maximum
-        this.minNumberParams = 0;
     }
 
     /**
@@ -53,6 +50,6 @@ class CommandEcho extends AbstractCommand {
      * Returns the command's help.
      */
     help() {
-        return "Displays given line of text.<br/>usage: echo [string(s)]";
+        return "Displays given line of text.<br/>usage: echo string(s)";
     }
 }
