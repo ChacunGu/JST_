@@ -1,11 +1,12 @@
 /**
- *  class CommandCP
- *  Copies files and directories.
+ *  class CommandLN
+ *  Create a new symbolic file.
  */
-class CommandCP extends AbstractCommand {
+class CommandLN extends AbstractCommand {
     constructor(kernel) {
-        super(kernel, "cp");
+        super(kernel, "ln");
 
+        this.maxNumberOptions = 0;
         this.maxNumberParams = 2;
         this.minNumberParams = 2;
     }
@@ -20,18 +21,9 @@ class CommandCP extends AbstractCommand {
         // handle invalid options / parameters
         if (this._verifyExecuteArgs(options, params)) {
             
-            let optLinkFiles = false;   // -l
-            let optRecursive = false;   // -R
-
             // handle options
             for (let i=0; i<options.length; i++) {
                 switch(options[i]) {
-                    case "l":
-                        optLinkFiles = true;
-                        break;
-                    case "R":
-                        optRecursive = true;
-                        break;
                     case "?":
                         this.kernel.displayBlock(this.help());
                         return
@@ -64,20 +56,10 @@ class CommandCP extends AbstractCommand {
                 return;
             }
 
-            // element's copy
-            if (elementSrc instanceof Directory && !optRecursive && !optLinkFiles) { // can't copy directories without recursive option
-                this.kernel.displayBlock(filenameSrc + ": Omitting directory");
-                return;
-            }
-
+            // create link
             if (elementSrc != null) { // if source element has been found
                 if (parentDirectoryDst != null) { // if destination directory has been found
-                    if (parentDirectoryDst instanceof Directory)
-                        elementSrc.copy(filenameDst, parentDirectoryDst, optLinkFiles);
-                    else {
-                        this.kernel.displayBlock(parentDirectoryPathDst + ": Not a directory");
-                        return;
-                    }
+                    parentDirectoryDst.addChild(new SymbolicLink(filenameDst, elementSrc));
                 } else {
                     this.kernel.displayBlock(parentDirectoryPathDst + ": No such file or directory.");
                     return;
@@ -95,6 +77,6 @@ class CommandCP extends AbstractCommand {
      * Returns the command's help.
      */
     help() {
-        return "Copies files and directories<br/>usage: cp [-l][-R] source destination";
+        return "Create a new symbolic file<br/>usage: ln source name";
     }
 }

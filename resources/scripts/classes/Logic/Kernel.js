@@ -74,6 +74,7 @@ class Kernel {
         bin.addChild(new CommandTouch(this));
         bin.addChild(new CommandMKDIR(this));
         bin.addChild(new CommandCP(this));
+        bin.addChild(new CommandLN(this));
     }
 
     /**
