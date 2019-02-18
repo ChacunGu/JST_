@@ -52,11 +52,6 @@ class Kernel {
     _initHome() {
         this.homeDirectory = this.root.find("home");
         new Directory(Kernel.DEFAULT_USER, this.homeDirectory);
-        
-        let tmp_test_file = new File("tmp_test_file", "super contenu");
-        let tmp_test_symboliclink = new SymbolicLink("tmp_test_symboliclink", tmp_test_file);
-        this.homeDirectory.addChild(tmp_test_file);
-        this.homeDirectory.addChild(tmp_test_symboliclink);
     }
 
     /**
