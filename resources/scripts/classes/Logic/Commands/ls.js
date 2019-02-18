@@ -7,9 +7,7 @@ class CommandLS extends AbstractCommand {
         super(kernel, "ls");
 
         this.maxNumberOptions = 2; // at least 1 for '-?'
-        this.minNumberOptions = 0;
         this.maxNumberParams = 1;
-        this.minNumberParams = 0;
     }
 
     /**
@@ -53,12 +51,10 @@ class CommandLS extends AbstractCommand {
                 paramDir = this.kernel.removePossibleInputQuotes(paramDir);
                 
                 // find directory
-                path = this.kernel.findDirectoryFromPath(paramDir);
+                path = this.kernel.findElementFromPath(paramDir);
 
                 if (path != null) {
-                    if (path instanceof Directory) {
-                        // good to go!
-                    } else {
+                    if (!path instanceof Directory) {
                         this.kernel.displayBlock(paramDir + ": Not a directory.");
                         return;
                     }
@@ -133,6 +129,6 @@ class CommandLS extends AbstractCommand {
      * Returns the command's help.
      */
     help() {
-        return "Lists files, directories and more informations if specified in options.<br/>usage: ls [-l][-a][dir]";
+        return "Lists files, directories and more informations if specified in options.<br/>usage: ls [-l][-a] [dir]";
     }
 }

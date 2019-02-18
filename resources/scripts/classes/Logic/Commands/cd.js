@@ -5,9 +5,7 @@
 class CommandCD extends AbstractCommand {
     constructor(kernel) {
         super(kernel, "cd");
-
-        this.maxNumberOptions = 1; // at least 1 for '-?'
-        this.minNumberOptions = 0;
+        
         this.maxNumberParams = 1;
         this.minNumberParams = 1;
     }
@@ -43,7 +41,7 @@ class CommandCD extends AbstractCommand {
             paramDir = this.kernel.removePossibleInputQuotes(paramDir);
 
             // execute command
-            let directory = this.kernel.findDirectoryFromPath(paramDir);
+            let directory = this.kernel.findElementFromPath(paramDir);
 
             if (directory != null) {
                 if (directory instanceof Directory) {
@@ -65,6 +63,6 @@ class CommandCD extends AbstractCommand {
      * Returns the command's help.
      */
     help() {
-        return "Changes current directory.<br/>usage: cd [dir]";
+        return "Changes current directory.<br/>usage: cd dir";
     }
 }

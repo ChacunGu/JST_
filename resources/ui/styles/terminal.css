@@ -1,17 +1,9 @@
-
-/* Font by HKGrotesk by Alfredo Marco Pradil (hello@hanken.co) */
-@font-face {
-    font-family: "HKGrotesk";
-    src: url("../fonts/HKGrotesk-LightLegacy.eot");                                    /* IE9 Compat Modes */
-    src: url("../fonts/HKGrotesk-LightLegacy.eot?#iefix") format("embedded-opentype"), /* IE6-IE8 */
-         url("../fonts/HKGrotesk-LightLegacy.woff") format("woff"),                    /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
-         url("../fonts/HKGrotesk-LightLegacy.ttf") format("truetype");                 /* Chrome 4+, Firefox 3.5, Opera 10+, Safari 3—5 */
-}
-
 body {
     overflow-x: hidden;
     background-color: black;
-    font: 16px "HKGrotesk";
+    font-family: "Courier New", monospace;
+    font-size: 16px;
+    font-weight: lighter;
     color: white;
     text-decoration: none;
 }

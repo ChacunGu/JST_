@@ -17,7 +17,7 @@ class CommandMKDIR extends AbstractCommand {
      */
     _createPathDirectories(directoryName) {
         let directoryPath = directoryName.slice(0, directoryName.lastIndexOf("/"));
-        let parentDirectory = this.kernel.findDirectoryFromPath(directoryPath.length > 0 ? directoryPath : "/");
+        let parentDirectory = this.kernel.findElementFromPath(directoryPath.length > 0 ? directoryPath : "/");
 
         if (parentDirectory != null) {
             if (!parentDirectory instanceof Directory) {
@@ -31,24 +31,17 @@ class CommandMKDIR extends AbstractCommand {
             let wipDirectoryPath = allDirectoryFromPath[directoryPathIndex] + "/";
             let buildDirectoryPath = "";
             do {
-                if (this.kernel.findDirectoryFromPath(wipDirectoryPath) == null) {
+                if (this.kernel.findElementFromPath(wipDirectoryPath) == null) {
                     if (directoryPathIndex > 0) {
                         // handle invalid directory name
                         if (AbstractFile.containsSpecialCharacters(allDirectoryFromPath[directoryPathIndex])) { // invalid special characters in directory name
                             this.kernel.displayBlock(this._getErrorSpecialChar());
                             return null;
-                        } else // create repository specified in given path
+                        } else // create new repository specified in given path
                             new Directory(allDirectoryFromPath[directoryPathIndex], 
-                                            this.kernel.findDirectoryFromPath(buildDirectoryPath));
-                    } else {
-                        let startingDirectory = null;
-                        // default repo detection according to first character in path (/, ~, other)
-                        if (directoryName[0] == "/") // absolute path
-                            startingDirectory = this.kernel.getRootDirectory();                
-                        else if (directoryName[0] == "~") // home
-                            startingDirectory = this.kernel.getHomeDirectory();
-                        else // relative path
-                            startingDirectory = this.kernel.getCurrentDirectory();
+                                            this.kernel.findElementFromPath(buildDirectoryPath));
+                    } else { // find first directory specified in path
+                        let startingDirectory = this.kernel.findElementFromPath(directoryName[0]);
 
                         // handle invalid directory name
                         if (AbstractFile.containsSpecialCharacters(allDirectoryFromPath[directoryPathIndex])) { // invalid special characters in directory name
@@ -62,8 +55,8 @@ class CommandMKDIR extends AbstractCommand {
 
                 buildDirectoryPath = wipDirectoryPath;
                 wipDirectoryPath += allDirectoryFromPath[++directoryPathIndex] + "/";
-            } while (this.kernel.findDirectoryFromPath(directoryPath) == null);            
-            return this.kernel.findDirectoryFromPath(directoryPath);
+            } while (this.kernel.findElementFromPath(directoryPath) == null);            
+            return this.kernel.findElementFromPath(directoryPath);
         }
     }
     
@@ -131,6 +124,6 @@ class CommandMKDIR extends AbstractCommand {
      * Returns the command's help.
      */
     help() {
-        return "Create a new repository or modify the modification date of an existing directory<br/>usage: mkdir [fileName]";
+        return "Create a new repository or modify the modification date of an existing directory<br/>usage: mkdir directory";
     }
 }

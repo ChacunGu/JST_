@@ -43,7 +43,8 @@ class CommandRM extends AbstractCommand {
             }
 
             let paramDir = params[0];
-            let path = this.kernel.findDirectoryFromPath(paramDir);
+            paramDir = this.kernel.removePossibleInputQuotes(paramDir);
+            let path = this.kernel.findElementFromPath(paramDir);
 
             if (path instanceof Directory) {
                 if (path.children.length == 0 && force) {
@@ -71,6 +72,6 @@ class CommandRM extends AbstractCommand {
      * Returns the command's help.
      */
     help() {
-        return "Remove the given file<br/>usage: rm [filename]";
+        return "Remove the given file<br/>usage: rm filename";
     }
 }

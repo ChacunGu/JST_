@@ -93,6 +93,8 @@ class Kernel {
         bin.addChild(new CommandTouch(this));
         bin.addChild(new CommandRM(this));
         bin.addChild(new CommandMKDIR(this));
+        bin.addChild(new CommandCP(this));
+        bin.addChild(new CommandLN(this));
     }
 
     /**
@@ -312,12 +314,13 @@ class Kernel {
     }
 
     /**
-     * findDirectoryFromPath
+     * findElementFromPath
      * finds a directory if exist from a string Path
      * if not returns null
      * @param {String} path 
+     * @param {bool} followingSymbolicLink : true if we follow the symbolic files pointer false if we return them
      */
-    findDirectoryFromPath(path) {
+    findElementFromPath(path, followingSymbolicLink=true) {
         // verify path existance
         let listFilenames = path.split("/");
         let startingDirectory = null;
@@ -332,13 +335,13 @@ class Kernel {
             startingDirectory = this.getCurrentDirectory();
         }
 
-        let directory = startingDirectory;
-        for (let i=0; i<listFilenames.length && (i==0 || directory!=null); i++) {
+        let element = startingDirectory;
+        for (let i=0; i<listFilenames.length && (i==0 || element!=null); i++) {
             if (listFilenames[i].length > 0)
-                directory = directory.find(listFilenames[i])
+                element = element.find(listFilenames[i], followingSymbolicLink);
         }
 
-        return directory;
+        return element;
     }
 
     /**

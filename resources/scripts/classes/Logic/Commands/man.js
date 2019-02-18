@@ -5,9 +5,7 @@
 class CommandMan extends AbstractCommand {
     constructor(kernel) {
         super(kernel, "man");
-
-        this.maxNumberOptions = 1; // at least 1 for '-?'
-        this.minNumberOptions = 0;
+        
         this.maxNumberParams = 1;
         this.minNumberParams = 1;
     }
@@ -56,6 +54,6 @@ class CommandMan extends AbstractCommand {
      * Returns the command's help.
      */
     help() {
-        return "Displays given command help.<br/>usage: man [command name]";
+        return "Displays given command help.<br/>usage: man command";
     }
 }
