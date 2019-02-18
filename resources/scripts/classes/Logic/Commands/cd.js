@@ -43,7 +43,7 @@ class CommandCD extends AbstractCommand {
             paramDir = this.kernel.removePossibleInputQuotes(paramDir);
 
             // execute command
-            let directory = this.kernel.findDirectoryFromPath(paramDir);
+            let directory = this.kernel.findElementFromPath(paramDir);
 
             if (directory != null) {
                 if (directory instanceof Directory) {

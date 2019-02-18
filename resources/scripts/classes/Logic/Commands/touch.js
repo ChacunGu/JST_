@@ -36,27 +36,14 @@ class CommandTouch extends AbstractCommand {
             let filename = params[0];
             
             // remove possible quote marks
-            filename = this.kernel.removePossibleInputQuotes(filename);
-            
-            // get new file's parent directory
-            let parentDirectory = null;
-            if (filename.includes("/")) { // specified path 
-                let directoryPath = filename.slice(0, filename.lastIndexOf("/"));
-                parentDirectory = this.kernel.findDirectoryFromPath(directoryPath.length > 0 ? directoryPath : "/");
-                filename = filename.slice(filename.lastIndexOf("/")+1, filename.length);
+            filename = this.kernel.removePossibleInputQuotes(filename);            
 
-                if (parentDirectory != null) {
-                    if (!parentDirectory instanceof Directory) {
-                        this.kernel.displayBlock(directoryPath + ": Not a directory.");
-                        return;
-                    }
-                } else {
-                    this.kernel.displayBlock(directoryPath + ": No such file or directory.");
-                    return;
-                }
-            } else // implicit path
-                parentDirectory = this.kernel.getCurrentDirectory();
-            
+            // separate filename from its path
+            let lastSlashIndex = filename.lastIndexOf("/");
+            let parentDirectoryPath = filename.slice(0, lastSlashIndex >= 0 ? lastSlashIndex : 0);
+            let parentDirectory = this.kernel.findElementFromPath(parentDirectoryPath);
+            filename = filename.slice(filename.lastIndexOf("/")+1, filename.length);
+
             // handle invalid filename
             if (AbstractFile.containsSpecialCharacters(filename)) { // invalid special characters in filename
                 this.kernel.displayBlock(this._getErrorSpecialChar());
@@ -64,7 +51,7 @@ class CommandTouch extends AbstractCommand {
             }
 
             // file creation / update
-            let file = parentDirectory.find(filename);
+            let file = parentDirectory.find(filename);            
             if(file != null) { // if the file already exists
                 if (file instanceof File) // update existing file
                     file.update();

@@ -90,6 +90,7 @@ class Kernel {
             try {
                 this.root.find("bin").find(commandName).execute(args.options, args.params);
             } catch (e) {
+                console.log(e);
                 if (e instanceof TypeError) {
                     this.displayBlock("Unknown command");
                 } else {
@@ -284,12 +285,12 @@ class Kernel {
     }
 
     /**
-     * findDirectoryFromPath
+     * findElementFromPath
      * finds a directory if exist from a string Path
      * if not returns null
      * @param {String} path 
      */
-    findDirectoryFromPath(path) {
+    findElementFromPath(path) {
         // verify path existance
         let listFilenames = path.split("/");
         let startingDirectory = null;

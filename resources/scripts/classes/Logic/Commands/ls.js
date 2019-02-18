@@ -53,12 +53,10 @@ class CommandLS extends AbstractCommand {
                 paramDir = this.kernel.removePossibleInputQuotes(paramDir);
                 
                 // find directory
-                path = this.kernel.findDirectoryFromPath(paramDir);
+                path = this.kernel.findElementFromPath(paramDir);
 
                 if (path != null) {
-                    if (path instanceof Directory) {
-                        // good to go!
-                    } else {
+                    if (!path instanceof Directory) {
                         this.kernel.displayBlock(paramDir + ": Not a directory.");
                         return;
                     }
