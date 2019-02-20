@@ -25,6 +25,15 @@ class AbstractFile {
     }
 
     /**
+     * rename
+     * gives a new name to the file
+     * @param {String} name 
+     */
+    rename(name) {
+        this.name = name;
+    }
+
+    /**
      * getFile
      * returns the reference to the file
      */

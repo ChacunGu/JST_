@@ -46,7 +46,7 @@ class CommandRM extends AbstractCommand {
             let path = this.kernel.findElementFromPath(paramDir);
 
             if (path instanceof Directory) {
-                if (path.children.length == 0 && force) {
+                if (path.isEmpty() && force) {
                     // can remove empty directory
                     path.parent.remove(path.getName());
                 } else {

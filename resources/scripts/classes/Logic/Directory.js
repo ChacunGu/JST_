@@ -36,6 +36,11 @@ class Directory extends AbstractFile {
         return null;
     }
 
+    /**
+     * remove
+     * removes the file with the given name in the directory
+     * @param {String} filename 
+     */
     remove(filename) {
         for (let i=0; i<this.children.length; i++) { 
             if(this.children[i].name == filename) {
@@ -43,6 +48,14 @@ class Directory extends AbstractFile {
                 return;
             }
         }
+    }
+
+    /**
+     * isEmpty
+     * tests if the Directory is empty
+     */
+    isEmpty() {
+        return this.children.length == 0;
     }
 
     /**
