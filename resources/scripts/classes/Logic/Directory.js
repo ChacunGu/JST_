@@ -43,7 +43,7 @@ class Directory extends AbstractFile {
      */
     remove(filename) {
         for (let i=0; i<this.children.length; i++) { 
-            if(this.children[i].name == filename) {
+            if(this.children[i].getName() == filename) {
                 this.children.splice(i,1);
                 return;
             }
