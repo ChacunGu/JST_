@@ -356,6 +356,18 @@ class Kernel {
     }
 
     /**
+     * preparePath
+     * Prepares and returns given path.
+     * @param {String} path : prepared path
+     */
+    preparePath(path) {
+        // remove possible quote marks
+        let preparedPath = this.removePossibleInputQuotes(path);
+
+        return preparedPath;
+    }
+
+    /**
      * displayDate
      * displays a date in format DD MMM YYYY HH:MM
      * @param {Date} date 

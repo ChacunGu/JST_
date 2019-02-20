@@ -34,12 +34,8 @@ class CommandLN extends AbstractCommand {
             }
 
             // handle parameters
-            let filenameSrc = params[0];
-            let filenameDst = params[1];
-            
-            // remove possible quote marks
-            filenameSrc = this.kernel.removePossibleInputQuotes(filenameSrc);
-            filenameDst = this.kernel.removePossibleInputQuotes(filenameDst);
+            let filenameSrc = this.kernel.preparePath(params[0]);
+            let filenameDst = this.kernel.preparePath(params[1]);
 
             // find source element
             let elementSrc = this.kernel.findElementFromPath(filenameSrc, false);
@@ -77,6 +73,6 @@ class CommandLN extends AbstractCommand {
      * Returns the command's help.
      */
     help() {
-        return "Create a new symbolic file<br/>usage: ln source name";
+        return "Create a new symbolic file<br/>usage: ln target link_name";
     }
 }

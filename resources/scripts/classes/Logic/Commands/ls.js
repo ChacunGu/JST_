@@ -44,11 +44,7 @@ class CommandLS extends AbstractCommand {
             let path = this.kernel.getCurrentDirectory();
             // handle parameters
             if (params.length == 1) {
-                
-                let paramDir = params[0];
-
-                // remove possible quote marks
-                paramDir = this.kernel.removePossibleInputQuotes(paramDir);
+                let paramDir = this.kernel.preparePath(params[0]);
                 
                 // find directory
                 path = this.kernel.findElementFromPath(paramDir);

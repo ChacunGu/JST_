@@ -83,10 +83,7 @@ class CommandMKDIR extends AbstractCommand {
             }
 
             // handle parameters
-            let directoryName = params[0];
-            
-            // remove possible quote marks
-            directoryName = this.kernel.removePossibleInputQuotes(directoryName);
+            let directoryName = this.kernel.preparePath(params[0]);
             
             // get new directory's parent directory
             let parentDirectory = null;

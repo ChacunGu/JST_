@@ -33,10 +33,7 @@ class CommandTouch extends AbstractCommand {
             }
 
             // handle parameters
-            let filename = params[0];
-            
-            // remove possible quote marks
-            filename = this.kernel.removePossibleInputQuotes(filename);            
+            let filename = this.kernel.preparePath(params[0]);            
 
             // separate filename from its path
             let lastSlashIndex = filename.lastIndexOf("/");

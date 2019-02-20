@@ -42,8 +42,7 @@ class CommandRM extends AbstractCommand {
                 }
             }
 
-            let paramDir = params[0];
-            paramDir = this.kernel.removePossibleInputQuotes(paramDir);
+            let paramDir = this.kernel.preparePath(params[0]);
             let path = this.kernel.findElementFromPath(paramDir);
 
             if (path instanceof Directory) {
