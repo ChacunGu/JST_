@@ -94,6 +94,7 @@ class Kernel {
         bin.addChild(new CommandRM(this));
         bin.addChild(new CommandMKDIR(this));
         bin.addChild(new CommandCP(this));
+        bin.addChild(new CommandMV(this));
         bin.addChild(new CommandLN(this));
         bin.addChild(new CommandRMDIR(this));
     }
@@ -351,7 +352,7 @@ class Kernel {
      * Removes possible quotes surrounding given input.
      * @param {String} input : text possibly surrouded by quotes
      */
-    removePossibleInputQuotes(input) {
+    static removePossibleInputQuotes(input) {
         return input.length > 2 && input[0] == "\"" && input[input.length-1] == "\"" ? 
                (input.length == 3 ? input[1] : input.slice(1, input.length-1)) : 
                input;
@@ -364,7 +365,7 @@ class Kernel {
      */
     preparePath(path) {
         // remove possible quote marks
-        let preparedPath = this.removePossibleInputQuotes(path);
+        let preparedPath = Kernel.removePossibleInputQuotes(path);
 
         return preparedPath;
     }

@@ -42,6 +42,14 @@ class AbstractFile {
     }
 
     /**
+     * getParent
+     * returns the parent Directory to this file
+     */
+    getParent() {
+        return this.parent;
+    }
+
+    /**
      * getSize
      * returns the size of the file
      */

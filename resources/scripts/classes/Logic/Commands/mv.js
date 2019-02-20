@@ -29,8 +29,34 @@ class CommandMV extends AbstractCommand {
                         return new CommandResult(false, this._getErrorOptions(options[i]));
                 }
             }
+            
+            let source = params[0];
+            source = this.kernel.preparePath(source);
+            let sourceList = source.split("/");
+            let sourceName = sourceList[sourceList.length-1];
+            
+            let destination = params[1];
+            destination = this.kernel.preparePath(destination);
+            let destinationList = destination.split("/");
+            let destinationName = destinationList[destinationList.length-1];
+            destinationList.pop();
+            destination = destinationList.join("/");
 
-            // TODO implement move
+            source = this.kernel.findElementFromPath(source);
+            if (source == null)
+                return new CommandResult(false, "mv: can't move '" + sourceName + "': No such file or directory");
+            
+            destination = this.kernel.findElementFromPath(destination);
+            if (destination == null)
+                return new CommandResult(false, "mv: can't move '" + sourceName + "' to '" + destination + "': No such file or directory");
+            
+            if (destination instanceof Directory) {
+                source.parent.remove(source.getName());
+                destination.addChild(source);
+                source.rename(destinationName);
+            }
+
+            return new CommandResult();
         }
     }
 
