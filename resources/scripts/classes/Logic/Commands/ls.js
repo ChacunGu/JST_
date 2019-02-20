@@ -71,7 +71,10 @@ class CommandLS extends AbstractCommand {
                         if (optVerbose) {
                             listContent += CommandLS.displayAll(path.children[i]);
                         } else {
-                            listContent += "<td>" + path.children[i].getName() + "</td>";
+                            let elementColor = path.children[i] instanceof Directory ?    CommandLS.directoryColor :
+                                               path.children[i] instanceof SymbolicLink ? CommandLS.symbolicLinkColor : 
+                                                                              CommandLS.fileColor;
+                            listContent += "<td style='color: " + elementColor + ";'>" + path.children[i].getName() + "</td>";
                         }
                         listContent += "</tr>";
                     } else {
@@ -80,7 +83,10 @@ class CommandLS extends AbstractCommand {
                             if (optVerbose) {
                                 listContent += CommandLS.displayAll(path.children[i]);
                             } else {
-                                listContent += "<td>" + path.children[i].getName() + "</td>";
+                                let elementColor = path.children[i] instanceof Directory ?    CommandLS.directoryColor :
+                                                   path.children[i] instanceof SymbolicLink ? CommandLS.symbolicLinkColor : 
+                                                                                  CommandLS.fileColor;
+                                listContent += "<td style='color: " + elementColor + ";'>" + path.children[i].getName() + "</td>";
                             }
                             listContent += "</tr>";
                         }
@@ -98,15 +104,20 @@ class CommandLS extends AbstractCommand {
 
     static displayAll(file) {
         let fileType = "";
+        let elementColor = "white";
         let numberOfFilesInside = 1;
         if (file instanceof File) {
             fileType = "-";
+            elementColor = CommandLS.fileColor;
         } else if (file instanceof Directory) {
             fileType = "d";
             numberOfFilesInside = file.children.length;
+            elementColor = CommandLS.directoryColor;
         } else if (file instanceof SymbolicLink) {
             fileType = "l";
+            elementColor = CommandLS.symbolicLinkColor;
         }
+
 
         return  "<td>" + fileType + "</td>" +                                   // file type (-, d, l)
                 "<td>" + "" + "</td>" +                                         // permissions of the owner
@@ -117,7 +128,7 @@ class CommandLS extends AbstractCommand {
                 "<td>" + "" + "</td>" +                                         // name of the group
                 "<td>" + file.getSize() + "</td>" +                             // size in Byte
                 "<td>" + Kernel.displayDate(file.lastEditDate) + "</td>" +      // last edit date 
-                "<td>" + file.getName() + "</td>";   // name of file
+                "<td style='color: " + elementColor + ";'>" + file.getName() + "</td>";   // name of file
     }
 
     /**
@@ -128,3 +139,7 @@ class CommandLS extends AbstractCommand {
         return "Lists files, directories and more informations if specified in options.<br/>usage: ls [-l][-a] [dir]";
     }
 }
+
+CommandLS.directoryColor = "#6a9ae8";
+CommandLS.symbolicLinkColor = "#76e288";
+CommandLS.fileColor = "white";
