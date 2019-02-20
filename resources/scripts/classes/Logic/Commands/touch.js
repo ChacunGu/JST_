@@ -24,11 +24,9 @@ class CommandTouch extends AbstractCommand {
             for (let i=0; i<options.length; i++) {
                 switch(options[i]) {
                     case "?":
-                        this.kernel.displayBlock(this.help());
-                        return
+                        return new CommandResult(true, this.help());
                     default: // invalid option
-                        this.kernel.displayBlock(this._getErrorOptions(options[i]));
-                        return;
+                        return new CommandResult(false, this._getErrorOptions(options[i]));
                 }
             }
 
@@ -42,23 +40,19 @@ class CommandTouch extends AbstractCommand {
             filename = filename.slice(filename.lastIndexOf("/")+1, filename.length);
 
             // handle invalid filename
-            if (AbstractFile.containsSpecialCharacters(filename)) { // invalid special characters in filename
-                this.kernel.displayBlock(this._getErrorSpecialChar());
-                return;
-            }
+            if (AbstractFile.containsSpecialCharacters(filename)) // invalid special characters in filename
+                return new CommandResult(false, this._getErrorSpecialChar());
 
             // file creation / update
             let file = parentDirectory.find(filename);            
             if(file != null) { // if the file already exists
                 if (file instanceof File) // update existing file
                     file.update();
-                else {
-                    this.kernel.displayBlock(filename + ": Not a file");
-                    return;
-                }
+                else
+                    return new CommandResult(false, filename + ": Not a file");
             } else
                 parentDirectory.addChild(new File(filename)); // create new file
-            this.kernel.displayBlock("");
+            return new CommandResult();
         }
     }
 

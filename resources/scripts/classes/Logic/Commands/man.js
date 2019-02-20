@@ -26,11 +26,9 @@ class CommandMan extends AbstractCommand {
             for (let i=0; i<options.length; i++) {
                 switch(options[i]) {
                     case "?":
-                        this.kernel.displayBlock(this.help());
-                        return
+                        return new CommandResult(true, this.help());
                     default: // invalid option
-                        this.kernel.displayBlock(this._getErrorOptions(options[i]));
-                        return;
+                        return new CommandResult(false, this._getErrorOptions(options[i]));
                 }
             }
 
@@ -43,9 +41,9 @@ class CommandMan extends AbstractCommand {
             
             // execute command
             if (commandFile != null)
-                commandFile.execute(["?"], []);
+                return commandFile.execute(["?"], []);
             else
-                this.kernel.displayBlock(paramCommandName + ": Not a command");
+                return new CommandResult(false, paramCommandName + ": Not a command");
         }
     }
 

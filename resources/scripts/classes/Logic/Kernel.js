@@ -111,7 +111,8 @@ class Kernel {
             this._addToHistory(userInput);
 
             try {
-                this.root.find("bin").find(commandName).execute(args.options, args.params);
+                let commandResult = this.root.find("bin").find(commandName).execute(args.options, args.params);
+                this.displayBlock(commandResult.getContent(), commandResult.getAddBreakline());
             } catch (e) {
                 if (e instanceof TypeError) {
                     this.displayBlock("Unknown command");

@@ -25,11 +25,9 @@ class CommandLN extends AbstractCommand {
             for (let i=0; i<options.length; i++) {
                 switch(options[i]) {
                     case "?":
-                        this.kernel.displayBlock(this.help());
-                        return
+                        return new CommandResult(true, this.help());
                     default: // invalid option
-                        this.kernel.displayBlock(this._getErrorOptions(options[i]));
-                        return;
+                        return new CommandResult(false, this._getErrorOptions(options[i]));
                 }
             }
 
@@ -47,24 +45,18 @@ class CommandLN extends AbstractCommand {
             filenameDst = filenameDst.slice(filenameDst.lastIndexOf("/")+1, filenameDst.length);
 
             // handle invalid filename
-            if (AbstractFile.containsSpecialCharacters(filenameDst)) { // invalid special characters in filename
-                this.kernel.displayBlock(this._getErrorSpecialChar());
-                return;
-            }
+            if (AbstractFile.containsSpecialCharacters(filenameDst)) // invalid special characters in filename
+                return new CommandResult(false, this._getErrorSpecialChar());
 
             // create link
             if (elementSrc != null) { // if source element has been found
                 if (parentDirectoryDst != null) { // if destination directory has been found
                     parentDirectoryDst.addChild(new SymbolicLink(filenameDst, elementSrc));
-                } else {
-                    this.kernel.displayBlock(parentDirectoryPathDst + ": No such file or directory.");
-                    return;
-                }
-            } else {
-                this.kernel.displayBlock(filenameSrc + ": No such file or directory.");
-                return;
-            }
-            this.kernel.displayBlock("");
+                } else
+                    return new CommandResult(false, parentDirectoryPathDst + ": No such file or directory.");
+            } else
+                return new CommandResult(false, filenameSrc + ": No such file or directory.");
+            return new CommandResult();
         }
     }
 

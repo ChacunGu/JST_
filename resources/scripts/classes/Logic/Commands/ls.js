@@ -33,11 +33,9 @@ class CommandLS extends AbstractCommand {
                         optHiddenFiles = true;
                         break;
                     case "?":
-                        this.kernel.displayBlock(this.help());
-                        return;
+                        return new CommandResult(true, this.help());
                     default: // invalid option
-                        this.kernel.displayBlock(this._getErrorOptions(options[i]));
-                        return;
+                        return new CommandResult(false, this._getErrorOptions(options[i]));
                 }
             }
 
@@ -50,14 +48,10 @@ class CommandLS extends AbstractCommand {
                 path = this.kernel.findElementFromPath(paramDir);
 
                 if (path != null) {
-                    if (!path instanceof Directory) {
-                        this.kernel.displayBlock(paramDir + ": Not a directory.");
-                        return;
-                    }
-                } else {
-                    this.kernel.displayBlock(paramDir + ": No such file or directory.");
-                    return;
-                }
+                    if (!path instanceof Directory)
+                        return new CommandResult(false, paramDir + ": Not a directory.");
+                } else
+                    return new CommandResult(false, paramDir + ": No such file or directory.");
             }
             
             let listContent = "";
@@ -93,12 +87,10 @@ class CommandLS extends AbstractCommand {
                     }
                 }
                 listContent += "</table>";
-            } else {
-                this.kernel.displayBlock("Not a Directory");
-                return;
-            }
+            } else
+                return new CommandResult(false, "Not a Directory");
 
-            this.kernel.displayBlock(listContent.slice(0, listContent.length), false);
+            return new CommandResult(true, listContent.slice(0, listContent.length), false);
         }
     }
 

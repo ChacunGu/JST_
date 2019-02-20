@@ -20,10 +20,9 @@ class CommandMKDIR extends AbstractCommand {
         let parentDirectory = this.kernel.findElementFromPath(directoryPath.length > 0 ? directoryPath : "/");
 
         if (parentDirectory != null) {
-            if (!parentDirectory instanceof Directory) {
-                this.kernel.displayBlock(directoryPath + ": Not a directory.");
-                return null;
-            } else
+            if (!parentDirectory instanceof Directory)
+                return new CommandResult(false, directoryPath + ": Not a directory.");
+            else
                 return parentDirectory;
         } else {
             let allDirectoryFromPath = directoryPath.split("/");
@@ -34,20 +33,18 @@ class CommandMKDIR extends AbstractCommand {
                 if (this.kernel.findElementFromPath(wipDirectoryPath) == null) {
                     if (directoryPathIndex > 0) {
                         // handle invalid directory name
-                        if (AbstractFile.containsSpecialCharacters(allDirectoryFromPath[directoryPathIndex])) { // invalid special characters in directory name
-                            this.kernel.displayBlock(this._getErrorSpecialChar());
-                            return null;
-                        } else // create new repository specified in given path
+                        if (AbstractFile.containsSpecialCharacters(allDirectoryFromPath[directoryPathIndex])) // invalid special characters in directory name
+                            return new CommandResult(false, this._getErrorSpecialChar());
+                        else // create new repository specified in given path
                             new Directory(allDirectoryFromPath[directoryPathIndex], 
                                             this.kernel.findElementFromPath(buildDirectoryPath));
                     } else { // find first directory specified in path
                         let startingDirectory = this.kernel.findElementFromPath(directoryName[0]);
 
                         // handle invalid directory name
-                        if (AbstractFile.containsSpecialCharacters(allDirectoryFromPath[directoryPathIndex])) { // invalid special characters in directory name
-                            this.kernel.displayBlock(this._getErrorSpecialChar());
-                            return null;
-                        } else // create repository specified in given path
+                        if (AbstractFile.containsSpecialCharacters(allDirectoryFromPath[directoryPathIndex])) // invalid special characters in directory name
+                            return new CommandResult(false, this._getErrorSpecialChar());
+                        else // create repository specified in given path
                             new Directory(allDirectoryFromPath[directoryPathIndex], 
                                             startingDirectory);
                     }
@@ -74,11 +71,9 @@ class CommandMKDIR extends AbstractCommand {
             for (let i=0; i<options.length; i++) {
                 switch(options[i]) {
                     case "?":
-                        this.kernel.displayBlock(this.help());
-                        return
+                        return new CommandResult(true, this.help());
                     default: // invalid option
-                        this.kernel.displayBlock(this._getErrorOptions(options[i]));
-                        return;
+                        return new CommandResult(false, this._getErrorOptions(options[i]));
                 }
             }
 
@@ -89,30 +84,23 @@ class CommandMKDIR extends AbstractCommand {
             let parentDirectory = null;
             if (directoryName.includes("/")) { // specified path 
                 parentDirectory = this._createPathDirectories(directoryName);
-                if (parentDirectory == null)
-                    return;
+                if (parentDirectory instanceof CommandResult)
+                    return parentDirectory;
             } else // implicit path
                 parentDirectory = this.kernel.getCurrentDirectory();
                 
             // directory creation / update
             directoryName = directoryName.slice(directoryName.lastIndexOf("/")+1, directoryName.length);
             let existingDirectory = parentDirectory.find(directoryName);
-            if(existingDirectory != null) { // if the directory already exists
-                if (existingDirectory instanceof File) // update existing directory
-                    existingDirectory.update();
-                else {
-                    this.kernel.displayBlock(paramDir + ": Not a directory");
-                    return;
-                }
-            } else {
+            if(existingDirectory != null) // if the directory already exists
+                return new CommandResult(false, directoryName + ": Directory already exists");
+            else {
                 // handle invalid filename
-                if (AbstractFile.containsSpecialCharacters(directoryName)) { // invalid special characters in filename
-                    this.kernel.displayBlock(this._getErrorSpecialChar());
-                    return;
-                }
+                if (AbstractFile.containsSpecialCharacters(directoryName)) // invalid special characters in filename
+                    return new CommandResult(false, this._getErrorSpecialChar());
                 new Directory(directoryName, parentDirectory); // create new directory
             }
-            this.kernel.displayBlock("");
+            return new CommandResult();
         }
     }
 

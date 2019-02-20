@@ -29,11 +29,9 @@ class CommandRM extends AbstractCommand {
                         optRecursive = true;
                         break;
                     case "?":
-                        this.kernel.displayBlock(this.help());
-                        return;
+                        return new CommandResult(true, this.help());
                     default: // invalid option
-                        this.kernel.displayBlock(this._getErrorOptions(options[i]));
-                        return;
+                        return new CommandResult(false, this._getErrorOptions(options[i]));
                 }
             }
 
@@ -45,17 +43,13 @@ class CommandRM extends AbstractCommand {
             if (path instanceof Directory) {
                 if (optRecursive)
                     path.parent.remove(path.getName());
-                else {
-                    this.kernel.displayBlock("rm: " + paramDir + " is a directory");
-                    return;
-                }
+                else
+                    return new CommandResult(false, "rm: " + paramDir + " is a directory");
             } else if (path instanceof File)
                 path.parent.remove(path.getName());
-            else {
-                this.kernel.displayBlock("rm: cannot remove " + paramDir + ": No such file or directory");
-                return;
-            }
-            this.kernel.displayBlock("");
+            else
+                return new CommandResult(false, "rm: cannot remove " + paramDir + ": No such file or directory");
+            return new CommandResult();
         }
     }
 

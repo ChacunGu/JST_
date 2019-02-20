@@ -23,11 +23,9 @@ class CommandRMDIR extends AbstractCommand {
             for (let i=0; i<options.length; i++) {
                 switch(options[i]) {
                     case "?":
-                        this.kernel.displayBlock(this.help());
-                        return;
+                        return new CommandResult(true, this.help());
                     default: // invalid option
-                        this.kernel.displayBlock(this._getErrorOptions(options[i]));
-                        return;
+                        return new CommandResult(false, this._getErrorOptions(options[i]));
                 }
             }
 
@@ -38,14 +36,11 @@ class CommandRMDIR extends AbstractCommand {
             // remove directory
             if (path instanceof Directory)
                 path.parent.remove(path.getName());
-            else if (path instanceof AbstractFile) {
-                this.kernel.displayBlock("rmdir: " + paramDir + ": Not a directory");
-                return;
-            } else {
-                this.kernel.displayBlock("rmdir: " + paramDir + ": No such file or directory");
-                return;
-            }
-            this.kernel.displayBlock("");
+            else if (path instanceof AbstractFile)
+                return new CommandResult(false, "rmdir: " + paramDir + ": Not a directory");
+            else
+                return new CommandResult(false, "rmdir: " + paramDir + ": No such file or directory");
+            return new CommandResult();
         }
     }
 

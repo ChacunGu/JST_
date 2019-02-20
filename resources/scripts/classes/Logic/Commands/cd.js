@@ -26,11 +26,9 @@ class CommandCD extends AbstractCommand {
             for (let i=0; i<options.length; i++) {
                 switch(options[i]) {
                     case "?":
-                        this.kernel.displayBlock(this.help());
-                        return;
+                        return new CommandResult(true, this.help());
                     default: // invalid option
-                        this.kernel.displayBlock(this._getErrorOptions(options[i]));
-                        return;
+                        return new CommandResult(false, this._getErrorOptions(options[i]));
                 }
             }
 
@@ -42,16 +40,13 @@ class CommandCD extends AbstractCommand {
 
             if (directory != null) {
                 if (directory instanceof Directory) {
-                    this.kernel.displayBlock("");
+                    let commandResult = new CommandResult();
                     this.kernel.setCurrentDirectory(directory);
-                } else {
-                    this.kernel.displayBlock(paramDir + ": Not a directory.");
-                    return;
-                }
-            } else {
-                this.kernel.displayBlock(paramDir + ": No such file or directory.");
-                return;
-            }
+                    return commandResult;
+                } else
+                    return new CommandResult(false, paramDir + ": Not a directory.");
+            } else
+                return new CommandResult(false, paramDir + ": No such file or directory.");
         }
     }
 

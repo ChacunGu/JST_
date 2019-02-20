@@ -21,15 +21,13 @@ class CommandPWD extends AbstractCommand {
             for (let i=0; i<options.length; i++) {
                 switch(options[i]) {
                     case "?":
-                        this.kernel.displayBlock(this.help());
-                        return;
+                        return new CommandResult(true, this.help());
                     default: // invalid option
-                        this.kernel.displayBlock(this._getErrorOptions(options[i]));
-                        return;
+                        return new CommandResult(false, this._getErrorOptions(options[i]));
                 }
             }
 
-            this.kernel.displayBlock(this.kernel.getCurrentDirectory().getPath());
+            return new CommandResult(true, this.kernel.getCurrentDirectory().getPath());
         }
     }
 
