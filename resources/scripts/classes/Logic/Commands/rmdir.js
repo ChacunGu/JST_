@@ -1,10 +1,10 @@
 /**
- *  class CommandRM
- *  Represents command rm. Removes a file.
+ *  class CommandRMDIR
+ *  Represents command rmdir. Removes a directory.
  */
-class CommandRM extends AbstractCommand {
+class CommandRMDIR extends AbstractCommand {
     constructor(kernel) {
-        super(kernel, "rm");
+        super(kernel, "rmdir");
 
         this.maxNumberParams = 1;
         this.minNumberParams = 1;
@@ -19,15 +19,9 @@ class CommandRM extends AbstractCommand {
     execute(options=[], params=[]) { 
         // handle invalid options / parameters
         if (this._verifyExecuteArgs(options, params)) {
-            
-            let optRecursive = false;
-
             // handle options
             for (let i=0; i<options.length; i++) {
                 switch(options[i]) {
-                    case "r":
-                        optRecursive = true;
-                        break;
                     case "?":
                         this.kernel.displayBlock(this.help());
                         return;
@@ -37,22 +31,18 @@ class CommandRM extends AbstractCommand {
                 }
             }
 
-            // handle params
+            // handle parameters
             let paramDir = this.kernel.preparePath(params[0]);
             let path = this.kernel.findElementFromPath(paramDir);
 
-            // remove file
-            if (path instanceof Directory) {
-                if (optRecursive)
-                    path.parent.remove(path.getName());
-                else {
-                    this.kernel.displayBlock("rm: " + paramDir + " is a directory");
-                    return;
-                }
-            } else if (path instanceof File)
+            // remove directory
+            if (path instanceof Directory)
                 path.parent.remove(path.getName());
-            else {
-                this.kernel.displayBlock("rm: cannot remove " + paramDir + ": No such file or directory");
+            else if (path instanceof AbstractFile) {
+                this.kernel.displayBlock("rmdir: " + paramDir + ": Not a directory");
+                return;
+            } else {
+                this.kernel.displayBlock("rmdir: " + paramDir + ": No such file or directory");
                 return;
             }
             this.kernel.displayBlock("");
@@ -64,6 +54,6 @@ class CommandRM extends AbstractCommand {
      * Returns the command's help.
      */
     help() {
-        return "Remove the given file<br/>usage: rm [-r] filename";
+        return "Remove the given directory<br/>usage: rmdir [-r][-f] filename";
     }
 }
