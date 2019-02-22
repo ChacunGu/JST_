@@ -40,7 +40,7 @@ class CommandCD extends AbstractCommand {
 
             if (directory != null) {
                 if (directory instanceof Directory) {
-                    let commandResult = new CommandResult();
+                    let commandResult = new CommandResult(true, "", true, this.kernel.getHeader());
                     this.kernel.setCurrentDirectory(directory);
                     return commandResult;
                 } else

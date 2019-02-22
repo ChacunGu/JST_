@@ -114,7 +114,9 @@ class Kernel {
             try {
                 let commandResult = this.root.find("bin").find(commandName).execute(args.options, args.params);
                 if (commandResult != undefined)
-                    this.displayBlock(commandResult.getContent(), commandResult.getAddBreakline());
+                    this.displayBlock(commandResult.getContent(), 
+                                        commandResult.getAddBreakline(), 
+                                        commandResult.getCustomHeader());
             } catch (e) {
                 console.log(e);
                 if (e instanceof TypeError) {
@@ -319,9 +321,11 @@ class Kernel {
      * Creates and displays a new block with the last command and its given value.
      * @param {String} value : last command's result
      * @param {boolean} addBreakLine : true if a break line should be added after the given content false otherwise
+     * @param {String} customHeader : custom command's header
      */
-    displayBlock(value, addBreakLine=true) {
-        this.terminal.addBlock(this.getHeader(), this._getLastCommand(), value, addBreakLine);
+    displayBlock(value, addBreakLine=true, customHeader="") {
+        this.terminal.addBlock(customHeader.length > 0 ? customHeader : this.getHeader(), 
+                                this._getLastCommand(), value, addBreakLine);
     }
 
     /**
