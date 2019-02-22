@@ -137,14 +137,20 @@ class Kernel {
     _splitArgs(args) {
         let splittedArgs = args.split(" ");
         let foundQuote = false;
+        let foundApostrophe = false;
         let counterArgsSinceQuote = 0;
+        let counterArgsSinceApostrophe = 0;
         let preparedArgs = [];
         for (let i=0; i<splittedArgs.length; i++) {
-            if (splittedArgs[i][0] == "\"" && splittedArgs[i][splittedArgs[i].length-1] == "\"" && !foundQuote)
+            if ((splittedArgs[i][0] == "\"" && splittedArgs[i][splittedArgs[i].length-1] == "\"" && !foundQuote) ||
+                (splittedArgs[i][0] == "'" && splittedArgs[i][splittedArgs[i].length-1] == "'" && !foundApostrophe))
                 preparedArgs.push(splittedArgs[i]);
             else {
                 if (splittedArgs[i][0] == "\"")
                     foundQuote = true;
+                if (splittedArgs[i][0] == "'")
+                    foundApostrophe = true;
+
                 if (splittedArgs[i][splittedArgs[i].length-1] == "\"" && foundQuote) {
                     preparedArgs[preparedArgs.length-1] += " " + splittedArgs[i];
                     for (let j=0; j<counterArgsSinceQuote-1; j++) {
@@ -154,9 +160,20 @@ class Kernel {
                     
                     foundQuote = false;
                     counterArgsSinceQuote = 0;
+                } else if (splittedArgs[i][splittedArgs[i].length-1] == "'" && foundApostrophe) {
+                    preparedArgs[preparedArgs.length-1] += " " + splittedArgs[i];
+                    for (let j=0; j<counterArgsSinceApostrophe-1; j++) {
+                        preparedArgs[preparedArgs.length-2] += " " + preparedArgs[preparedArgs.length-1];
+                        preparedArgs.pop();
+                    }
+                    
+                    foundApostrophe = false;
+                    counterArgsSinceApostrophe = 0;
                 } else {
                     if (foundQuote)
                         counterArgsSinceQuote++;
+                    if (foundApostrophe)
+                        counterArgsSinceApostrophe++;
                     preparedArgs.push(splittedArgs[i]);
                 }
             }
@@ -446,9 +463,10 @@ class Kernel {
      * @param {String} input : text possibly surrouded by quotes
      */
     static removePossibleInputQuotes(input) {
-        return input.length > 2 && input[0] == "\"" && input[input.length-1] == "\"" ? 
-               (input.length == 3 ? input[1] : input.slice(1, input.length-1)) : 
-               input;
+        return (input.length > 2 && input[0] == "\"" && input[input.length-1] == "\"") ||
+                (input.length > 2 && input[0] == "'" && input[input.length-1] == "'") ? 
+                    (input.length == 3 ? input[1] : input.slice(1, input.length-1)) : 
+                    input;
     }
 
     /**
