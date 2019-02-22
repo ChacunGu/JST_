@@ -40,7 +40,7 @@ class CommandMV extends AbstractCommand {
             let destinationList = destination.split("/");
             let destinationName = destinationList[destinationList.length-1];
             destinationList.pop();
-            destination = destinationList.join("/");
+            destination = (destination[0] == "/" ? "/" : "" ) + destinationList.join("/");
 
             source = this.kernel.findElementFromPath(source);
             if (source == null)
