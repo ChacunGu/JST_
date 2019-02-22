@@ -27,7 +27,7 @@ class Kernel {
         window.addEventListener("submit", event => this._processInput(event.detail));
         window.addEventListener("historyup", event => this._browseHistory(true));
         window.addEventListener("historydown", event => this._browseHistory(false));
-        window.addEventListener("autocomplete", event => this._autocomplete());
+        window.addEventListener("autocomplete", event => this._autocomplete(event.detail[0], event.detail[1]));
     }
 
     /**
@@ -113,8 +113,10 @@ class Kernel {
 
             try {
                 let commandResult = this.root.find("bin").find(commandName).execute(args.options, args.params);
-                this.displayBlock(commandResult.getContent(), commandResult.getAddBreakline());
+                if (commandResult != undefined)
+                    this.displayBlock(commandResult.getContent(), commandResult.getAddBreakline());
             } catch (e) {
+                console.log(e);
                 if (e instanceof TypeError) {
                     this.displayBlock("Unknown command");
                 } else {
@@ -229,9 +231,44 @@ class Kernel {
     /**
      * _autocomplete
      * complete the user's input if exists
+     * @param {String} currentInputValue : current terminal's input value
      */
-    _autocomplete() {
-        // TODO
+    _autocomplete(currentInputValue, cursorPosition) {
+        let newInputValue = currentInputValue;
+
+        console.log(currentInputValue, cursorPosition, cursorPosition < currentInputValue.length ? currentInputValue[cursorPosition] : "");
+
+        // input pre processing
+        let inputs = this._splitArgs(currentInputValue);
+        let args = this._processArgs(inputs);
+
+        // retrieve path
+        let path = null;
+        if (args.params.length == 1)
+            path = Kernel.removePossibleInputQuotes(args.params[0]);
+
+
+        if (path != null) {
+
+            let pathInfo = Kernel.retrieveElementNameAndPath(path);
+            let currentDirectory = this.findElementFromPath(pathInfo.dir);
+            let searchedElementName = pathInfo.elem;
+
+
+            console.log(searchedElementName, currentDirectory);
+
+            if (currentDirectory != null) {
+                if (currentDirectory instanceof Directory) {
+
+                }
+            }
+            
+
+            // change input's value
+            this.terminal.setInputContent(newInputValue);
+            this.terminal.focusInput();
+
+        }
     }
 
     /**
@@ -348,6 +385,31 @@ class Kernel {
     }
 
     /**
+     * preparePath
+     * Prepares and returns given path.
+     * @param {String} path : raw path
+     */
+    preparePath(path) {
+        // remove possible quote marks
+        let preparedPath = Kernel.removePossibleInputQuotes(path);
+
+        return preparedPath;
+    }
+
+    /**
+     * retrieveElementNameAndPath
+     * Retrives the final element's name and its parent directory path from the given path.
+     * @param {String} raw_path : raw path
+     */
+    static retrieveElementNameAndPath(raw_path) {
+        let lastSlashIndex = raw_path.lastIndexOf("/");
+        let currentDirectoryPath = lastSlashIndex > 0 ? raw_path.slice(0, lastSlashIndex) : 
+                                   lastSlashIndex == 0 ? "/" : "";
+        let searchedElementName = raw_path.slice(raw_path.lastIndexOf("/")+1, raw_path.length);
+        return {dir: currentDirectoryPath, elem: searchedElementName};
+    }
+
+    /**
      * removePossibleInputQuotes
      * Removes possible quotes surrounding given input.
      * @param {String} input : text possibly surrouded by quotes
@@ -356,18 +418,6 @@ class Kernel {
         return input.length > 2 && input[0] == "\"" && input[input.length-1] == "\"" ? 
                (input.length == 3 ? input[1] : input.slice(1, input.length-1)) : 
                input;
-    }
-
-    /**
-     * preparePath
-     * Prepares and returns given path.
-     * @param {String} path : prepared path
-     */
-    preparePath(path) {
-        // remove possible quote marks
-        let preparedPath = Kernel.removePossibleInputQuotes(path);
-
-        return preparedPath;
     }
 
     /**

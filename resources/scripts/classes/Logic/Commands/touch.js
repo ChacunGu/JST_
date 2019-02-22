@@ -34,10 +34,9 @@ class CommandTouch extends AbstractCommand {
             let filename = this.kernel.preparePath(params[0]);            
 
             // separate filename from its path
-            let lastSlashIndex = filename.lastIndexOf("/");
-            let parentDirectoryPath = filename.slice(0, lastSlashIndex >= 0 ? lastSlashIndex : 0);
-            let parentDirectory = this.kernel.findElementFromPath(parentDirectoryPath);
-            filename = filename.slice(filename.lastIndexOf("/")+1, filename.length);
+            let pathInfo = Kernel.retrieveElementNameAndPath(filename);
+            let parentDirectory = this.kernel.findElementFromPath(pathInfo.dir);
+            filename = pathInfo.elem;
 
             // handle invalid filename
             if (AbstractFile.containsSpecialCharacters(filename)) // invalid special characters in filename

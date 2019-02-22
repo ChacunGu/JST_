@@ -39,10 +39,9 @@ class CommandLN extends AbstractCommand {
             let elementSrc = this.kernel.findElementFromPath(filenameSrc, false);
 
             // find destinations filename and parent directory
-            let lastSlashIndexDst = filenameDst.lastIndexOf("/");
-            let parentDirectoryPathDst = filenameDst.slice(0, lastSlashIndexDst >= 0 ? lastSlashIndexDst : 0);
-            let parentDirectoryDst = this.kernel.findElementFromPath(parentDirectoryPathDst);
-            filenameDst = filenameDst.slice(filenameDst.lastIndexOf("/")+1, filenameDst.length);
+            let pathInfo = Kernel.retrieveElementNameAndPath(filenameDst);
+            let parentDirectoryDst = this.kernel.findElementFromPath(pathInfo.dir);
+            filenameDst = pathInfo.elem;
 
             // handle invalid filename
             if (AbstractFile.containsSpecialCharacters(filenameDst)) // invalid special characters in filename
