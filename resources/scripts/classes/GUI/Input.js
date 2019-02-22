@@ -7,6 +7,8 @@ class Input {
     constructor(terminal, user, hostname, path) {
         this.inputNode = this._create(terminal, user, hostname, path);
         this.editableNode = document.getElementById(Input.EDITABLE_NODE_ID);
+        this.tappedTabKey = false;
+        this.timeoutTabKey = null;
     }
 
     /**
@@ -64,12 +66,30 @@ class Input {
                 return false;
             } else if (event.keyCode === 9) { // TAB
                 event.preventDefault();
-                let cursorPos = document.getSelection().getRangeAt(0).startOffset;
-                window.dispatchEvent(new CustomEvent("autocomplete", {detail: [this.editableNode.innerHTML,
-                                                                               cursorPos]}));
+
+                if (this.tappedTabKey) { // double tap
+                    clearTimeout(this.timeoutTabKey);
+                    this._fireAutocompletionEvent(true);
+                } else { // single tap
+                    this.tappedTabKey = true;
+                    this.timeoutTabKey = setTimeout(() => this._fireAutocompletionEvent(false), 250);
+                }
                 return false;
             }
         });
+    }
+
+    /**
+     * _fireAutocompletionEvent
+     * Fires autocompletion event and resets tappedTabKey flag.
+     * @param {bool} doubleTap : true if tab key has been pressed two time false otherwise
+     */
+    _fireAutocompletionEvent(doubleTap) {
+        let cursorPos = document.getSelection().getRangeAt(0).startOffset;
+        window.dispatchEvent(new CustomEvent("autocomplete", {detail: [this.editableNode.innerHTML,
+                                                                    cursorPos,
+                                                                    doubleTap]}));
+        this.tappedTabKey = false;
     }
 
     /**

@@ -92,4 +92,12 @@ class Directory extends AbstractFile {
             return copy;
         }
     }
+
+    /**
+     * getChildren
+     * Returns directory's children.
+     */
+    getChildren() {
+        return this.children;
+    }
 }

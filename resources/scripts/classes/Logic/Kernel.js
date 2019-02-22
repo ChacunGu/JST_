@@ -27,7 +27,7 @@ class Kernel {
         window.addEventListener("submit", event => this._processInput(event.detail));
         window.addEventListener("historyup", event => this._browseHistory(true));
         window.addEventListener("historydown", event => this._browseHistory(false));
-        window.addEventListener("autocomplete", event => this._autocomplete(event.detail[0], event.detail[1]));
+        window.addEventListener("autocomplete", event => this._autocomplete(event.detail[0], event.detail[1], event.detail[2]));
     }
 
     /**
@@ -232,42 +232,69 @@ class Kernel {
      * _autocomplete
      * complete the user's input if exists
      * @param {String} currentInputValue : current terminal's input value
+     * @param {int} cursorPosition : cursor's position in the input value
+     * @param {bool} doubleTap : true if the user double pressed the tab key false otherwise
      */
-    _autocomplete(currentInputValue, cursorPosition) {
-        let newInputValue = currentInputValue;
-
-        console.log(currentInputValue, cursorPosition, cursorPosition < currentInputValue.length ? currentInputValue[cursorPosition] : "");
-
+    _autocomplete(currentInputValue, cursorPosition, doubleTap=false) {
+        
         // input pre processing
         let inputs = this._splitArgs(currentInputValue);
         let args = this._processArgs(inputs);
-
+        
         // retrieve path
         let path = null;
         if (args.params.length == 1)
-            path = Kernel.removePossibleInputQuotes(args.params[0]);
-
-
+            path = this.preparePath(args.params[0]);
+        else {
+            // TODO : find specified path
+            console.log("user input :\t\t", "'" + currentInputValue + "'", 
+                        "\ncursor position :\t", cursorPosition, 
+                        "\nchar at cursor pos :\t", cursorPosition < currentInputValue.length ? currentInputValue[cursorPosition] : "",
+                        "\nargs :\t", args);
+        }
+        
+        
         if (path != null) {
-
+            // separate filename from its path
             let pathInfo = Kernel.retrieveElementNameAndPath(path);
-            let currentDirectory = this.findElementFromPath(pathInfo.dir);
+            let currentDirectoryPath = pathInfo.dir;
+            let currentDirectory = this.findElementFromPath(currentDirectoryPath);
             let searchedElementName = pathInfo.elem;
-
 
             console.log(searchedElementName, currentDirectory);
 
-            if (currentDirectory != null) {
-                if (currentDirectory instanceof Directory) {
+            if (currentDirectory != null) { // if path does exist
+                if (currentDirectory instanceof Directory) { // if path points to a directory
+                    let children = currentDirectory.getChildren();
+                    let matchingElements = [];
 
+                    // search matching elements
+                    for (let i=0; i<children.length; i++) {
+                        if (children[i].getName().startsWith(searchedElementName))
+                            matchingElements.push(children[i]);
+                    }
+
+                    if (matchingElements.length == 1) { // only one matching element found
+                        // change input's value
+                        // TODO : adapt for autocompletion in the middle of the user input
+                        console.log(currentDirectoryPath);
+                        this.terminal.setInputContent(currentDirectoryPath + 
+                                                      (currentDirectoryPath[currentDirectoryPath.length-1] != "/" 
+                                                       && currentDirectoryPath.length > 0 ? "/" : "") + 
+                                                      matchingElements[0].getName() + 
+                                                      "/");
+                        this.terminal.focusInput();
+                    } else if (matchingElements.length > 1) { // multiple matching elements found
+                        if (doubleTap) {
+                            // TODO : adapt for autocompletion in the middle of the user input
+                            let paths = "";
+                            for (let i=0; i<matchingElements.length; i++)
+                                paths += matchingElements[i].getName() + "<br/>";
+                                this.terminal.addBlock(this.getHeader(), currentInputValue, paths, false);
+                        }
+                    }
                 }
             }
-            
-
-            // change input's value
-            this.terminal.setInputContent(newInputValue);
-            this.terminal.focusInput();
-
         }
     }
 
