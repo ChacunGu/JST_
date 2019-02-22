@@ -36,7 +36,7 @@ class CommandEcho extends AbstractCommand {
                 paramText += params[i] + (i<params.length-1 ? " " : "");
 
             // remove possible quote marks
-            paramText = kernel.removePossibleInputQuotes(paramText);
+            paramText = Kernel.removePossibleInputQuotes(paramText);
 
             // execute command
             return new CommandResult(true, paramText);

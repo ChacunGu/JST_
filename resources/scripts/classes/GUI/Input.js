@@ -64,7 +64,9 @@ class Input {
                 return false;
             } else if (event.keyCode === 9) { // TAB
                 event.preventDefault();
-                window.dispatchEvent(new Event("autocomplete"));
+                let cursorPos = document.getSelection().getRangeAt(0).startOffset;
+                window.dispatchEvent(new CustomEvent("autocomplete", {detail: [this.editableNode.innerHTML,
+                                                                               cursorPos]}));
                 return false;
             }
         });
