@@ -21,8 +21,10 @@ function initEvents() {
     let focusTerminalInput = () => {
         if ((window.getSelection ? window.getSelection() :
               document.getSelection ? document.getSelection() :
-              document.selection ? document.selection() : "") == "")
-            kernel.terminal.input.focus();
+              document.selection ? document.selection() : "") == "") {
+            if (kernel.terminal.isVisible())
+                kernel.terminal.focusInput();
+        }
     };
     window.onmouseup = focusTerminalInput;
     window.setTimeout(focusTerminalInput, 500);
@@ -36,14 +38,18 @@ function initEvents() {
             (keycode > 64 && keycode < 91)  ||
             (keycode > 95 && keycode < 112) ||
             (keycode > 185 && keycode < 193))) {
+            if (kernel.terminal.isVisible()) {
                 kernel.terminal.input.write(event.key);
-                kernel.terminal.input.focus();
+                kernel.terminal.focusInput();
             }
+        }
     }
 
     // focus the terminal's input when the down arrow is pressed
     window.onkeydown = event => {
-        if(event.keyCode == 40)
-            kernel.terminal.input.focus();
+        if(event.keyCode == 40) {
+            if (kernel.terminal.isVisible())
+                kernel.terminal.focusInput();
+        }
     }
 }

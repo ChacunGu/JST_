@@ -17,6 +17,7 @@ class Kernel {
         
         this.currentDirectory = this.homeDirectory;
         this.terminal = new Terminal(this.getHeader());
+        this.editor = new Editor();
     }
     
     /**
@@ -70,7 +71,7 @@ class Kernel {
                             Aliquam vitae ante tempor, eleifend turpis quis, ultricies velit.
                             Integer eget orci vitae libero auctor suscipit eu sed ligula.
                             Etiam eu est non urna commodo interdum.`;
-        userDirectory.addChild(story);
+        this.homeDirectory.addChild(story);
     }
 
     /**
@@ -97,6 +98,7 @@ class Kernel {
         bin.addChild(new CommandMV(this));
         bin.addChild(new CommandLN(this));
         bin.addChild(new CommandRMDIR(this));
+        bin.addChild(new CommandEdit(this));
     }
 
     /**
@@ -315,6 +317,36 @@ class Kernel {
                 }
             }
         }
+    }
+
+    /**
+     * _displayEditor
+     * Displays the text editor and hides the terminal.
+     */
+    _displayEditor() {
+        this.editor.display();
+        this.terminal.hide();
+    }
+
+    /**
+     * _hideEditor
+     * Hides the text editor and displays the terminal.
+     */
+    _hideEditor() {
+        this.editor.hide();
+        this.terminal.display();
+    }
+
+    /**
+     * openEditor
+     * Opens given file in an editor.
+     * @param {File} file : file to edit
+     * @param {bool} isCreating : true if the file has to be created when saved false otherwise (updating)
+     * @param {Directory} parentDirectory : file's parent directory
+     */
+    openEditor(file, isCreating=false, parentDirectory=null) {
+        this._displayEditor();
+        this.editor.open(file, isCreating, parentDirectory);
     }
 
     /**

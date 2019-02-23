@@ -6,8 +6,9 @@
 class Terminal {
     constructor(user, hostname, path) {
         this.terminalNode = document.getElementById(Terminal.NODE_ID);
-        this.input = new Input(this.terminalNode, user, hostname, path);
+        this.input = new TerminalInput(this.terminalNode, user, hostname, path);
         this.input.focus();
+        this.display();
     }
 
     /**
@@ -93,6 +94,30 @@ class Terminal {
      */
     focusInput() {
         this.input.focus();
+    }
+
+    /**
+     * display
+     * Displays the terminal.
+     */
+    display() {
+        this.terminalNode.style.visibility = "visible";
+    }
+
+    /**
+     * hide
+     * Hides the terminal.
+     */
+    hide() {
+        this.terminalNode.style.visibility = "hidden";
+    }
+
+    /**
+     * isVisible
+     * Returns true if the terminal is visible false otherwise.
+     */
+    isVisible() {
+        return this.terminalNode.style.visibility == "visible";
     }
 }
 

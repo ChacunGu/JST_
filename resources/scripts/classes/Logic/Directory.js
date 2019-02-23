@@ -73,7 +73,7 @@ class Directory extends AbstractFile {
 
     /**
      * copy
-     * Abstract method. Should return an instance's deep copy placed in given destination with given name.
+     * Returns an instance's deep copy placed in given destination with given name.
      * @param {String} new_name : new element's name
      * @param {Directory} destination : new element's parent directory
      * @param {bool} createLink : true if copies creates a symbolic link for the given file false if it creates a real copy
