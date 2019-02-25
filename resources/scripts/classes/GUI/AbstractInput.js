@@ -5,6 +5,8 @@
 class AbstractInput {
     constructor() {
         this.editableNode = null;
+        this.cursorPosition = 0;
+
         // avoid instantiation (abstract class)
         if (new.target === AbstractInput)
             throw new Error("Cannot construct AbstractInput instances directly.");
@@ -21,23 +23,30 @@ class AbstractInput {
     /**
      * focus
      * Puts focus on the input.
-     * From Tim Down's answer : https://stackoverflow.com/questions/4233265/contenteditable-set-caret-at-the-end-of-the-text-cross-browser
+     * Source : https://www.sitepoint.com/community/t/set-caret-position-in-contenteditable-div/6574/4
+     * @param {int} pos : new cursor position
      */
-    focus() {
+    focus(pos=null) {
         this.editableNode.focus();
-        if (typeof window.getSelection != "undefined" && typeof document.createRange != "undefined") {
-            let range = document.createRange();
-            range.selectNodeContents(this.editableNode);
-            range.collapse(false);
-            let sel = window.getSelection();
-            sel.removeAllRanges();
-            sel.addRange(range);
-        } else if (typeof document.body.createTextRange != "undefined") {
-            let textRange = document.body.createTextRange();
-            textRange.moveToElementText(this.editableNode);
-            textRange.collapse(false);
-            textRange.select();
+        if (this.editableNode.innerHTML.length > 0) {
+            var char = pos != null ? pos : this.editableNode.innerHTML.length, sel;
+            if (document.selection) {
+                sel = document.selection.createRange();
+                sel.moveStart('character', char);
+                sel.select();
+            } else {
+                sel = window.getSelection();
+                sel.collapse(this.editableNode.firstChild, char);
+            }
         }
+    }
+
+    /**
+     * getContent
+     * Returns input's content.
+     */
+    getContent() {
+        return this.editableNode.innerHTML;
     }
     
     /**
@@ -49,6 +58,7 @@ class AbstractInput {
         if (value == " ") 
             value = "\u00A0";
         this.editableNode.append(document.createTextNode(value));
+        this.cursorPosition = this.editableNode.innerHTML.length;
     }
 
     /**
@@ -58,5 +68,22 @@ class AbstractInput {
      */
     setValue(value) {
         this.editableNode.innerHTML = value;
+    }
+
+    /**
+     * setCursorPosition
+     * Sets the input's cursor postion.
+     * @param {int} pos : new cursor position in text
+     */
+    setCursorPosition(pos) {
+        this.cursorPosition = pos;
+    }
+
+    /**
+     * getCursorPosition
+     * Returns input's cursor position.
+     */
+    getCursorPosition() {
+        return this.cursorPosition;
     }
 }

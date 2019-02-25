@@ -2,8 +2,6 @@
 #editor {
     visibility: hidden;
     
-    overflow-y: hidden;
-    overflow-x: hidden;
     max-width: 100%;
     width: 100%;
     height: 95vh;
@@ -12,8 +10,54 @@
     z-index: 9;
 }
 
-#editorinputEditable {
+#editorTopContainer {
+    display: block;
     position: absolute;
-    width: 100vw;
-    max-width: 100vw;
+    top: 0;
+    margin: 0 auto;
+    width: 100%;
+}
+
+#editorBottomContainer {
+    display: block;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    margin: 0 auto;
+    width: 100%;
+    min-height: 54px;
+    z-index: 9;
+}
+
+#editorLeftSideNode {
+    display: inline-block;
+    width: 4%;
+    min-width: 20px;
+}
+
+#editorinputEditable {
+    pointer-events: none;
+    position: absolute;
+    width: 95%;
+    max-width: 95%;
+    padding-bottom: 50px;
+}
+
+#editorCommandInputEditable {
+    pointer-events: none;
+    position: fixed;
+    width: 100%;
+    min-height: 18px;
+    margin-top: 25px;
+    font-weight: 500;
+}
+
+#editorFilenameBox {
+    position: fixed;
+    width: 100%;
+    min-height: 18px;
+    margin-top: 6px;
+    font-weight: bold;
+    color: black;
+    background-color: rgb(247, 247, 247);
 }

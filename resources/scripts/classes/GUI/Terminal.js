@@ -93,7 +93,16 @@ class Terminal {
      * Puts focus on the terminal's input.
      */
     focusInput() {
-        this.input.focus();
+        this.input.focus(this.input.getCursorPosition());
+    }
+
+    /**
+     * setCursorPosition
+     * Sets the terminal input's cursor postion.
+     * @param {int} pos : new cursor position in text
+     */
+    setCursorPosition(pos) {
+        this.input.setCursorPosition(pos);
     }
 
     /**
@@ -118,6 +127,14 @@ class Terminal {
      */
     isVisible() {
         return this.terminalNode.style.visibility == "visible";
+    }
+
+    /**
+     * getInput
+     * Returns terminal's input.
+     */
+    getInput() {
+        return this.input;
     }
 }
 

@@ -37,6 +37,7 @@ body {
 }
 
 #terminalinputEditable {
+    pointer-events: none;
     margin-left: 6px;
     min-width: 18px;
     min-height: 18px;

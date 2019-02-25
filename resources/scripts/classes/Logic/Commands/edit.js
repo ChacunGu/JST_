@@ -46,11 +46,11 @@ class CommandEdit extends AbstractCommand {
             let file = parentDirectory.find(filename);            
             if(file != null) { // if the file already exists
                 if (file instanceof File) // open terminal on this file
-                    this.kernel.openEditor(file);
+                    this.kernel.openEditor(file, parentDirectory, false);
                 else
                     return new CommandResult(false, filename + ": Not a file");
             } else // open terminal on a new file and give the parent
-                this.kernel.openEditor(new File(filename), true, parentDirectory);
+                this.kernel.openEditor(new File(filename), parentDirectory, true);
             return new CommandResult();
         }
     }

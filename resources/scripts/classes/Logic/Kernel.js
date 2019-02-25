@@ -26,9 +26,10 @@ class Kernel {
      */
     _initEvents() {
         window.addEventListener("submit", event => this._processInput(event.detail));
-        window.addEventListener("historyup", event => this._browseHistory(true));
-        window.addEventListener("historydown", event => this._browseHistory(false));
+        window.addEventListener("historyup", () => this._browseHistory(true));
+        window.addEventListener("historydown", () => this._browseHistory(false));
         window.addEventListener("autocomplete", event => this._autocomplete(event.detail[0], event.detail[1], event.detail[2]));
+        window.addEventListener("hideEditor", () => this._hideEditor());
     }
 
     /**
@@ -338,15 +339,31 @@ class Kernel {
     }
 
     /**
+     * getEditor
+     * Returns the kernel's text editor.
+     */
+    getEditor() {
+        return this.editor;
+    }
+
+    /**
+     * getTerminal
+     * Returns the kernel's terminal.
+     */
+    getTerminal() {
+        return this.terminal;
+    }
+
+    /**
      * openEditor
      * Opens given file in an editor.
      * @param {File} file : file to edit
-     * @param {bool} isCreating : true if the file has to be created when saved false otherwise (updating)
      * @param {Directory} parentDirectory : file's parent directory
+     * @param {bool} isCreating : true if the file has to be created when saved false otherwise (updating)
      */
-    openEditor(file, isCreating=false, parentDirectory=null) {
+    openEditor(file, parentDirectory, isCreating=false) {
         this._displayEditor();
-        this.editor.open(file, isCreating, parentDirectory);
+        this.editor.open(file, parentDirectory, isCreating);
     }
 
     /**

@@ -3,39 +3,25 @@
  * Class which represents an editor's input.
  */
 class EditorInput extends AbstractInput {
-    constructor(editor) {
+    constructor(container) {
         super();
-        this.inputNode = this._create(editor);
-        this.editableNode = document.getElementById(EditorInput.EDITABLE_NODE_ID);
+        this.editableNode = this._create(container);
     }
 
     /**
      * _create
      * Creates an editor's input and initializes its events.
-     * @param {DOM node} editor : editor's DOM node
+     * @param {DOM node} container : container's DOM node
      */
-    _create(editor) {
+    _create(container) {
         let inputNode = document.createElement("span");
         inputNode.id = EditorInput.EDITABLE_NODE_ID;
         inputNode.contentEditable = "true";
         inputNode.spellcheck = false;
-        
-        this._initEvents(inputNode);
-        
-        editor.append(inputNode);
-        return inputNode;
-    }
 
-    /**
-     * _initEvents
-     * Initializes editor's input events.
-     * @param {DOM node} insideSpan : content editable node
-     */
-    _initEvents(insideSpan) {
-        let _this = this;
-        insideSpan.addEventListener("keydown", event => {
-            // TODO
-        });
+        container.append(inputNode);
+
+        return inputNode;
     }
 }
 
