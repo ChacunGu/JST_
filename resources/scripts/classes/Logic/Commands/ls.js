@@ -77,9 +77,10 @@ class CommandLS extends AbstractCommand {
                             if (optVerbose) {
                                 listContent += CommandLS.displayAll(path.children[i]);
                             } else {
-                                let elementColor = path.children[i] instanceof Directory ?    CommandLS.directoryColor :
-                                                   path.children[i] instanceof SymbolicLink ? CommandLS.symbolicLinkColor : 
-                                                                                  CommandLS.fileColor;
+                                let elementColor = path.children[i] instanceof Directory ?       CommandLS.directoryColor :
+                                                   path.children[i] instanceof SymbolicLink ?    CommandLS.symbolicLinkColor :
+                                                   path.children[i] instanceof AbstractCommand ? CommandLS.commandColor : 
+                                                                                                 CommandLS.fileColor;
                                 listContent += "<td style='color: " + elementColor + ";'>" + path.children[i].getName() + "</td>";
                             }
                             listContent += "</tr>";
@@ -108,8 +109,10 @@ class CommandLS extends AbstractCommand {
         } else if (file instanceof SymbolicLink) {
             fileType = "l";
             elementColor = CommandLS.symbolicLinkColor;
+        } else if (file instanceof AbstractCommand) {
+            fileType = "c";
+            elementColor = CommandLS.commandColor;
         }
-
 
         return  "<td>" + fileType + "</td>" +                                   // file type (-, d, l)
                 "<td>" + "" + "</td>" +                                         // permissions of the owner
@@ -132,6 +135,7 @@ class CommandLS extends AbstractCommand {
     }
 }
 
-CommandLS.directoryColor = "#6a9ae8";
-CommandLS.symbolicLinkColor = "#76e288";
-CommandLS.fileColor = "white";
+CommandLS.directoryColor = "#6A9AE8";
+CommandLS.symbolicLinkColor = "#76E288";
+CommandLS.fileColor = "#FFFFFF";
+CommandLS.commandColor = "#E04D28";

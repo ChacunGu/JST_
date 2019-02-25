@@ -32,16 +32,14 @@ class CommandMV extends AbstractCommand {
             
             let source = params[0];
             source = this.kernel.preparePath(source);
-            let sourceList = source.split("/");
-            let sourceName = sourceList[sourceList.length-1];
+            let sourceName = Kernel.retrieveElementNameAndPath(source).elem;
             
             let destination = params[1];
             destination = this.kernel.preparePath(destination);
-            let destinationList = destination.split("/");
-            let destinationName = destinationList[destinationList.length-1];
-            destinationList.pop();
-            destination = destinationList.join("/");
-
+            destination = Kernel.retrieveElementNameAndPath(destination);
+            let destinationName = destination.elem;
+            destination = destination.dir;
+            
             source = this.kernel.findElementFromPath(source);
             if (source == null)
                 return new CommandResult(false, "mv: can't move '" + sourceName + "': No such file or directory");
