@@ -76,13 +76,14 @@ class AbstractCommand extends AbstractFile {
      */
     _verifyExecuteArgs(options, params) {
         if (!(options instanceof Array) || !(params instanceof Array))
-        throw new TypeError("Options/Params must be of type Array.");
+            throw new TypeError("Options/Params must be of type Array.");
         
-        if ((options.length > this.maxNumberOptions && this.maxNumberOptions != -1) || 
-            (params.length > this.maxNumberParams && this.maxNumberParams != -1)) {
+        if (((options.length > this.maxNumberOptions && this.maxNumberOptions != -1) || 
+            (params.length > this.maxNumberParams && this.maxNumberParams != -1)) && !options.includes("?")) {
             this.kernel.displayBlock(this._getErrorTooManyArguments());
             return false;
-        } else if (options.length < this.minNumberOptions || params.length < this.minNumberParams) {
+        } else if ((options.length < this.minNumberOptions || params.length < this.minNumberParams) 
+                    && !options.includes("?")) {
             this.kernel.displayBlock(this._getErrorNotEnoughArguments());
             return false;
         }

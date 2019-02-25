@@ -17,6 +17,7 @@ class Kernel {
         
         this.currentDirectory = this.homeDirectory;
         this.terminal = new Terminal(this.getHeader());
+        this.editor = new Editor();
     }
     
     /**
@@ -27,7 +28,7 @@ class Kernel {
         window.addEventListener("submit", event => this._processInput(event.detail));
         window.addEventListener("historyup", event => this._browseHistory(true));
         window.addEventListener("historydown", event => this._browseHistory(false));
-        window.addEventListener("autocomplete", event => this._autocomplete(event.detail[0], event.detail[1]));
+        window.addEventListener("autocomplete", event => this._autocomplete(event.detail[0], event.detail[1], event.detail[2]));
     }
 
     /**
@@ -70,7 +71,7 @@ class Kernel {
                             Aliquam vitae ante tempor, eleifend turpis quis, ultricies velit.
                             Integer eget orci vitae libero auctor suscipit eu sed ligula.
                             Etiam eu est non urna commodo interdum.`;
-        userDirectory.addChild(story);
+        this.homeDirectory.addChild(story);
     }
 
     /**
@@ -97,6 +98,7 @@ class Kernel {
         bin.addChild(new CommandMV(this));
         bin.addChild(new CommandLN(this));
         bin.addChild(new CommandRMDIR(this));
+        bin.addChild(new CommandEdit(this));
     }
 
     /**
@@ -114,7 +116,9 @@ class Kernel {
             try {
                 let commandResult = this.root.find("bin").find(commandName).execute(args.options, args.params);
                 if (commandResult != undefined)
-                    this.displayBlock(commandResult.getContent(), commandResult.getAddBreakline());
+                    this.displayBlock(commandResult.getContent(), 
+                                        commandResult.getAddBreakline(), 
+                                        commandResult.getCustomHeader());
             } catch (e) {
                 console.log(e);
                 if (e instanceof TypeError) {
@@ -135,14 +139,20 @@ class Kernel {
     _splitArgs(args) {
         let splittedArgs = args.split(" ");
         let foundQuote = false;
+        let foundApostrophe = false;
         let counterArgsSinceQuote = 0;
+        let counterArgsSinceApostrophe = 0;
         let preparedArgs = [];
         for (let i=0; i<splittedArgs.length; i++) {
-            if (splittedArgs[i][0] == "\"" && splittedArgs[i][splittedArgs[i].length-1] == "\"" && !foundQuote)
+            if ((splittedArgs[i][0] == "\"" && splittedArgs[i][splittedArgs[i].length-1] == "\"" && !foundQuote) ||
+                (splittedArgs[i][0] == "'" && splittedArgs[i][splittedArgs[i].length-1] == "'" && !foundApostrophe))
                 preparedArgs.push(splittedArgs[i]);
             else {
                 if (splittedArgs[i][0] == "\"")
                     foundQuote = true;
+                if (splittedArgs[i][0] == "'")
+                    foundApostrophe = true;
+
                 if (splittedArgs[i][splittedArgs[i].length-1] == "\"" && foundQuote) {
                     preparedArgs[preparedArgs.length-1] += " " + splittedArgs[i];
                     for (let j=0; j<counterArgsSinceQuote-1; j++) {
@@ -152,9 +162,20 @@ class Kernel {
                     
                     foundQuote = false;
                     counterArgsSinceQuote = 0;
+                } else if (splittedArgs[i][splittedArgs[i].length-1] == "'" && foundApostrophe) {
+                    preparedArgs[preparedArgs.length-1] += " " + splittedArgs[i];
+                    for (let j=0; j<counterArgsSinceApostrophe-1; j++) {
+                        preparedArgs[preparedArgs.length-2] += " " + preparedArgs[preparedArgs.length-1];
+                        preparedArgs.pop();
+                    }
+                    
+                    foundApostrophe = false;
+                    counterArgsSinceApostrophe = 0;
                 } else {
                     if (foundQuote)
                         counterArgsSinceQuote++;
+                    if (foundApostrophe)
+                        counterArgsSinceApostrophe++;
                     preparedArgs.push(splittedArgs[i]);
                 }
             }
@@ -232,43 +253,100 @@ class Kernel {
      * _autocomplete
      * complete the user's input if exists
      * @param {String} currentInputValue : current terminal's input value
+     * @param {int} cursorPosition : cursor's position in the input value
+     * @param {bool} doubleTap : true if the user double pressed the tab key false otherwise
      */
-    _autocomplete(currentInputValue, cursorPosition) {
-        let newInputValue = currentInputValue;
-
-        console.log(currentInputValue, cursorPosition, cursorPosition < currentInputValue.length ? currentInputValue[cursorPosition] : "");
-
+    _autocomplete(currentInputValue, cursorPosition, doubleTap=false) {
+        
         // input pre processing
         let inputs = this._splitArgs(currentInputValue);
         let args = this._processArgs(inputs);
-
+        
         // retrieve path
         let path = null;
         if (args.params.length == 1)
-            path = Kernel.removePossibleInputQuotes(args.params[0]);
-
-
+            path = this.preparePath(args.params[0]);
+        else {
+            // TODO : find specified path
+            console.log("user input :\t\t", "'" + currentInputValue + "'", 
+                        "\ncursor position :\t", cursorPosition, 
+                        "\nchar at cursor pos :\t", cursorPosition < currentInputValue.length ? currentInputValue[cursorPosition] : "",
+                        "\nargs :\t", args);
+        }
+        
+        
         if (path != null) {
-
+            // separate filename from its path
             let pathInfo = Kernel.retrieveElementNameAndPath(path);
-            let currentDirectory = this.findElementFromPath(pathInfo.dir);
+            let currentDirectoryPath = pathInfo.dir;
+            let currentDirectory = this.findElementFromPath(currentDirectoryPath);
             let searchedElementName = pathInfo.elem;
-
 
             console.log(searchedElementName, currentDirectory);
 
-            if (currentDirectory != null) {
-                if (currentDirectory instanceof Directory) {
+            if (currentDirectory != null) { // if path does exist
+                if (currentDirectory instanceof Directory) { // if path points to a directory
+                    let children = currentDirectory.getChildren();
+                    let matchingElements = [];
 
+                    // search matching elements
+                    for (let i=0; i<children.length; i++) {
+                        if (children[i].getName().startsWith(searchedElementName))
+                            matchingElements.push(children[i]);
+                    }
+
+                    if (matchingElements.length == 1) { // only one matching element found
+                        // change input's value
+                        // TODO : adapt for autocompletion in the middle of the user input
+                        console.log(currentDirectoryPath);
+                        this.terminal.setInputContent(currentDirectoryPath + 
+                                                      (currentDirectoryPath[currentDirectoryPath.length-1] != "/" 
+                                                       && currentDirectoryPath.length > 0 ? "/" : "") + 
+                                                      matchingElements[0].getName() + 
+                                                      "/");
+                        this.terminal.focusInput();
+                    } else if (matchingElements.length > 1) { // multiple matching elements found
+                        if (doubleTap) {
+                            // TODO : adapt for autocompletion in the middle of the user input
+                            let paths = "";
+                            for (let i=0; i<matchingElements.length; i++)
+                                paths += matchingElements[i].getName() + "<br/>";
+                                this.terminal.addBlock(this.getHeader(), currentInputValue, paths, false);
+                        }
+                    }
                 }
             }
-            
-
-            // change input's value
-            this.terminal.setInputContent(newInputValue);
-            this.terminal.focusInput();
-
         }
+    }
+
+    /**
+     * _displayEditor
+     * Displays the text editor and hides the terminal.
+     */
+    _displayEditor() {
+        this.editor.display();
+        this.terminal.hide();
+    }
+
+    /**
+     * _hideEditor
+     * Hides the text editor and displays the terminal.
+     */
+    _hideEditor() {
+        this.editor.hide();
+        this.terminal.display();
+    }
+
+    /**
+     * openEditor
+     * Opens given file in an editor.
+     * @param {File} file : file to edit
+     * @param {bool} isCreating : true if the file has to be created when saved false otherwise (updating)
+     * @param {Directory} parentDirectory : file's parent directory
+     */
+    openEditor(file, isCreating=false, parentDirectory=null) {
+        this._displayEditor();
+        this.editor.open(file, isCreating, parentDirectory);
     }
 
     /**
@@ -292,9 +370,11 @@ class Kernel {
      * Creates and displays a new block with the last command and its given value.
      * @param {String} value : last command's result
      * @param {boolean} addBreakLine : true if a break line should be added after the given content false otherwise
+     * @param {String} customHeader : custom command's header
      */
-    displayBlock(value, addBreakLine=true) {
-        this.terminal.addBlock(this.getHeader(), this._getLastCommand(), value, addBreakLine);
+    displayBlock(value, addBreakLine=true, customHeader="") {
+        this.terminal.addBlock(customHeader.length > 0 ? customHeader : this.getHeader(), 
+                                this._getLastCommand(), value, addBreakLine);
     }
 
     /**
@@ -415,9 +495,10 @@ class Kernel {
      * @param {String} input : text possibly surrouded by quotes
      */
     static removePossibleInputQuotes(input) {
-        return input.length > 2 && input[0] == "\"" && input[input.length-1] == "\"" ? 
-               (input.length == 3 ? input[1] : input.slice(1, input.length-1)) : 
-               input;
+        return (input.length > 2 && input[0] == "\"" && input[input.length-1] == "\"") ||
+                (input.length > 2 && input[0] == "'" && input[input.length-1] == "'") ? 
+                    (input.length == 3 ? input[1] : input.slice(1, input.length-1)) : 
+                    input;
     }
 
     /**

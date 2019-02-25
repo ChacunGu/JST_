@@ -1,0 +1,19 @@
+
+#editor {
+    visibility: hidden;
+    
+    overflow-y: hidden;
+    overflow-x: hidden;
+    max-width: 100%;
+    width: 100%;
+    height: 95vh;
+    vertical-align: top;
+    display: table-cell;
+    z-index: 9;
+}
+
+#editorinputEditable {
+    position: absolute;
+    width: 100vw;
+    max-width: 100vw;
+}
