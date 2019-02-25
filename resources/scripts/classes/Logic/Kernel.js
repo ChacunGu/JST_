@@ -99,6 +99,7 @@ class Kernel {
         bin.addChild(new CommandLN(this));
         bin.addChild(new CommandRMDIR(this));
         bin.addChild(new CommandEdit(this));
+        bin.addChild(new CommandCat(this));
     }
 
     /**
