@@ -69,6 +69,7 @@ class Directory extends AbstractFile {
             this.children.push(file);
         } else
             throw new TypeError("File must be of type AbstractFile.");
+        this.children.sort((a,b) => a.getName().localeCompare(b.getName()));
     }
 
     /**

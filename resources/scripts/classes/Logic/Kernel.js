@@ -5,8 +5,15 @@
  */
 class Kernel {
     constructor() {
-        this.user = Kernel.DEFAULT_USER;
-        this.hostname = Kernel.DEFAULT_HOSTNAME;
+        this.groups = []
+        this.users = []
+        let rootGroup = new Group("root");
+        let rootUser = new User("root", rootGroup);
+        this.groups.push(rootGroup);
+        this.users.push(rootUser);
+        
+        this.user = rootUser;
+        //this.hostname = Kernel.DEFAULT_HOSTNAME;
         this.history = [];
         this.historySelectedCmdIndex = -1;
         
@@ -80,8 +87,6 @@ Etiam eu est non urna commodo interdum.`;
      * Creates the commands file and references them.
      */
     _initCommands() {
-        this.commands = {};
-
         // create binary files for commands
         let bin = this.root.find("bin");
         bin.addChild(new CommandClear(this));
@@ -403,7 +408,7 @@ Etiam eu est non urna commodo interdum.`;
      * the current path.
      */
     getHeader() {
-        return this.user + "@" + this.hostname + ": " + this.currentDirectory.getPath();
+        return this.user.getName() + "@" + this.user.getGroupName() + ": " + this.currentDirectory.getPath();
     }
 
     /**
