@@ -19,6 +19,15 @@ class File extends AbstractFile {
     }
 
     /**
+     * setContent
+     * Sets file's content with the given one.
+     * @param {String} content : new file's content
+     */
+    setContent(content) {
+        this.content = content;
+    }
+
+    /**
      * getSize
      * Returns the size of the file.
      */
