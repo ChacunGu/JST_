@@ -5,6 +5,7 @@
 class AbstractFile {
     constructor(name) {
         this.name = name;
+        this.owner = null;
         this.creationDate = new Date();
         this.lastEditDate = new Date();
         this.size = 0;
@@ -31,6 +32,25 @@ class AbstractFile {
      */
     rename(name) {
         this.name = name;
+    }
+
+    /**
+     * setOwner
+     * sets the owner of the file
+     * @param {User} user 
+     */
+    setOwner(user) {
+        if (user instanceof User) {
+            this.owner = user;
+        }
+    }
+
+    /**
+     * getOwner
+     * gets the owner of the file
+     */
+    getOwner() {
+        return this.owner;
     }
 
     /**

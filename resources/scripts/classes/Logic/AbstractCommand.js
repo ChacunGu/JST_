@@ -11,11 +11,12 @@ class AbstractCommand extends AbstractFile {
         this.maxNumberParams = 0;
         this.minNumberParams = 0;
 
-        if(kernel instanceof Kernel)
+        if(kernel instanceof Kernel) {
             this.kernel = kernel;
-        else 
+            this.setOwner(kernel.getUser());
+        } else { 
             throw new TypeError("AbstractCommand must receive a Kernel as first argument.");
-
+        }
         // avoid instantiation (abstract class)
         if (new.target === AbstractCommand)
             throw new Error("Cannot construct AbstractCommand instances directly.");

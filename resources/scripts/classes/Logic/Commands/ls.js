@@ -119,8 +119,8 @@ class CommandLS extends AbstractCommand {
                 "<td>" + "" + "</td>" +                                         // permission of the group
                 "<td>" + "" + "</td>" +                                         // permission of everybody else
                 "<td>" + numberOfFilesInside + "</td>" +                        // number of files or links inside
-                "<td>" + "" + "</td>" +                                         // name of the owner
-                "<td>" + "" + "</td>" +                                         // name of the group
+                "<td>" + file.getOwner().getName() + "</td>" +                  // name of the owner
+                "<td>" + file.getOwner().getGroupName() + "</td>" +             // name of the group
                 "<td>" + file.getSize() + "</td>" +                             // size in Byte
                 "<td>" + Kernel.displayDate(file.lastEditDate) + "</td>" +      // last edit date 
                 "<td style='color: " + elementColor + ";'>" + file.getName() + "</td>";   // name of file

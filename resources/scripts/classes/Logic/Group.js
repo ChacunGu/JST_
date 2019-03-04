@@ -8,7 +8,7 @@ class Group {
 
         this.users = [];
     }
-
+    
     /**
      * addUser
      * adds a user to the group

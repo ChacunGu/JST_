@@ -5,8 +5,23 @@
 class User {
     constructor(name, group) {
         this.name = name;
+        this.password = Kernel.SHA256("");
         this.groups = [];
         this.addToGroup(group);
+        console.log(this);
+    }
+
+    /**
+     * changePassword
+     * changes the poassword of the user
+     * needs the old password to do so!
+     * @param {String} oldPassword 
+     * @param {String} newPassword 
+     */
+    changePassword(oldPassword, newPassword) {
+        if(Kernel.SHA256(oldPassword) == this.password) {
+            this.password = Kernel.SHA256(newPassword);
+        }
     }
 
     /**
