@@ -41,6 +41,12 @@
     width: 95%;
     max-width: 95%;
     padding-bottom: 50px;
+    
+    white-space: pre-wrap;       /* css-3 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
 
 #editorCommandInputEditable {
@@ -60,4 +66,9 @@
     font-weight: bold;
     color: black;
     background-color: rgb(247, 247, 247);
+}
+
+.editorWarningMsg {
+    color:white;
+    background-color:red;
 }

@@ -13,6 +13,7 @@ class Editor {
 
         this.hide();
 
+        this.modificationSaved = true;
         this.createFile = true;
         this.file = null;
         this.parentDirectory = null;
@@ -55,6 +56,9 @@ class Editor {
      */
     _initEvents() {
         window.addEventListener("submitCommand", event => this._processInput(event.detail));
+        this.input.editableNode.onkeypress = () => {
+            this.modificationSaved = false;
+        };
     }
 
     /**
@@ -66,12 +70,50 @@ class Editor {
         this.commandInput._clear();
         switch(userInput) {
             case "q!":
-                window.dispatchEvent(new Event("hideEditor"));                
+                this._exit();     
+                break;
+            case "q":
+                if (!this.modificationSaved) {
+                    this.changeMode(Editor.MODE_GENERAL);
+                    this.commandInput.setValue("<span class='editorWarningMsg'>No write since last change (add ! to override)</span>");
+                } else
+                    this._exit();     
+                break;
+            case "w":
+                this.modificationSaved = true;
+                this._save();
+                break;
+            case "wq":
+                this.modificationSaved = true;
+                this._save();
+                this._exit();
                 break;
             default:
                 this.changeMode(Editor.MODE_GENERAL);
-                this.commandInput.setValue("<span style='color:white;background-color:red;'>Not an editor command: " + userInput + "</span>");
+                this.commandInput.setValue("<span class='editorWarningMsg'>Not an editor command: " + userInput + "</span>");
         }
+    }
+
+    /**
+     * _save
+     * Saves edited file.
+     */
+    _save() {
+        let content = this.input.getContent().split("</div>").join("")
+                                             .split("<div>").join("<br>");
+        this.file.setContent(content);
+
+        // create new file
+        if (this.createFile)
+            this.parentDirectory.addChild(this.file);
+    }
+
+    /**
+     * _exit
+     * Exits editor.
+     */
+    _exit() {
+        window.dispatchEvent(new Event("hideEditor"));
     }
 
     /**
@@ -133,9 +175,18 @@ class Editor {
         this.file = file;
         this.parentDirectory = parentDirectory;
         this.createFile = isCreating;
+        this.modificationSaved = true;
         this.input.setValue(this.file.getContent());
+        this.setCursorPosition(0);
+        this.mode = Editor.MODE_GENERAL;
+        this.changeMode(this.mode);
 
-        this.setFilenameBoxContent(this.file.getPath());
+        let filename = this.file.getName();
+        let filePath = this.file.getPath();
+        filePath = filePath != filename ? filePath : this.parentDirectory.getPath() + "/" + filename;
+        
+        this.commandInput.setValue("\"" + filename + "\"" + (isCreating ? " [New File]" : ""));
+        this.setFilenameBoxContent(filePath);
     }
 
     /**

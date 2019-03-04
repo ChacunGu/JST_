@@ -65,23 +65,27 @@ class Kernel {
         this.homeDirectory = this.root.find("home");
         let userDirectory = this.createDirectory(this.getUser().getName(), this.homeDirectory);
         let story = this.createFile("story.txt");
-        story.content = `   Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                            Morbi ac dolor vel nunc eleifend tincidunt.
-                            Donec nec augue at lacus bibendum pellentesque non sit amet quam.
-                            Nulla bibendum ligula a bibendum aliquet.
-                            Cras sed urna euismod, porta dui quis, sollicitudin justo.
-                            Maecenas ac augue at est posuere varius.
-                            Phasellus sed est vitae magna molestie volutpat.
-                            Curabitur pellentesque elit vitae dictum mattis.
-                            Vivamus eleifend nunc id turpis sodales, eget tempor velit gravida.
-                            Nam condimentum diam ut lacus semper aliquam.
-                            Curabitur rutrum risus in tellus accumsan, non mollis tortor finibus.
-                            Nam eleifend augue non velit dapibus dictum.
-                            Sed sagittis felis sit amet sollicitudin mollis.
-                            Aliquam vitae ante tempor, eleifend turpis quis, ultricies velit.
-                            Integer eget orci vitae libero auctor suscipit eu sed ligula.
-                            Etiam eu est non urna commodo interdum.`;
+        story.content = `Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Morbi ac dolor vel nunc eleifend tincidunt.
+Donec nec augue at lacus bibendum pellentesque non sit amet quam.
+Nulla bibendum ligula a bibendum aliquet.
+Cras sed urna euismod, porta dui quis, sollicitudin justo.
+Maecenas ac augue at est posuere varius.
+Phasellus sed est vitae magna molestie volutpat.
+Curabitur pellentesque elit vitae dictum mattis.
+Vivamus eleifend nunc id turpis sodales, eget tempor velit gravida.
+Nam condimentum diam ut lacus semper aliquam.
+Curabitur rutrum risus in tellus accumsan, non mollis tortor finibus.
+Nam eleifend augue non velit dapibus dictum.
+Sed sagittis felis sit amet sollicitudin mollis.
+Aliquam vitae ante tempor, eleifend turpis quis, ultricies velit.
+Integer eget orci vitae libero auctor suscipit eu sed ligula.
+Etiam eu est non urna commodo interdum.`;
         this.homeDirectory.addChild(story);
+
+        let html = this.createFile("html");
+        html.content = `<div id="menu"><u><div id="title1">Choose a nickname :</div></u><input type="text" id="nickname" value="tests"></input><br><br><br><u><div id="title2">Select a vehicle :</div></u><br><a onclick="verifNickname('mustang');">Mustang</a><br></div>`;
+        this.homeDirectory.addChild(html);
     }
 
     /**
