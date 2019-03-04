@@ -30,30 +30,39 @@ class CommandMV extends AbstractCommand {
                 }
             }
             
-            let source = params[0];
-            source = this.kernel.preparePath(source);
-            let sourceName = Kernel.retrieveElementNameAndPath(source).elem;
-            
-            let destination = params[1];
-            destination = this.kernel.preparePath(destination);
-            destination = Kernel.retrieveElementNameAndPath(destination);
-            let destinationName = destination.elem;
-            destination = destination.dir;
-            
-            source = this.kernel.findElementFromPath(source);
-            if (source == null)
-                return new CommandResult(false, "mv: can't move '" + sourceName + "': No such file or directory");
-            
-            destination = this.kernel.findElementFromPath(destination);
-            if (destination == null)
-                return new CommandResult(false, "mv: can't move '" + sourceName + "' to '" + destination + "': No such file or directory");
-            
-            if (destination instanceof Directory) {
-                source.parent.remove(source.getName());
-                destination.addChild(source);
-                source.rename(destinationName);
-            }
+            // handle parameters
+            let filenameSrc = this.kernel.preparePath(params[0]);
+            let filenameDst = this.kernel.preparePath(params[1]);
 
+            // find source element
+            let elementSrc = this.kernel.findElementFromPath(filenameSrc, false);
+            let elementDst = this.kernel.findElementFromPath(filenameDst, false);
+
+            // find destinations filename and parent directory
+            let pathInfo = Kernel.retrieveElementNameAndPath(filenameDst);
+            let parentDirectoryDst = this.kernel.findElementFromPath(pathInfo.dir);
+            filenameDst = pathInfo.elem;
+
+            // handle invalid filename
+            if (AbstractFile.containsSpecialCharacters(filenameDst)) // invalid special characters in filename
+                return new CommandResult(false, this._getErrorSpecialChar());
+
+            // move element src to dst
+            if (elementSrc != null) { // if source element has been found
+                if (parentDirectoryDst != null) { // if destination directory has been found
+                    if (elementDst == null) { // if destination element does not already exist
+                        if (parentDirectoryDst instanceof Directory) { // destination must be a directory
+                            elementSrc.getParent().remove(elementSrc.getName()); // remove element from current directory
+                            parentDirectoryDst.addChild(elementSrc); // add element to destination directory
+                            elementSrc.rename(filenameDst); // rename element to its new name
+                        } else
+                            return new CommandResult(false, filenameDst + ": Not a directory");
+                    } else
+                        return new CommandResult(false, filenameDst + ": Already exists");
+                } else
+                    return new CommandResult(false, "Can't move '" + filenameSrc + "' to '" + filenameDst + "': No such file or directory");
+            } else
+                return new CommandResult(false, "Can't move '" + filenameSrc + "': No such file or directory");
             return new CommandResult();
         }
     }

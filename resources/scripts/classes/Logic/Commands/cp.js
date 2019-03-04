@@ -64,9 +64,9 @@ class CommandCP extends AbstractCommand {
                     if (parentDirectoryDst instanceof Directory)
                         elementSrc.copy(filenameDst, parentDirectoryDst, optLinkFiles);
                     else
-                        return new CommandResult(false, parentDirectoryPathDst + ": Not a directory");
+                        return new CommandResult(false, filenameDst + ": Not a directory");
                 } else
-                    return new CommandResult(false, parentDirectoryPathDst + ": No such file or directory.");
+                    return new CommandResult(false, filenameDst + ": No such file or directory.");
             } else
                 return new CommandResult(false, filenameSrc + ": No such file or directory.");
             return new CommandResult(); 

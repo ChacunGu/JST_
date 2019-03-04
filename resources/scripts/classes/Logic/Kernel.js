@@ -499,13 +499,17 @@ Etiam eu est non urna commodo interdum.`;
             startingDirectory = this.getCurrentDirectory();
         }
 
-        let element = startingDirectory;
-        for (let i=0; i<listFilenames.length && (i==0 || element!=null); i++) {
-            if (listFilenames[i].length > 0)
-                element = element.find(listFilenames[i], followingSymbolicLink);
-        }
+        try {
+            let element = startingDirectory;
+            for (let i=0; i<listFilenames.length && (i==0 || element!=null); i++) {
+                if (listFilenames[i].length > 0)
+                    element = element.find(listFilenames[i], followingSymbolicLink);
+            }
 
-        return element;
+            return element;
+        } catch {
+            return null;
+        }
     }
 
     /**
