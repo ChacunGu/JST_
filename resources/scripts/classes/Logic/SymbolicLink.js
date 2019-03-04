@@ -10,6 +10,7 @@ class SymbolicLink extends AbstractFile {
 
         if(file instanceof AbstractFile) {
             this.file = file;
+            this.setOwner(file.getOwner());
         } else {
             throw new TypeError("File must be of type AbstractFile.");
         }

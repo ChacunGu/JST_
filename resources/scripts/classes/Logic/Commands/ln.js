@@ -50,7 +50,7 @@ class CommandLN extends AbstractCommand {
             // create link
             if (elementSrc != null) { // if source element has been found
                 if (parentDirectoryDst != null) { // if destination directory has been found
-                    parentDirectoryDst.addChild(new SymbolicLink(filenameDst, elementSrc));
+                    parentDirectoryDst.addChild(this.kernel.createSymbolicLink(filenameDst, elementSrc));
                 } else
                     return new CommandResult(false, parentDirectoryPathDst + ": No such file or directory.");
             } else

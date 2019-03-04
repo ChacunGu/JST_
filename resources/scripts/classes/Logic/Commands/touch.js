@@ -50,7 +50,7 @@ class CommandTouch extends AbstractCommand {
                 else
                     return new CommandResult(false, filename + ": Not a file");
             } else
-                parentDirectory.addChild(new File(filename)); // create new file
+                parentDirectory.addChild(this.kernel.createFile(filename)); // create new file
             return new CommandResult();
         }
     }

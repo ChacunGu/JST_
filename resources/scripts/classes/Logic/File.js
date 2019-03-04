@@ -44,6 +44,7 @@ class File extends AbstractFile {
      */
     copy(new_name, destination, createLink=false) { 
         let copy = !createLink ? new File(new_name, this.content) : new SymbolicLink(new_name, this);
+        copy.setOwner(this.getOwner());
         destination.addChild(copy);
         return copy;
     }

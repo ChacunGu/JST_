@@ -3,14 +3,14 @@
  * has children (Directory or Files)
  */
 class Directory extends AbstractFile {
-    constructor(name, parent) {
+    constructor(name, parent=null) {
         super(name);
         
         this.size = 4096;
 
         this.children = [];
         this.children.push(new SymbolicLink(".", this));
-
+        
         if (parent != null) {
             parent.addChild(this);
             this.children.push(new SymbolicLink("..", this.parent));
@@ -82,6 +82,7 @@ class Directory extends AbstractFile {
     copy(new_name, destination, createLink=false) { 
         if (!createLink) {
             let copy = new Directory(new_name, destination);
+            copy.setOwner(this.getOwner());
             for (let i=0; i<this.children.length; i++) {
                 if (this.children[i].getName() != "." && this.children[i].getName() != "..")
                     this.children[i].copy(this.children[i].getName(), copy);
@@ -89,6 +90,7 @@ class Directory extends AbstractFile {
             return copy;
         } else {
             let copy = new SymbolicLink(new_name, this);
+            copy.setOwner(this.getOwner());
             destination.addChild(copy);
             return copy;
         }
