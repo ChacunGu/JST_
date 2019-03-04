@@ -3,17 +3,17 @@
  * has children (Directory or Files)
  */
 class Directory extends AbstractFile {
-    constructor(name, parent=null) {
-        super(name);
+    constructor(name, user=null, parent=null) {
+        super(name, user);
         
         this.size = 4096;
 
         this.children = [];
-        this.children.push(new SymbolicLink(".", this));
+        this.children.push(new SymbolicLink(".", this, user));
         
         if (parent != null) {
             parent.addChild(this);
-            this.children.push(new SymbolicLink("..", this.parent));
+            this.children.push(new SymbolicLink("..", this.parent, user));
         }
     }
     

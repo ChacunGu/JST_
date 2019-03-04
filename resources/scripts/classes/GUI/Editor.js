@@ -100,7 +100,7 @@ class Editor {
      */
     _save() {
         let content = this.input.getContent().split("</div>").join("")
-                                             .split("<div>").join("<br>");
+                                             .split("<div>").join("\n");
         this.file.setContent(content);
 
         // create new file

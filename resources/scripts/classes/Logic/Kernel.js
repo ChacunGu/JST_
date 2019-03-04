@@ -7,11 +7,8 @@ class Kernel {
     constructor() {
         this.groups = []
         this.users = []
-        let rootGroup = new Group("root");
-        let rootUser = new User("root", rootGroup);
+        let rootUser = this.createUser("root");
         rootUser.changePassword("", "root");
-        this.groups.push(rootGroup);
-        this.users.push(rootUser);
         
         this.user = rootUser;
         //this.hostname = Kernel.DEFAULT_HOSTNAME;
@@ -23,6 +20,8 @@ class Kernel {
         this._initEvents();
         this._initCommands();
         
+        this.user = this.createUser("user1", new Group("users"));
+
         this.currentDirectory = this.homeDirectory;
         this.terminal = new Terminal(this.getHeader());
         this.editor = new Editor();
@@ -45,16 +44,16 @@ class Kernel {
      * Initialize the root directory and all its children.
      */
     _initRoot() {
-        this.root = this.createDirectory("");
+        this.root = new Directory("");
 
-        this.createDirectory("bin", this.root); // put all commands here
-        this.createDirectory("boot", this.root);
-        this.createDirectory("dev", this.root);
-        this.createDirectory("etc", this.root);
-        this.createDirectory("home", this.root);
-        this.createDirectory("tmp", this.root);
-        this.createDirectory("var", this.root);
-        this.createDirectory("root", this.root);
+        new Directory("bin", this.user, this.root); // put all commands here
+        new Directory("boot", this.user, this.root);
+        new Directory("dev", this.user, this.root);
+        new Directory("etc", this.user, this.root);
+        new Directory("home", this.user, this.root);
+        new Directory("tmp", this.user, this.root);
+        new Directory("var", this.user, this.root);
+        new Directory("root", this.user, this.root);
     }
 
     /**
@@ -63,8 +62,8 @@ class Kernel {
      */
     _initHome() {
         this.homeDirectory = this.root.find("home");
-        let userDirectory = this.createDirectory(this.getUser().getName(), this.homeDirectory);
-        let story = this.createFile("story.txt");
+        let userDirectory = new Directory(this.getUser().getName(), this.getUser(), this.homeDirectory);
+        let story = new File("story.txt", this.getUser());
         story.content = `Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 Morbi ac dolor vel nunc eleifend tincidunt.
 Donec nec augue at lacus bibendum pellentesque non sit amet quam.
@@ -83,7 +82,7 @@ Integer eget orci vitae libero auctor suscipit eu sed ligula.
 Etiam eu est non urna commodo interdum.`;
         this.homeDirectory.addChild(story);
 
-        let html = this.createFile("html");
+        let html = new File("html", this.getUser());
         html.content = `<div id="menu"><u><div id="title1">Choose a nickname :</div></u><input type="text" id="nickname" value="tests"></input><br><br><br><u><div id="title2">Select a vehicle :</div></u><br><a onclick="verifNickname('mustang');">Mustang</a><br></div>`;
         this.homeDirectory.addChild(html);
     }
@@ -129,11 +128,17 @@ Etiam eu est non urna commodo interdum.`;
             this._addToHistory(userInput);
 
             try {
-                let commandResult = this.root.find("bin").find(commandName).execute(args.options, args.params);
-                if (commandResult != undefined)
-                    this.displayBlock(commandResult.getContent(), 
-                                        commandResult.getAddBreakline(), 
-                                        commandResult.getCustomHeader());
+                let command = this.root.find("bin").find(commandName);
+                if (this.getUser().canExecute(command)) {
+                    let commandResult = command.execute(args.options, args.params);
+                    if (commandResult != undefined)
+                        this.displayBlock(  commandResult.getContent(), 
+                                            commandResult.getAddBreakline(), 
+                                            commandResult.getCustomHeader());
+                } else {
+                    this.displayBlock(this.user.getName() + " do not have the rights to execute!");
+                }
+                
             } catch (e) {
                 console.log(e);
                 if (e instanceof TypeError) {
@@ -521,30 +526,56 @@ Etiam eu est non urna commodo interdum.`;
      * @param {User} user 
      */
     addUser(user) {
-        if (user instanceof User)
+        if (user instanceof User) {
             this.users.push(user);
+        }    
     }
 
-    createFile(name, content="") {
-        let file = new File(name, content);
-        file.setOwner(this.getUser());
-        return file;
+    /**
+     * addGroup
+     * adds a group to the list of groups of the kernel
+     * @param {Group} group 
+     */
+    addGroup(group) {
+        if (group instanceof Group) {
+            this.groups.push(group);
+        }
     }
 
-    createDirectory(name, parent=null) {
-        let dir = new Directory(name, parent);
-        dir.setOwner(this.getUser());
-        dir.find(".").setOwner(this.getUser());
-        try {
-            dir.find("..").setOwner(this.getUser());
-        } catch(e) {}
-        return dir;
+    /**
+     * createUser
+     * create a new user
+     * set the group to be at least his name
+     * @param {String} name 
+     * @param {Group} group 
+     */
+    createUser(name, group=null) {
+        if (group == null) {
+            group = new Group(name);
+        }
+        if (!group.isInList(this.groups)) {
+            this.addGroup(group);
+        }
+        let newUser = new User(name, group);
+        this.addUser(newUser);
+
+        new Directory(newUser.getName(), newUser, this.homeDirectory);
+
+        return newUser;
     }
 
-    createSymbolicLink(name, file) {
-        let symLink = new SymbolicLink(name, file);
-        symLink.setOwner(this.getUser());
-        return symLink;
+    /**
+     * findUser
+     * returns a user by name if exists
+     * @param {String} name 
+     */
+    findUser(name) {
+        for (let i=0 ; i < this.users.length ; i++) {
+            if (this.users[i].getName() == name) {
+                return this.users[i];
+            }
+        }
+        return null;
     }
 
     /********************************************************************************/

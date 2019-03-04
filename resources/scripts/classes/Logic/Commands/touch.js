@@ -16,7 +16,7 @@ class CommandTouch extends AbstractCommand {
      * @param {Array} options : command's option(s)
      * @param {Array} params : command's parameter(s)
      */
-    execute(options=[], params=[]) { 
+    execute(options=[], params=[]) {
         // handle invalid options / parameters
         if (this._verifyExecuteArgs(options, params)) {
             
@@ -45,12 +45,23 @@ class CommandTouch extends AbstractCommand {
             // file creation / update
             let file = parentDirectory.find(filename);            
             if(file != null) { // if the file already exists
-                if (file instanceof File) // update existing file
-                    file.update();
+                if (file instanceof File) { // update existing file
+                    if (this.kernel.getUser().canWrite(file)) {
+                        file.update();
+                    } else {
+                        return new CommandResult(false, filename + " : Do not have rights to write");    
+                    }
+                }
                 else
                     return new CommandResult(false, filename + ": Not a file");
-            } else
-                parentDirectory.addChild(this.kernel.createFile(filename)); // create new file
+            } else {
+                if (this.kernel.getUser().canWrite(parentDirectory)) {
+                    parentDirectory.addChild(new File(filename, this.kernel.getUser())); // create new file
+                } else {
+                    return new CommandResult(false,
+                        this.kernel.getUser().getName() + " do not have rights to write in Directory");    
+                }
+            }
             return new CommandResult();
         }
     }

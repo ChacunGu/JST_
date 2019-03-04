@@ -113,11 +113,8 @@ class CommandLS extends AbstractCommand {
             fileType = "c";
             elementColor = CommandLS.commandColor;
         }
-
-        return  "<td>" + fileType + "</td>" +                                   // file type (-, d, l)
-                "<td>" + "" + "</td>" +                                         // permissions of the owner
-                "<td>" + "" + "</td>" +                                         // permission of the group
-                "<td>" + "" + "</td>" +                                         // permission of everybody else
+        return  "<td>" + fileType +                                             // file type (-, d, l)
+                file.permission.toString() + "</td>" +                          // permission of everybody else
                 "<td>" + numberOfFilesInside + "</td>" +                        // number of files or links inside
                 "<td>" + file.getOwner().getName() + "</td>" +                  // name of the owner
                 "<td>" + file.getOwner().getGroupName() + "</td>" +             // name of the group

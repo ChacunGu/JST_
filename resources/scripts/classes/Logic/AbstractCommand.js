@@ -4,16 +4,17 @@
  */
 class AbstractCommand extends AbstractFile {
     constructor(kernel, name) {
-        super(name);
+        super(name, kernel.getUser());
 
         this.maxNumberOptions = 1; // at least 1 for '-?'
         this.minNumberOptions = 0;
         this.maxNumberParams = 0;
         this.minNumberParams = 0;
 
+        this.permission.setRights("711");
+
         if(kernel instanceof Kernel) {
             this.kernel = kernel;
-            this.setOwner(kernel.getUser());
         } else { 
             throw new TypeError("AbstractCommand must receive a Kernel as first argument.");
         }

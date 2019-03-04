@@ -3,9 +3,10 @@
  * Contains a name, a date and a parent to find the path in file system.
  */
 class AbstractFile {
-    constructor(name) {
+    constructor(name, user=null) {
         this.name = name;
-        this.owner = null;
+        this.owner = user;
+        this.permission = new Permission();
         this.creationDate = new Date();
         this.lastEditDate = new Date();
         this.size = 0;

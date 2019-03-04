@@ -36,7 +36,8 @@ class CommandMKDIR extends AbstractCommand {
                         if (AbstractFile.containsSpecialCharacters(allDirectoryFromPath[directoryPathIndex])) // invalid special characters in directory name
                             return new CommandResult(false, this._getErrorSpecialChar());
                         else // create new repository specified in given path
-                            this.kernel.createDirectory(allDirectoryFromPath[directoryPathIndex], 
+                            new Directory(allDirectoryFromPath[directoryPathIndex],
+                                                        this.kernel.getUser(), 
                                                         this.kernel.findElementFromPath(buildDirectoryPath));
                     } else { // find first directory specified in path
                         let startingDirectory = this.kernel.findElementFromPath(directoryName[0]);
@@ -45,7 +46,8 @@ class CommandMKDIR extends AbstractCommand {
                         if (AbstractFile.containsSpecialCharacters(allDirectoryFromPath[directoryPathIndex])) // invalid special characters in directory name
                             return new CommandResult(false, this._getErrorSpecialChar());
                         else // create repository specified in given path
-                            this.kernel.createDirectory(allDirectoryFromPath[directoryPathIndex], 
+                            new Directory(allDirectoryFromPath[directoryPathIndex],
+                                                        this.kernel.getUser(), 
                                                         startingDirectory);
                     }
                 }

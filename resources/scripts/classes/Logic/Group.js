@@ -19,6 +19,20 @@ class Group {
     }
 
     /**
+     * isInList
+     * test if the group is in the list of groups
+     * @param {Group[]} groups
+     */
+    isInList(groups) {
+        for (let i = 0 ; i < groups.length ; i++) {
+            if (groups[i] === this) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * getName
      * returns the name of the group
      */

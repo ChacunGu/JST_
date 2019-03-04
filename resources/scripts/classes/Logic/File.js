@@ -3,8 +3,8 @@
  * Represents a file.
  */
 class File extends AbstractFile {
-    constructor(name, content="") {
-        super(name);
+    constructor(name, user=null, content="") {
+        super(name, user);
 
         this.content = content;
         this.size = this.content.length;

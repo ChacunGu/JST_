@@ -3,14 +3,13 @@
  * has a reference to another file
  */
 class SymbolicLink extends AbstractFile {
-    constructor(name, file) {
-        super(name);
+    constructor(name, file, user=null) {
+        super(name, user);
 
         this.size = 7;
 
         if(file instanceof AbstractFile) {
             this.file = file;
-            this.setOwner(file.getOwner());
         } else {
             throw new TypeError("File must be of type AbstractFile.");
         }

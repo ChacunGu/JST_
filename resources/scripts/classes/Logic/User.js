@@ -8,7 +8,6 @@ class User {
         this.password = Kernel.SHA256("");
         this.groups = [];
         this.addToGroup(group);
-        console.log(this);
     }
 
     /**
@@ -56,5 +55,45 @@ class User {
      */
     getGroupName() {
         return this.groups[0].getName();
+    }
+
+    
+    /**
+     * canRead
+     * tests if the user can read the file
+     * @param {AbstractFile} user 
+     */
+    canRead(file) {
+        if (this === file.getOwner() && file.permission.ownerRights.read) {
+            return true
+        }
+        // TODO handle group
+        return file.permission.allRights.read;
+    }
+
+    /**
+     * canWrite
+     * tests if the user can write in the file
+     * @param {AbstractFile} user 
+     */
+    canWrite(file) {
+        if (this === file.getOwner() && file.permission.ownerRights.write) {
+            return true
+        }
+        // TODO handle group
+        return file.permission.allRights.write;
+    }
+
+    /**
+     * canExecute
+     * tests if the user can execute the file
+     * @param {AbstractFile} user 
+     */
+    canExecute(file) {
+        if (this === file.getOwner() && file.permission.ownerRights.execute) {
+            return true
+        }
+        // TODO handle group
+        return file.permission.allRights.execute;
     }
 }
