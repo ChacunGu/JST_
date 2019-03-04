@@ -80,6 +80,10 @@ Aliquam vitae ante tempor, eleifend turpis quis, ultricies velit.
 Integer eget orci vitae libero auctor suscipit eu sed ligula.
 Etiam eu est non urna commodo interdum.`;
         this.homeDirectory.addChild(story);
+
+        let html = new File("html");
+        html.content = `<div id="menu"><u><div id="title1">Choose a nickname :</div></u><input type="text" id="nickname" value="tests"></input><br><br><br><u><div id="title2">Select a vehicle :</div></u><br><a onclick="verifNickname('mustang');">Mustang</a><br></div>`;
+        this.homeDirectory.addChild(html);
     }
 
     /**
