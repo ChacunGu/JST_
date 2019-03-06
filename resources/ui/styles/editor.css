@@ -31,14 +31,14 @@
 
 #editorLeftSideNode {
     display: inline-block;
-    width: 4%;
+    width: 2%;
     min-width: 20px;
 }
 
 #editorinputEditable {
     pointer-events: none;
     position: absolute;
-    width: 95%;
+    width: 97%;
     max-width: 95%;
     padding-bottom: 50px;
     

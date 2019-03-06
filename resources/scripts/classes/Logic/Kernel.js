@@ -20,7 +20,7 @@ class Kernel {
         this._initEvents();
         this._initCommands();
         
-        this.user = this.createUser("user1", new Group("users"));
+        this.createUser("user1", new Group("users"));
 
         this.currentDirectory = this.homeDirectory;
         this.terminal = new Terminal(this.getHeader());
@@ -82,9 +82,9 @@ Integer eget orci vitae libero auctor suscipit eu sed ligula.
 Etiam eu est non urna commodo interdum.`;
         this.homeDirectory.addChild(story);
 
-        let html = new File("html", this.getUser());
-        html.content = `<div id="menu"><u><div id="title1">Choose a nickname :</div></u><input type="text" id="nickname" value="tests"></input><br><br><br><u><div id="title2">Select a vehicle :</div></u><br><a onclick="verifNickname('mustang');">Mustang</a><br></div>`;
-        this.homeDirectory.addChild(html);
+        let store = new File("store.txt", this.getUser());
+        store.content = `Liste des magasins : CDF, NE, BE`;
+        this.homeDirectory.addChild(store);
     }
 
     /**
@@ -277,21 +277,75 @@ Etiam eu est non urna commodo interdum.`;
      * @param {bool} doubleTap : true if the user double pressed the tab key false otherwise
      */
     _autocomplete(currentInputValue, cursorPosition, doubleTap=false) {
+
+        let nbQuotes = 0;
+        for (let i=0; i<currentInputValue.length; i++) {
+            if (currentInputValue[i] == "\"")
+                nbQuotes++;
+        }
+
+        if (nbQuotes%2 == 1)
+            currentInputValue += "\"";
         
         // input pre processing
         let inputs = this._splitArgs(currentInputValue);
         let args = this._processArgs(inputs);
         
         // retrieve path
+        let argIndex = null;
+        let argIndexStart = null;
+        let argIndexEnd = null;
         let path = null;
         if (args.params.length == 1)
             path = this.preparePath(args.params[0]);
         else {
             // TODO : find specified path
-            console.log("user input :\t\t", "'" + currentInputValue + "'", 
-                        "\ncursor position :\t", cursorPosition, 
-                        "\nchar at cursor pos :\t", cursorPosition < currentInputValue.length ? currentInputValue[cursorPosition] : "",
-                        "\nargs :\t", args);
+            let elemAtCursorPos = cursorPosition < currentInputValue.length ? currentInputValue[cursorPosition] : "";
+            // console.log("user input :\t\t", "'" + currentInputValue + "'", 
+            //             "\ncursor position :\t", cursorPosition, 
+            //             "\nchar at cursor pos :\t", cursorPosition < currentInputValue.length ? currentInputValue[cursorPosition] : "",
+            //             "\nargs :\t", args);
+
+            let searchedArg = "";
+            let searchedElem = null;
+            argIndexEnd = cursorPosition;
+
+            if (elemAtCursorPos == "\"") {
+                searchedElem = "\"";
+                searchedArg = "\"";
+            } else if (elemAtCursorPos == "'") {
+                searchedElem = "'";
+                searchedArg = "'";
+            } else if (elemAtCursorPos == "") {
+                searchedElem = " ";
+                searchedArg = "";
+            } else
+                return;
+
+            // retrieve selected argument
+            for (let i=cursorPosition-1; i>=0; i--) {
+                searchedArg = currentInputValue[i] + searchedArg;
+                if (currentInputValue[i] == searchedElem) {
+                    argIndexStart = i+1;
+                    if (searchedElem == " ") {
+                        searchedArg = searchedArg.slice(1);
+                    }
+                    break;
+                }
+            }
+
+            // search and retrieve for selected arguments in arg.params
+            for (let i=0; i<args.params.length; i++) {
+                if (searchedArg == args.params[i]) {
+                    argIndex = i;
+                    break;
+                }
+            }
+
+            if (argIndex == null)
+                return;
+
+            path = this.preparePath(args.params[argIndex]);
         }
         
         
@@ -302,7 +356,7 @@ Etiam eu est non urna commodo interdum.`;
             let currentDirectory = this.findElementFromPath(currentDirectoryPath);
             let searchedElementName = pathInfo.elem;
 
-            console.log(searchedElementName, currentDirectory);
+            // console.log(searchedElementName, currentDirectory);
 
             if (currentDirectory != null) { // if path does exist
                 if (currentDirectory instanceof Directory) { // if path points to a directory
@@ -317,13 +371,19 @@ Etiam eu est non urna commodo interdum.`;
 
                     if (matchingElements.length == 1) { // only one matching element found
                         // change input's value
-                        // TODO : adapt for autocompletion in the middle of the user input
-                        console.log(currentDirectoryPath);
-                        this.terminal.setInputContent(currentDirectoryPath + 
-                                                      (currentDirectoryPath[currentDirectoryPath.length-1] != "/" 
-                                                       && currentDirectoryPath.length > 0 ? "/" : "") + 
-                                                      matchingElements[0].getName() + 
-                                                      "/");
+
+                        // console.log(currentDirectoryPath);
+                        
+                        let completedPath = currentDirectoryPath + 
+                                            (currentDirectoryPath[currentDirectoryPath.length-1] != "/" && currentDirectoryPath.length > 0 ? "/" : "") + 
+                                            matchingElements[0].getName() + 
+                                            (matchingElements[0] instanceof Directory ? "/" : "");
+
+                        let newInputValue = currentInputValue.split(currentInputValue.slice(argIndexStart, argIndexEnd));
+                        newInputValue = newInputValue[0] + completedPath + newInputValue[1];
+
+                        this.terminal.setInputContent(newInputValue);
+                        this.terminal.setCursorPosition(argIndexStart + completedPath.length);
                         this.terminal.focusInput();
                     } else if (matchingElements.length > 1) { // multiple matching elements found
                         if (doubleTap) {
