@@ -58,8 +58,7 @@ class CommandTouch extends AbstractCommand {
                 if (this.kernel.getUser().canWrite(parentDirectory)) {
                     parentDirectory.addChild(new File(filename, this.kernel.getUser())); // create new file
                 } else {
-                    return new CommandResult(false,
-                        this.kernel.getUser().getName() + " do not have rights to write in Directory");    
+                    return new CommandResult(false, "Error : Permission denied");    
                 }
             }
             return new CommandResult();

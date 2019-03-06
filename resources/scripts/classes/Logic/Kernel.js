@@ -5,13 +5,14 @@
  */
 class Kernel {
     constructor() {
-        this.groups = []
-        this.users = []
-        let rootUser = this.createUser("root");
+        this.groups = [Kernel.ROOT_USER];
+        this.users = [Kernel.ROOT_GROUP];
+        
+        let rootUser = Kernel.ROOT_USER;
         rootUser.changePassword("", "root");
         
         this.user = rootUser;
-        //this.hostname = Kernel.DEFAULT_HOSTNAME;
+
         this.history = [];
         this.historySelectedCmdIndex = -1;
         
@@ -21,6 +22,8 @@ class Kernel {
         this._initCommands();
         
         this.user = this.createUser("user1", new Group("users"));
+        this.createUser("user2", this.user.getMainGroup());
+        this.createUser("user3", this.user.getMainGroup());
 
         this.currentDirectory = this.homeDirectory;
         this.terminal = new Terminal(this.getHeader());
@@ -53,7 +56,7 @@ class Kernel {
         new Directory("home", this.user, this.root);
         new Directory("tmp", this.user, this.root);
         new Directory("var", this.user, this.root);
-        new Directory("root", this.user, this.root);
+        new Directory("root", this.user, this.root).permission.setRights("700");
     }
 
     /**
@@ -64,6 +67,7 @@ class Kernel {
         this.homeDirectory = this.root.find("home");
         let userDirectory = new Directory(this.getUser().getName(), this.getUser(), this.homeDirectory);
         let story = new File("story.txt", this.getUser());
+        story.setRights("700");
         story.content = `Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 Morbi ac dolor vel nunc eleifend tincidunt.
 Donec nec augue at lacus bibendum pellentesque non sit amet quam.
@@ -136,7 +140,7 @@ Etiam eu est non urna commodo interdum.`;
                                             commandResult.getAddBreakline(), 
                                             commandResult.getCustomHeader());
                 } else {
-                    this.displayBlock(this.user.getName() + " do not have the rights to execute!");
+                    this.displayBlock("Error : Permission denied");
                 }
                 
             } catch (e) {
@@ -768,3 +772,6 @@ Kernel.DEFAULT_USER = "guillaume.chacun";
 Kernel.DEFAULT_HOSTNAME = "JST";
 Kernel.DEFAULT_PATH = "~";
 Kernel.MAX_HISTORY_LENGTH = 100;
+
+Kernel.ROOT_GROUP = new Group("root");
+Kernel.ROOT_USER = new User("root", Kernel.ROOT_GROUP);

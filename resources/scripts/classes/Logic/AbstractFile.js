@@ -36,6 +36,15 @@ class AbstractFile {
     }
 
     /**
+     * setRights
+     * shortcut to permission.setRights()
+     * @param {String} octal 
+     */
+    setRights(octal) {
+        this.permission.setRights(octal);
+    }
+
+    /**
      * setOwner
      * sets the owner of the file
      * @param {User} user 

@@ -61,12 +61,20 @@ class CommandCP extends AbstractCommand {
 
             if (elementSrc != null) { // if source element has been found
                 if (parentDirectoryDst != null) { // if destination directory has been found
-                    if (parentDirectoryDst instanceof Directory)
+                    if (parentDirectoryDst instanceof Directory) {
+                        if (
+                            !this.kernel.getUser().canWrite(parentDirectoryDst) ||
+                            !this.kernel.getUser().canWrite(elementSrc)
+                        ) {
+                            return new CommandResult(true, "Error : Permission denied");
+                        }
                         elementSrc.copy(filenameDst, parentDirectoryDst, optLinkFiles);
-                    else
+                    } else {
                         return new CommandResult(false, filenameDst + ": Not a directory");
-                } else
+                    }
+                } else {
                     return new CommandResult(false, filenameDst + ": No such file or directory.");
+                }
             } else
                 return new CommandResult(false, filenameSrc + ": No such file or directory.");
             return new CommandResult(); 

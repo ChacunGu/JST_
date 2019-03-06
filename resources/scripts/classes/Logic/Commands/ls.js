@@ -54,6 +54,10 @@ class CommandLS extends AbstractCommand {
                     return new CommandResult(false, paramDir + ": No such file or directory.");
             }
             
+            if (!this.kernel.getUser().canRead(path)) {
+                return new CommandResult(false, "Error : Permission denied");
+            }
+
             let listContent = "";
                 
             if (path instanceof Directory) {

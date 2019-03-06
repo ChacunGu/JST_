@@ -40,6 +40,9 @@ class CommandCD extends AbstractCommand {
 
             if (directory != null) {
                 if (directory instanceof Directory) {
+                    if (!this.kernel.getUser().canExecute(directory)) {
+                        return new CommandResult(false, "Error : Permission denied");
+                    }
                     let commandResult = new CommandResult(true, "", true, this.kernel.getHeader());
                     this.kernel.setCurrentDirectory(directory);
                     return commandResult;
