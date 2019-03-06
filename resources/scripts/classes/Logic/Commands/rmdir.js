@@ -34,9 +34,12 @@ class CommandRMDIR extends AbstractCommand {
             let path = this.kernel.findElementFromPath(paramDir);
 
             // remove directory
-            if (path instanceof Directory)
+            if (path instanceof Directory) {
+                if (!this.kernel.getUser().canWrite(path)) {
+                    return new CommandResult(false, "Error : Permission denied");
+                }
                 path.parent.remove(path.getName());
-            else if (path instanceof AbstractFile)
+            } else if (path instanceof AbstractFile)
                 return new CommandResult(false, "rmdir: " + paramDir + ": Not a directory");
             else
                 return new CommandResult(false, "rmdir: " + paramDir + ": No such file or directory");

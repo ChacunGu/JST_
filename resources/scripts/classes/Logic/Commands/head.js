@@ -44,7 +44,11 @@ class CommandHead extends AbstractCommand {
                 }
                 let text = source.content.split("\n").splice(0,n).join("<br>");
 
-                return new CommandResult(true, text);
+                if (this.kernel.getUser().canRead(source)) {
+                    return new CommandResult(true, text);
+                } else {
+                    return new CommandResult(false, "Error : Permission denied")
+                }
 
             } else {
                 return new CommandResult(false, "Error : Not a Text File");

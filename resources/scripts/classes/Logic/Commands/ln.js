@@ -50,7 +50,12 @@ class CommandLN extends AbstractCommand {
             // create link
             if (elementSrc != null) { // if source element has been found
                 if (parentDirectoryDst != null) { // if destination directory has been found
-                    parentDirectoryDst.addChild(this.kernel.createSymbolicLink(filenameDst, elementSrc));
+                    if (!this.kernel.getUser().canWrite(parentDirectoryDst)) {
+                        return new CommandResult(false, "Error : Permission denied");
+                    }
+                    parentDirectoryDst.addChild(
+                        new SymbolicLink(filenameDst, elementSrc, this.kernel.getUser())
+                        );
                 } else
                     return new CommandResult(false, parentDirectoryPathDst + ": No such file or directory.");
             } else

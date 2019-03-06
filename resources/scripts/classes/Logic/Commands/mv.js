@@ -52,6 +52,12 @@ class CommandMV extends AbstractCommand {
                 if (parentDirectoryDst != null) { // if destination directory has been found
                     if (elementDst == null) { // if destination element does not already exist
                         if (parentDirectoryDst instanceof Directory) { // destination must be a directory
+                            if (
+                                !this.kernel.getUser().canWrite(parentDirectoryDst) ||
+                                !this.kernel.getUser().canWrite(elementSrc)
+                            ) {
+                                return new CommandResult(true, "Error : Permission denied");
+                            }
                             elementSrc.getParent().remove(elementSrc.getName()); // remove element from current directory
                             parentDirectoryDst.addChild(elementSrc); // add element to destination directory
                             elementSrc.rename(filenameDst); // rename element to its new name

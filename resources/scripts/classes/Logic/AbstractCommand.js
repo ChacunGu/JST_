@@ -11,7 +11,7 @@ class AbstractCommand extends AbstractFile {
         this.maxNumberParams = 0;
         this.minNumberParams = 0;
 
-        this.permission.setRights("711");
+        this.setRights("711");
 
         if(kernel instanceof Kernel) {
             this.kernel = kernel;

@@ -8,6 +8,8 @@ class Directory extends AbstractFile {
         
         this.size = 4096;
 
+        this.setRights("755");
+
         this.children = [];
         this.children.push(new SymbolicLink(".", this, user));
         

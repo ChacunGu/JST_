@@ -18,7 +18,7 @@ class CommandMKDIR extends AbstractCommand {
     _createPathDirectories(directoryName) {
         let directoryPath = directoryName.slice(0, directoryName.lastIndexOf("/"));
         let parentDirectory = this.kernel.findElementFromPath(directoryPath.length > 0 ? directoryPath : "/");
-
+        
         if (parentDirectory != null) {
             if (!parentDirectory instanceof Directory)
                 return new CommandResult(false, directoryPath + ": Not a directory.");
@@ -33,12 +33,13 @@ class CommandMKDIR extends AbstractCommand {
                 if (this.kernel.findElementFromPath(wipDirectoryPath) == null) {
                     if (directoryPathIndex > 0) {
                         // handle invalid directory name
-                        if (AbstractFile.containsSpecialCharacters(allDirectoryFromPath[directoryPathIndex])) // invalid special characters in directory name
+                        if (AbstractFile.containsSpecialCharacters(allDirectoryFromPath[directoryPathIndex])) { // invalid special characters in directory name
                             return new CommandResult(false, this._getErrorSpecialChar());
-                        else // create new repository specified in given path
+                        } else { // create new repository specified in given path
                             new Directory(allDirectoryFromPath[directoryPathIndex],
                                                         this.kernel.getUser(), 
                                                         this.kernel.findElementFromPath(buildDirectoryPath));
+                        }
                     } else { // find first directory specified in path
                         let startingDirectory = this.kernel.findElementFromPath(directoryName[0]);
 
@@ -100,7 +101,7 @@ class CommandMKDIR extends AbstractCommand {
                 // handle invalid filename
                 if (AbstractFile.containsSpecialCharacters(directoryName)) // invalid special characters in filename
                     return new CommandResult(false, this._getErrorSpecialChar());
-                new Directory(directoryName, parentDirectory); // create new directory
+                new Directory(directoryName, this.kernel.getUser(), parentDirectory); // create new directory
             }
             return new CommandResult();
         }

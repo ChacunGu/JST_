@@ -38,6 +38,11 @@ class CommandRM extends AbstractCommand {
             // handle params
             let paramDir = this.kernel.preparePath(params[0]);
             let path = this.kernel.findElementFromPath(paramDir);
+            if (path != null) {
+                if (!this.kernel.getUser().canWrite(path)) {
+                    return new CommandResult(false, "Error : Permission denied");
+                }
+            }
 
             // remove file
             if (path instanceof Directory) {

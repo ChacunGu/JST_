@@ -32,19 +32,19 @@ class Permission {
             let gr = zfill(parseInt(octal[1]).toString(2), 3); // group's rights
             let ar = zfill(parseInt(octal[2]).toString(2), 3); // all user's rights
             this.ownerRights = {
-                read : or[0]==1 ? true : false,
-                write : or[1]==1 ? true : false,
-                execute : or[2]==1 ? true : false
+                read : or[0]==1,
+                write : or[1]==1,
+                execute : or[2]==1
             }
             this.groupRights = {
-                read : gr[0]==1 ? true : false,
-                write : gr[1]==1 ? true : false,
-                execute : gr[2]==1 ? true : false
+                read : gr[0]==1,
+                write : gr[1]==1,
+                execute : gr[2]==1
             }
             this.allRights = {
-                read : ar[0]==1 ? true : false,
-                write : ar[1]==1 ? true : false,
-                execute : ar[2]==1 ? true : false
+                read : ar[0]==1,
+                write : ar[1]==1,
+                execute : ar[2]==1
             }
         } else {
             throw new Error("octal param must be 3 characters long.");
