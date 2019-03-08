@@ -89,6 +89,10 @@ Etiam eu est non urna commodo interdum.`;
         let store = new File("store.txt", this.getUser());
         store.content = `Liste des magasins : CDF, NE, BE`;
         this.homeDirectory.addChild(store);
+
+        let tmpDir = new Directory("a b");
+        this.homeDirectory.addChild(tmpDir);
+        tmpDir.addChild(new Directory("c"));
     }
 
     /**
@@ -274,128 +278,194 @@ Etiam eu est non urna commodo interdum.`;
     }
 
     /**
+     * _correctEditedPath
+     * Surrounds edited param by quotes if it contains spaces.
+     * 
+     * @param {String} value : current terminal's input value
+     * @param {int} cursorPosition : cursor's position in the input value
+     */
+    _correctEditedPath(value, cursorPosition) {
+        let nbQuotes = value.split("\"").length - 1;
+        let nbApostrophe = value.split("'").length - 1;
+
+        if (nbQuotes%2 == 1 && nbApostrophe%2 == 1)
+            return null;
+        else if (nbQuotes%2 == 1)
+            return value.slice(0, cursorPosition) + "\"" + value.slice(cursorPosition);
+        else if (nbApostrophe%2 == 1)
+            return value.slice(0, cursorPosition) + "'" + value.slice(cursorPosition);
+        else
+            return value;
+    }
+
+    /**
+     * _findComplexEditedPath
+     * Search currently edited path in the terminal's input value. 
+     * Returns the path and its first character position in the input value.
+     * 
+     * @param {String} value : current terminal's input value
+     * @param {int} cursorPosition : cursor's position in the input value
+     * @param {Array} params : parameters extracted from terminal's input value
+     */
+    _findComplexEditedPath(value, cursorPosition, params) {
+        let elemAtCursorPos = cursorPosition < value.length ? value[cursorPosition] : "";
+        let searchedElem = null;
+        let searchedArg = "";
+        let argIndex = null;
+        let argIndexStart = null;
+
+        // identify edited path's delimeter
+        if (elemAtCursorPos == "\"") {
+            searchedElem = "\"";
+            searchedArg = "\"";
+        } else if (elemAtCursorPos == "'") {
+            searchedElem = "'";
+            searchedArg = "'";
+        } else if (elemAtCursorPos == "" || elemAtCursorPos == " ") {
+            searchedElem = " ";
+            searchedArg = "";
+        } else
+            return {path: null};
+
+        // retrieve edited path from terminal's input value
+        for (let i=cursorPosition-1; i>=0; i--) {
+            searchedArg = value[i] + searchedArg;
+            if (value[i] == searchedElem) {
+                argIndexStart = i+1;
+                if (searchedElem == " ") {
+                    searchedArg = searchedArg.slice(1);
+                }
+                break;
+            }
+        }
+
+        // search and retrieve edited arguments from terminal's input value
+        for (let i=0; i<params.length; i++) {
+            if (searchedArg == params[i]) {
+                argIndex = i;
+                break;
+            }
+        }
+
+        // if path is found
+        if (argIndex != null)
+            return {path: this.preparePath(params[argIndex]), argIndex: argIndex, argIndexStart: argIndexStart};
+        return {path: null};
+    }
+
+    /**
+     * _retrieveMatchingDirectoryChildren
+     * Retrieves directory's children elements with name matching given pattern.
+     * 
+     * @param {Directory} directory : searched elements parent directory
+     * @param {String} pattern : searched pattern
+     */
+    _retrieveMatchingDirectoryChildren(directory, pattern) {
+        let children = directory.getChildren();
+        let matchingElements = [];
+
+        // search matching elements
+        for (let i=0; i<children.length; i++) {
+            if (children[i].getName().startsWith(pattern))
+                matchingElements.push(children[i]);
+        }
+
+        return matchingElements;
+    }
+
+    /**
+     * _formatCompletedPath
+     * Formats and returns the new input value after autocompletion.
+     * 
+     * @param {String} currentInputValue : current terminal's input value
+     * @param {int} argIndexStart : edited path's first character position in the input value
+     * @param {int} argIndexEnd : edited path's last character position in the input value
+     * @param {String} currentDirectoryPath : autocompleted path's resulting directory
+     * @param {Array} matchingElements : array of elements in the targeted directory with names containing searched pattern
+     */
+    _formatCompletedPath(currentInputValue, argIndexStart, argIndexEnd, currentDirectoryPath, matchingElements) {
+        let completedPath = currentDirectoryPath + 
+                            (currentDirectoryPath[currentDirectoryPath.length-1] != "/" && currentDirectoryPath.length > 0 ? "/" : "") + 
+                            matchingElements[0].getName() + 
+                            (matchingElements[0] instanceof Directory ? "/" : "");
+
+        // retrieve command part written before and after completed path
+        let newInputValue = [currentInputValue.slice(0, argIndexStart),
+                            currentInputValue.slice(argIndexEnd)];
+        
+        // handle paths not initially surrounded by quotes but containing spaces
+        if (completedPath.split(" ").length > 1) {
+            if (!(newInputValue[0][newInputValue[0].length-1] == "\"" && newInputValue[1][0] == "\"") && 
+                !(newInputValue[0][newInputValue[0].length-1] == "'" && newInputValue[1][0] == "'")) {
+                completedPath = "\"" + completedPath + "\"";
+                argIndexStart--;
+            }
+        }
+
+        // insert completed path in the command
+        newInputValue = newInputValue[0] + completedPath + newInputValue[1];
+
+        return {newInputValue: newInputValue, argIndexStart: argIndexStart, completedPathLength: completedPath.length};
+    }
+
+    /**
      * _autocomplete
-     * complete the user's input if exists
+     * Completes the user's input if possible.
+     * 
      * @param {String} currentInputValue : current terminal's input value
      * @param {int} cursorPosition : cursor's position in the input value
      * @param {bool} doubleTap : true if the user double pressed the tab key false otherwise
      */
-    _autocomplete(currentInputValue, cursorPosition, doubleTap=false) {
+    _autocomplete(currentInputValue, cursorPosition, doubleTap=false) {        
+        currentInputValue = this._correctEditedPath(currentInputValue, cursorPosition);
 
-        let nbQuotes = 0;
-        for (let i=0; i<currentInputValue.length; i++) {
-            if (currentInputValue[i] == "\"")
-                nbQuotes++;
-        }
-
-        if (nbQuotes%2 == 1)
-            currentInputValue += "\"";
-        
-        // input pre processing
-        let inputs = this._splitArgs(currentInputValue);
-        let args = this._processArgs(inputs);
-        
-        // retrieve path
-        let argIndex = null;
-        let argIndexStart = null;
-        let argIndexEnd = null;
-        let path = null;
-        if (args.params.length == 1)
-            path = this.preparePath(args.params[0]);
-        else {
-            // TODO : find specified path
-            let elemAtCursorPos = cursorPosition < currentInputValue.length ? currentInputValue[cursorPosition] : "";
-            // console.log("user input :\t\t", "'" + currentInputValue + "'", 
-            //             "\ncursor position :\t", cursorPosition, 
-            //             "\nchar at cursor pos :\t", cursorPosition < currentInputValue.length ? currentInputValue[cursorPosition] : "",
-            //             "\nargs :\t", args);
-
-            let searchedArg = "";
-            let searchedElem = null;
-            argIndexEnd = cursorPosition;
-
-            if (elemAtCursorPos == "\"") {
-                searchedElem = "\"";
-                searchedArg = "\"";
-            } else if (elemAtCursorPos == "'") {
-                searchedElem = "'";
-                searchedArg = "'";
-            } else if (elemAtCursorPos == "") {
-                searchedElem = " ";
-                searchedArg = "";
-            } else
-                return;
-
-            // retrieve selected argument
-            for (let i=cursorPosition-1; i>=0; i--) {
-                searchedArg = currentInputValue[i] + searchedArg;
-                if (currentInputValue[i] == searchedElem) {
-                    argIndexStart = i+1;
-                    if (searchedElem == " ") {
-                        searchedArg = searchedArg.slice(1);
-                    }
-                    break;
-                }
+        if (currentInputValue != null) {
+            // input pre processing
+            let inputs = this._splitArgs(currentInputValue);
+            let args = this._processArgs(inputs);
+            
+            let argIndexStart = null;
+            let argIndexEnd = cursorPosition;
+            let path = null;
+            
+            // retrieve path
+            if (args.params.length == 1) // only one element in terminal's input value
+                path = this.preparePath(args.params[0]);
+            else { // multiple elements in terminal's input value
+                let res = this._findComplexEditedPath(currentInputValue, cursorPosition, args.params);
+                path = res.path;
+                argIndexStart = res.argIndexStart;
             }
+            
+            if (path != null) {
+                // separate filename from its path
+                let pathInfo = Kernel.retrieveElementNameAndPath(path);
+                let currentDirectoryPath = pathInfo.dir;
+                let currentDirectory = this.findElementFromPath(currentDirectoryPath);
+                let searchedElementName = pathInfo.elem;
 
-            // search and retrieve for selected arguments in arg.params
-            for (let i=0; i<args.params.length; i++) {
-                if (searchedArg == args.params[i]) {
-                    argIndex = i;
-                    break;
-                }
-            }
+                if (currentDirectory != null) { // if path does exist
+                    if (currentDirectory instanceof Directory) { // if path points to a directory
+                        let matchingElements = this._retrieveMatchingDirectoryChildren(currentDirectory, searchedElementName);
 
-            if (argIndex == null)
-                return;
+                        if (matchingElements.length == 1) { // only one matching element found
+                            // format path
+                            let res = this._formatCompletedPath(currentInputValue, argIndexStart, argIndexEnd, currentDirectoryPath, matchingElements);
+                            let newInputValue = res.newInputValue;
+                            argIndexStart = res.argIndexStart;
+                            let completedPathLength = res.completedPathLength;
 
-            path = this.preparePath(args.params[argIndex]);
-        }
-        
-        
-        if (path != null) {
-            // separate filename from its path
-            let pathInfo = Kernel.retrieveElementNameAndPath(path);
-            let currentDirectoryPath = pathInfo.dir;
-            let currentDirectory = this.findElementFromPath(currentDirectoryPath);
-            let searchedElementName = pathInfo.elem;
-
-            // console.log(searchedElementName, currentDirectory);
-
-            if (currentDirectory != null) { // if path does exist
-                if (currentDirectory instanceof Directory) { // if path points to a directory
-                    let children = currentDirectory.getChildren();
-                    let matchingElements = [];
-
-                    // search matching elements
-                    for (let i=0; i<children.length; i++) {
-                        if (children[i].getName().startsWith(searchedElementName))
-                            matchingElements.push(children[i]);
-                    }
-
-                    if (matchingElements.length == 1) { // only one matching element found
-                        // change input's value
-
-                        // console.log(currentDirectoryPath);
-                        
-                        let completedPath = currentDirectoryPath + 
-                                            (currentDirectoryPath[currentDirectoryPath.length-1] != "/" && currentDirectoryPath.length > 0 ? "/" : "") + 
-                                            matchingElements[0].getName() + 
-                                            (matchingElements[0] instanceof Directory ? "/" : "");
-
-                        let newInputValue = currentInputValue.split(currentInputValue.slice(argIndexStart, argIndexEnd));
-                        newInputValue = newInputValue[0] + completedPath + newInputValue[1];
-
-                        this.terminal.setInputContent(newInputValue);
-                        this.terminal.setCursorPosition(argIndexStart + completedPath.length);
-                        this.terminal.focusInput();
-                    } else if (matchingElements.length > 1) { // multiple matching elements found
-                        if (doubleTap) {
-                            // TODO : adapt for autocompletion in the middle of the user input
-                            let paths = "";
-                            for (let i=0; i<matchingElements.length; i++)
-                                paths += matchingElements[i].getName() + "<br/>";
-                                this.terminal.addBlock(this.getHeader(), currentInputValue, paths, false);
+                            // change input's value and set focus
+                            this.terminal.setInputContent(newInputValue);
+                            this.terminal.setCursorPosition(argIndexStart + completedPathLength);
+                            this.terminal.focusInput();
+                        } else if (matchingElements.length > 1) { // multiple matching elements found
+                            if (doubleTap) { // display matching elements
+                                let paths = "";
+                                for (let i=0; i<matchingElements.length; i++)
+                                    paths += matchingElements[i].getName() + "<br/>";
+                                    this.terminal.addBlock(this.getHeader(), currentInputValue, paths, false);
+                            }
                         }
                     }
                 }
