@@ -21,9 +21,10 @@ class Kernel {
         this._initEvents();
         this._initCommands();
         
-        this.user = this.createUser("user1", new Group("users"));
-        this.createUser("user2", this.user.getMainGroup());
-        this.createUser("user3", this.user.getMainGroup());
+        let usersGroup = new Group("users");
+        this.createUser("user1", usersGroup);
+        this.createUser("user2", usersGroup);
+        this.createUser("user3", usersGroup);
 
         this.currentDirectory = this.homeDirectory;
         this.terminal = new Terminal(this.getHeader());
@@ -121,6 +122,7 @@ Etiam eu est non urna commodo interdum.`;
         bin.addChild(new CommandCat(this));
         bin.addChild(new CommandHead(this));
         bin.addChild(new CommandTail(this));
+        bin.addChild(new CommandChmod(this));
     }
 
     /**
