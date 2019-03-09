@@ -29,6 +29,7 @@ class Kernel {
         this.currentDirectory = this.homeDirectory;
         this.terminal = new Terminal(this.getHeader());
         this.editor = new Editor();
+        this.currentCommand = null;
     }
     
     /**
@@ -123,6 +124,7 @@ Etiam eu est non urna commodo interdum.`;
         bin.addChild(new CommandHead(this));
         bin.addChild(new CommandTail(this));
         bin.addChild(new CommandChmod(this));
+        bin.addChild(new CommandSU(this));
     }
 
     /**
@@ -132,29 +134,49 @@ Etiam eu est non urna commodo interdum.`;
      */
     _processInput(userInput) {
         if (userInput.length > 0) {
-            let inputs = this._splitArgs(userInput);
-            let commandName = inputs.shift();
-            let args = this._processArgs(inputs);
-            this._addToHistory(userInput);
+            if (this.currentCommand != null) {
+                this.terminal.togglePromptMode();
 
-            try {
-                let command = this.root.find("bin").find(commandName);
-                if (this.getUser().canExecute(command)) {
-                    let commandResult = command.execute(args.options, args.params);
-                    if (commandResult != undefined)
-                        this.displayBlock(  commandResult.getContent(), 
-                                            commandResult.getAddBreakline(), 
-                                            commandResult.getCustomHeader());
-                } else {
-                    this.displayBlock("Error : Permission denied");
-                }
+                let command = this.root.find("bin").find(this.currentCommand);
+                let commandResult = command.executeFollowUp(userInput);
                 
-            } catch (e) {
-                console.log(e);
-                if (e instanceof TypeError) {
-                    this.displayBlock("Unknown command");
-                } else {
+                this.terminal.addBR();
+                this.currentCommand = null;
+
+            } else {
+                let inputs = this._splitArgs(userInput);
+                let commandName = inputs.shift();
+                let args = this._processArgs(inputs);
+                this._addToHistory(userInput);
+
+                try {
+                    let command = this.root.find("bin").find(commandName);
+                    if (this.getUser().canExecute(command)) {
+                        this.currentCommand = commandName;
+                        let commandResult = command.execute(args.options, args.params);
+                        if (commandResult != undefined) {
+                            this.displayBlock(commandResult.getContent(), 
+                                              commandResult.getAddBreakline(), 
+                                              commandResult.getCustomHeader(),
+                                              commandResult.getNewInputNeeded());
+
+                            // handle prompt mode (for commands like su)
+                            if (commandResult.getNewInputNeeded()) {
+                                this.terminal.togglePromptMode();
+                                return;
+                            }
+                        }
+                        this.currentCommand = null;
+                    } else {
+                        this.displayBlock("Error : Permission denied");
+                    }
+                } catch (e) {
                     console.log(e);
+                    if (e instanceof TypeError) {
+                        this.displayBlock("Unknown command");
+                    } else {
+                        console.log(e);
+                    }
                 }
             }
         } else
@@ -541,12 +563,13 @@ Etiam eu est non urna commodo interdum.`;
      * displayBlock
      * Creates and displays a new block with the last command and its given value.
      * @param {String} value : last command's result
-     * @param {boolean} addBreakLine : true if a break line should be added after the given content false otherwise
+     * @param {bool} addBreakLine : true if a break line should be added after the given content false otherwise
      * @param {String} customHeader : custom command's header
+     * @param {bool} isNewInputNeeded : true if a following input should be displayed after this block false otherwise.
      */
-    displayBlock(value, addBreakLine=true, customHeader="") {
+    displayBlock(value, addBreakLine=true, customHeader="", isNewInputNeeded=false) {
         this.terminal.addBlock(customHeader.length > 0 ? customHeader : this.getHeader(), 
-                                this._getLastCommand(), value, addBreakLine);
+                                this._getLastCommand(), value, addBreakLine, isNewInputNeeded);
     }
 
     /**

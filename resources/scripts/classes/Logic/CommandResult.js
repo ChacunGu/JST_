@@ -3,11 +3,12 @@
  * Represents command's result.
  */
 class CommandResult {
-    constructor(success=true, content="", addBreakline=true, customHeader="") {
+    constructor(success=true, content="", addBreakline=true, customHeader="", isNewInputNeeded=false) {
         this.content = content;
         this.success = success;
         this.addBreakline = addBreakline;
         this.customHeader = customHeader;
+        this.isNewInputNeeded = isNewInputNeeded;
     }
 
     /**
@@ -40,5 +41,13 @@ class CommandResult {
      */
     getCustomHeader() {
         return this.customHeader;
+    }
+
+    /**
+     * getNewInputNeeded
+     * Returns true if a new input should be displayed after the command's result false otherwise.
+     */
+    getNewInputNeeded() {
+        return this.isNewInputNeeded;
     }
 }

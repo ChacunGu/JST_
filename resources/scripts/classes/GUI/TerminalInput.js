@@ -30,6 +30,7 @@ class TerminalInput extends AbstractInput {
         
         this.headerNode = document.createElement("span");
         this.headerNode.id = TerminalInput.HEADER_ID;
+        this.headerNode.style.display = "";
         this.updateHeader(header);
         
         let inputNode = document.createElement("div");
@@ -111,6 +112,14 @@ class TerminalInput extends AbstractInput {
         this.headerNode.append(document.createTextNode(header));
         this.headerNode.append(document.createElement("br"));
         this.headerNode.append(document.createTextNode("$"));
+    }
+
+    /**
+     * togglePromptMode
+     * Toggles terminal's input prompt mode.
+     */
+    togglePromptMode() {
+        this.headerNode.style.display = this.headerNode.style.display == "none" ? "" : "none";
     }
 }
 

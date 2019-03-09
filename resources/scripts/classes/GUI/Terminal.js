@@ -33,9 +33,10 @@ class Terminal {
      * @param {String} header : header's content (user, hostname, path)
      * @param {String} command : user's command
      * @param {String} result : command's result
-     * @param {boolean} addBreakLine : true if a break line should be added after the given content false otherwise
+     * @param {bool} addBreakLine : true if a break line should be added after the given content false otherwise
+     * @param {bool} isNewInputNeeded : true if a following input should be displayed after this block false otherwise.
      */
-    addBlock(header, command, result="", addBreakLine=true) {
+    addBlock(header, command, result="", addBreakLine=true, isNewInputNeeded=false) {
         let block = document.createElement("div");
         block.classList.add(Terminal.BLOCK_NODE_CLS);
         
@@ -52,9 +53,35 @@ class Terminal {
         resultContainer.innerHTML = result;
         block.append(resultContainer);
         
-        if (result.length > 0 && addBreakLine)
+        if (!isNewInputNeeded) {
+            if (result.length > 0 && addBreakLine)
+                block.append(document.createElement("br"));
             block.append(document.createElement("br"));
+        }
+        this._append(block);
+    }
+
+    /**
+     * addBR
+     * Creates and displays a new block containing only a line break.
+     */
+    addBR() {
+        let block = document.createElement("div");
+        block.classList.add(Terminal.BLOCK_NODE_CLS);
         block.append(document.createElement("br"));
+        this._append(block);
+    }
+
+    /**
+     * addSimpleText
+     * Creates and displays a new block with given text value.
+     * 
+     * @param {String} value : text to display
+     */
+    addSimpleText(value) {
+        let block = document.createElement("div");
+        block.classList.add(Terminal.BLOCK_NODE_CLS);
+        block.innerHTML = value;
         this._append(block);
     }
 
@@ -135,6 +162,14 @@ class Terminal {
      */
     getInput() {
         return this.input;
+    }
+
+    /**
+     * togglePromptMode
+     * Toggles terminal's input prompt mode.
+     */
+    togglePromptMode() {
+        this.input.togglePromptMode();
     }
 }
 
