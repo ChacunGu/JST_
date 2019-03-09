@@ -11,6 +11,14 @@ class User {
     }
 
     /**
+     * getPassword
+     * Returns user password.
+     */
+    getPassword() {
+        return this.password;
+    }
+
+    /**
      * changePassword
      * changes the poassword of the user
      * needs the old password to do so!

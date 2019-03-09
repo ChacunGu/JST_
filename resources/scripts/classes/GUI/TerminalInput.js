@@ -49,24 +49,25 @@ class TerminalInput extends AbstractInput {
     _initEvents(insideSpan) {
         let _this = this;
         insideSpan.addEventListener("keydown", event => {
-            if (event.keyCode === 13) { // Enter key pressed
+            let keycode = event.keyCode;
+            if (keycode === 13) { // Enter key pressed
                 event.preventDefault();
                 _this._submit();
                 _this._clear();
                 return false;
-            } else if (event.keyCode === 38) { // Up arrow
+            } else if (keycode === 38) { // Up arrow
                 event.preventDefault();
                 window.dispatchEvent(new Event("historyup"));
                 return false;
-            } else if (event.keyCode === 40) { // Down arrow
+            } else if (keycode === 40) { // Down arrow
                 event.preventDefault();
                 window.dispatchEvent(new Event("historydown"));
                 return false;
-            } else if (event.keyCode === 27) { // Escape
+            } else if (keycode === 27) { // Escape
                 event.preventDefault();
                 this._clear();
                 return false;
-            } else if (event.keyCode === 9) { // TAB
+            } else if (keycode === 9) { // TAB
                 event.preventDefault();
 
                 if (this.tappedTabKey) { // double tap

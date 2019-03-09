@@ -86,4 +86,16 @@ class AbstractInput {
     getCursorPosition() {
         return this.cursorPosition;
     }
+
+    /**
+     * togglePasswordMode
+     * Toggles password mode.
+     */
+    togglePasswordMode() {
+        this.passwordMode = !this.passwordMode;
+        if (this.passwordMode)
+            this.editableNode.classList.add("passwordInput");
+        else
+            this.editableNode.classList.remove("passwordInput");
+    }
 }

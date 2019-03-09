@@ -171,6 +171,14 @@ class Terminal {
     togglePromptMode() {
         this.input.togglePromptMode();
     }
+
+    /**
+     * togglePasswordMode
+     * Toggles terminal's input password mode.
+     */
+    togglePasswordMode() {
+        this.input.togglePasswordMode();
+    }
 }
 
 Terminal.NODE_ID = "terminal";

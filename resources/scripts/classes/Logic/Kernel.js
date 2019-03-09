@@ -136,13 +136,13 @@ Etiam eu est non urna commodo interdum.`;
         if (userInput.length > 0) {
             if (this.currentCommand != null) {
                 this.terminal.togglePromptMode();
+                this.terminal.togglePasswordMode();
 
                 let command = this.root.find("bin").find(this.currentCommand);
                 let commandResult = command.executeFollowUp(userInput);
                 
                 this.terminal.addBR();
                 this.currentCommand = null;
-
             } else {
                 let inputs = this._splitArgs(userInput);
                 let commandName = inputs.shift();
@@ -163,10 +163,10 @@ Etiam eu est non urna commodo interdum.`;
                             // handle prompt mode (for commands like su)
                             if (commandResult.getNewInputNeeded()) {
                                 this.terminal.togglePromptMode();
+                                this.terminal.togglePasswordMode();
                                 return;
                             }
                         }
-                        this.currentCommand = null;
                     } else {
                         this.displayBlock("Error : Permission denied");
                     }
@@ -181,6 +181,7 @@ Etiam eu est non urna commodo interdum.`;
             }
         } else
             this.terminal.addBlock(this.getHeader(), "", "");
+        this.currentCommand = null;
     }
 
     /**
@@ -729,7 +730,7 @@ Etiam eu est non urna commodo interdum.`;
 
     /**
      * findUser
-     * returns a user by name if exists
+     * Returns a user by name if exists
      * @param {String} name 
      */
     findUser(name) {
@@ -739,6 +740,17 @@ Etiam eu est non urna commodo interdum.`;
             }
         }
         return null;
+    }
+
+    /**
+     * setUser
+     * Changes current user to given one.
+     * 
+     * @param {User} user : new user
+     */
+    setUser(user) {
+        this.user = user;
+        this.terminal.updateHeader(this.getHeader());
     }
 
     /********************************************************************************/

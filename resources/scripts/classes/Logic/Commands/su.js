@@ -31,9 +31,19 @@ class CommandSU extends AbstractCommand {
         }
     }
 
+    /**
+     * executeFollowUp
+     * Handles user response to first command result.
+     * 
+     * @param {String} input : user's response (password for root)
+     */
     executeFollowUp(input) {
-        console.log(input);
-        return new CommandResult(true);
+        let root = Kernel.ROOT_USER;
+        if (root.getPassword() == Kernel.SHA256(input)) {
+            this.kernel.setUser(root);
+            return new CommandResult(true);
+        }
+        return new CommandResult(false, "Wrong password");
     }
 
     /**
