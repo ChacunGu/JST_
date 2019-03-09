@@ -91,9 +91,9 @@ Etiam eu est non urna commodo interdum.`;
         store.content = `Liste des magasins : CDF, NE, BE`;
         this.homeDirectory.addChild(store);
 
-        let tmpDir = new Directory("a b");
+        let tmpDir = new Directory("a b", this.getUser());
         this.homeDirectory.addChild(tmpDir);
-        tmpDir.addChild(new Directory("c"));
+        tmpDir.addChild(new Directory("c", this.getUser()));
     }
 
     /**

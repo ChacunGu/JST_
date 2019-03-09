@@ -19,26 +19,32 @@ class CommandMKDIR extends AbstractCommand {
         let directoryPath = directoryName.slice(0, directoryName.lastIndexOf("/"));
         let parentDirectory = this.kernel.findElementFromPath(directoryPath.length > 0 ? directoryPath : "/");
         
-        if (parentDirectory != null) {
-            if (!parentDirectory instanceof Directory)
-                return new CommandResult(false, directoryPath + ": Not a directory.");
-            else
+        if (parentDirectory != null) { // element already exists
+            if (parentDirectory instanceof Directory) // directory already exists
                 return parentDirectory;
+            else // not a directory
+                return new CommandResult(false, directoryPath + ": Not a directory.");
         } else {
             let allDirectoryFromPath = directoryPath.split("/");
             let directoryPathIndex = 0;
-            let wipDirectoryPath = allDirectoryFromPath[directoryPathIndex] + "/";
+            let wipDirectoryPath = allDirectoryFromPath[0] + "/";
             let buildDirectoryPath = "";
+
             do {
-                if (this.kernel.findElementFromPath(wipDirectoryPath) == null) {
+                if (this.kernel.findElementFromPath(wipDirectoryPath) == null) { // path leads to nothing
                     if (directoryPathIndex > 0) {
                         // handle invalid directory name
-                        if (AbstractFile.containsSpecialCharacters(allDirectoryFromPath[directoryPathIndex])) { // invalid special characters in directory name
+                        if (AbstractFile.containsSpecialCharacters(allDirectoryFromPath[directoryPathIndex])) // invalid special characters in directory name
                             return new CommandResult(false, this._getErrorSpecialChar());
-                        } else { // create new repository specified in given path
-                            new Directory(allDirectoryFromPath[directoryPathIndex],
-                                                        this.kernel.getUser(), 
-                                                        this.kernel.findElementFromPath(buildDirectoryPath));
+                        else { // create new repository specified in given path
+                            let parentDirectory = this.kernel.findElementFromPath(buildDirectoryPath);
+                            if (this.kernel.getUser().canWrite(parentDirectory)) { // if user has rights to create directory here
+                                new Directory(allDirectoryFromPath[directoryPathIndex],
+                                              this.kernel.getUser(), 
+                                              parentDirectory);
+                            } else {
+                                return new CommandResult(false, "Error : Permission denied");    
+                            }
                         }
                     } else { // find first directory specified in path
                         let startingDirectory = this.kernel.findElementFromPath(directoryName[0]);
@@ -46,10 +52,15 @@ class CommandMKDIR extends AbstractCommand {
                         // handle invalid directory name
                         if (AbstractFile.containsSpecialCharacters(allDirectoryFromPath[directoryPathIndex])) // invalid special characters in directory name
                             return new CommandResult(false, this._getErrorSpecialChar());
-                        else // create repository specified in given path
-                            new Directory(allDirectoryFromPath[directoryPathIndex],
-                                                        this.kernel.getUser(), 
-                                                        startingDirectory);
+                        else { // create repository specified in given path
+                            if (this.kernel.getUser().canWrite(startingDirectory)) { // if user has rights to create directory here
+                                new Directory(allDirectoryFromPath[directoryPathIndex],
+                                              this.kernel.getUser(), 
+                                              startingDirectory);
+                            } else {
+                                return new CommandResult(false, "Error : Permission denied");    
+                            }
+                        }
                     }
                 }
 
@@ -101,7 +112,13 @@ class CommandMKDIR extends AbstractCommand {
                 // handle invalid filename
                 if (AbstractFile.containsSpecialCharacters(directoryName)) // invalid special characters in filename
                     return new CommandResult(false, this._getErrorSpecialChar());
-                new Directory(directoryName, this.kernel.getUser(), parentDirectory); // create new directory
+                
+                // if user has rights to create directory here
+                if (this.kernel.getUser().canWrite(parentDirectory)) { 
+                    new Directory(directoryName, this.kernel.getUser(), parentDirectory); // create new directory
+                } else {
+                    return new CommandResult(false, "Error : Permission denied");    
+                }
             }
             return new CommandResult();
         }
