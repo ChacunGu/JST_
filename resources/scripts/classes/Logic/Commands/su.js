@@ -1,10 +1,13 @@
 /**
  *  class CommandSU
- *  Switches user to root.
+ *  Switch user or become root
  */
 class CommandSU extends AbstractCommand {
     constructor(kernel) {
         super(kernel, "su");
+        this.lastUser = null;
+
+        this.maxNumberParams = 1;
     }
     
     /**
@@ -27,7 +30,18 @@ class CommandSU extends AbstractCommand {
                 }
             }
 
-            return new CommandResult(true, "", false, "", true);
+            // handle parameters
+            let username = "";
+            if (params.length > 0) { // 1 parameter: seach for existing user
+                username = params[0];
+                this.lastUser = this.kernel.findUser(username);
+            } else // 0 parameter: switch to root
+                this.lastUser = Kernel.ROOT_USER;
+
+            if (this.lastUser != null) { // if user exists
+                return new CommandResult(true, "Password for " + this.lastUser.getName() + ":", false, "", true);
+            }
+            return new CommandResult(false, "No entry for user '" + username + "'");
         }
     }
 
@@ -38,12 +52,11 @@ class CommandSU extends AbstractCommand {
      * @param {String} input : user's response (password for root)
      */
     executeFollowUp(input) {
-        let root = Kernel.ROOT_USER;
-        if (root.getPassword() == Kernel.SHA256(input)) {
-            this.kernel.setUser(root);
+        if (this.lastUser.getPassword() == Kernel.SHA256(input)) { // if passwords match
+            this.kernel.setUser(this.lastUser); // switch user
             return new CommandResult(true);
         }
-        return new CommandResult(false, "Wrong password");
+        return new CommandResult(false, "Authentication failure");
     }
 
     /**
@@ -51,6 +64,6 @@ class CommandSU extends AbstractCommand {
      * Returns the command's help.
      */
     help() {
-        return "Become root<br/>usage: su";
+        return "Switch user or become root<br/>usage: su [username]";
     }
 }

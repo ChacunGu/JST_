@@ -26,6 +26,8 @@ class Kernel {
         this.createUser("user2", usersGroup);
         this.createUser("user3", usersGroup);
 
+        this.user = this.findUser("user1");
+
         this.currentDirectory = this.homeDirectory;
         this.terminal = new Terminal(this.getHeader());
         this.editor = new Editor();
@@ -130,25 +132,19 @@ Etiam eu est non urna commodo interdum.`;
     /**
      * _processInput
      * Processes a given user input.
+     * 
      * @param {String} userInput : command the user submitted
      */
     _processInput(userInput) {
-        if (userInput.length > 0) {
-            if (this.currentCommand != null) {
-                this.terminal.togglePromptMode();
-                this.terminal.togglePasswordMode();
-
-                let command = this.root.find("bin").find(this.currentCommand);
-                let commandResult = command.executeFollowUp(userInput);
-                
-                this.terminal.addBR();
-                this.currentCommand = null;
-            } else {
+        if (this.currentCommand != null) { // multi part command (input from command's prompt) : su
+            this._handleFollowUpInput(userInput);
+        } else {
+            if (userInput.length > 0) {
                 let inputs = this._splitArgs(userInput);
                 let commandName = inputs.shift();
                 let args = this._processArgs(inputs);
                 this._addToHistory(userInput);
-
+    
                 try {
                     let command = this.root.find("bin").find(commandName);
                     if (this.getUser().canExecute(command)) {
@@ -159,7 +155,7 @@ Etiam eu est non urna commodo interdum.`;
                                               commandResult.getAddBreakline(), 
                                               commandResult.getCustomHeader(),
                                               commandResult.getNewInputNeeded());
-
+    
                             // handle prompt mode (for commands like su)
                             if (commandResult.getNewInputNeeded()) {
                                 this.terminal.togglePromptMode();
@@ -178,9 +174,9 @@ Etiam eu est non urna commodo interdum.`;
                         console.log(e);
                     }
                 }
+            } else
+                this.terminal.addBlock(this.getHeader(), "", "");
             }
-        } else
-            this.terminal.addBlock(this.getHeader(), "", "");
         this.currentCommand = null;
     }
 
@@ -252,6 +248,26 @@ Etiam eu est non urna commodo interdum.`;
                 params.push(elem);
         });
         return {options: options, params: params};
+    }
+
+    /**
+     * _handleFollowUpInput
+     * Handles user input from a command's follow up prompt (ie: su)
+     * 
+     * @param {String} userInput : command the user submitted
+     */
+    _handleFollowUpInput(userInput) {
+        this.terminal.togglePromptMode();
+        this.terminal.togglePasswordMode();
+
+        let command = this.root.find("bin").find(this.currentCommand);
+        let commandResult = command.executeFollowUp(userInput);
+
+        if (commandResult != undefined && !commandResult.isSuccessful())
+            this.terminal.addSimpleText(commandResult.getContent());
+        
+        this.terminal.addBR();
+        this.currentCommand = null;
     }
 
     /**
