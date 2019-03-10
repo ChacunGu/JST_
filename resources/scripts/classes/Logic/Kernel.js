@@ -127,6 +127,7 @@ Etiam eu est non urna commodo interdum.`;
         bin.addChild(new CommandChmod(this));
         bin.addChild(new CommandChown(this));
         bin.addChild(new CommandSU(this));
+        bin.addChild(new CommandUseradd(this));
     }
 
     /**

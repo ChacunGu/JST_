@@ -91,13 +91,17 @@ class User {
         return this.getMainGroup().getName();
     }
 
+    isRoot() {
+        return this === Kernel.ROOT_USER;
+    }
+
     /**
      * canRead
      * tests if the user can read the file
      * @param {AbstractFile} user 
      */
     canRead(file) {
-        if (this === Kernel.ROOT_USER) {
+        if (this.isRoot()) {
             return true;
         }
         if (this === file.getOwner() && 
@@ -117,7 +121,7 @@ class User {
      * @param {AbstractFile} user 
      */
     canWrite(file) {
-        if (this === Kernel.ROOT_USER) {
+        if (this.isRoot()) {
             return true;
         }
         if (this === file.getOwner() && file.permission.ownerRights.write) {
@@ -136,7 +140,7 @@ class User {
      * @param {AbstractFile} user 
      */
     canExecute(file) {
-        if (this === Kernel.ROOT_USER) {
+        if (this.isRoot()) {
             return true;
         }
         if (this === file.getOwner() && file.permission.ownerRights.execute) {
