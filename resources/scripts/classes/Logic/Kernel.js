@@ -5,8 +5,8 @@
  */
 class Kernel {
     constructor() {
-        this.groups = [Kernel.ROOT_USER];
-        this.users = [Kernel.ROOT_GROUP];
+        this.groups = [Kernel.ROOT_GROUP];
+        this.users = [Kernel.ROOT_USER];
         
         let rootUser = Kernel.ROOT_USER;
         rootUser.changePassword("", "root");
@@ -69,7 +69,6 @@ class Kernel {
      */
     _initHome() {
         this.homeDirectory = this.root.find("home");
-        let userDirectory = new Directory(this.getUser().getName(), this.getUser(), this.homeDirectory);
         let story = new File("story.txt", this.getUser());
         story.setRights("700");
         story.content = `Lorem ipsum dolor sit amet, consectetur adipiscing elit.
@@ -126,6 +125,7 @@ Etiam eu est non urna commodo interdum.`;
         bin.addChild(new CommandHead(this));
         bin.addChild(new CommandTail(this));
         bin.addChild(new CommandChmod(this));
+        bin.addChild(new CommandChown(this));
         bin.addChild(new CommandSU(this));
     }
 

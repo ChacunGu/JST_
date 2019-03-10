@@ -11,14 +11,6 @@ class User {
     }
 
     /**
-     * getPassword
-     * Returns user password.
-     */
-    getPassword() {
-        return this.password;
-    }
-
-    /**
      * changePassword
      * changes the poassword of the user
      * needs the old password to do so!
@@ -65,6 +57,14 @@ class User {
      */
     getName() {
         return this.name;
+    }
+
+    /**
+     * getPassword
+     * returns the user's password (Hashed by sha256)
+     */
+    getPassword() {
+        return this.password;
     }
 
     /**
