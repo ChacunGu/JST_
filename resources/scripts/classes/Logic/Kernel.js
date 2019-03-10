@@ -684,7 +684,7 @@ Etiam eu est non urna commodo interdum.`;
             }
 
             return element;
-        } catch {
+        } catch (e) {
             return null;
         }
     }
