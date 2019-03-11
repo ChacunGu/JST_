@@ -110,7 +110,7 @@ class TerminalInput extends AbstractInput {
         this.headerNode.innerHTML = "";
         this.headerNode.append(document.createTextNode(header));
         this.headerNode.append(document.createElement("br"));
-        this.headerNode.append(document.createTextNode("$"));
+        this.headerNode.append(document.createTextNode(Terminal.SYMBOL));
     }
 }
 
