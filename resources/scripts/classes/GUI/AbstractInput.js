@@ -36,7 +36,11 @@ class AbstractInput {
                 sel.select();
             } else {
                 sel = window.getSelection();
-                sel.collapse(this.editableNode.firstChild, char);
+                try {
+                    sel.collapse(this.editableNode.firstChild, char);
+                } catch (e) {
+                    console.log(e);
+                }
             }
         }
     }

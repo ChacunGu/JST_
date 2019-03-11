@@ -57,8 +57,16 @@ class Editor {
     _initEvents() {
         window.addEventListener("submitCommand", event => this._processInput(event.detail));
         this.input.editableNode.onkeypress = () => {
-            this.modificationSaved = false;
+            if (this.mode == Editor.MODE_INSERT)
+                this.modificationSaved = false;
         };
+        this.input.editableNode.onkeydown = event => {
+            let keycode = event.keyCode;
+            if (this.mode != Editor.MODE_INSERT && keycode !== 37 && keycode !== 38 && keycode !== 39 && keycode !== 40) {
+                if (keycode !== Editor.KEY_TOGGLE_MODE_COMMAND)
+                    event.preventDefault();
+            }
+        }
     }
 
     /**
@@ -122,10 +130,15 @@ class Editor {
      * @param {String} newMode : new mode to set
      */
     changeMode(newMode) {
+        let previousMode = this.mode;
         this.mode = newMode;
-        document.activeElement.blur();
         this.commandInput._clear();
-        this.focusInput();
+        
+        if (previousMode == Editor.MODE_COMMAND || (previousMode == Editor.MODE_GENERAL && newMode == Editor.MODE_COMMAND)) {
+            document.activeElement.blur();
+            if (this.isVisible())
+                this.focusInput();
+        }
 
         if (this.mode == Editor.MODE_INSERT)
             this.commandInput.setValue("--INSERT--");
@@ -187,6 +200,7 @@ class Editor {
         
         this.commandInput.setValue("\"" + filename + "\"" + (isCreating ? " [New File]" : ""));
         this.setFilenameBoxContent(filePath);
+        this.focusInput();
     }
 
     /**
@@ -204,7 +218,7 @@ class Editor {
     focusInput() {
         if (this.mode == Editor.MODE_COMMAND)
             this.commandInput.focus(this.input.getCursorPosition());
-        else if (this.mode == Editor.MODE_INSERT)
+        else
             this.input.focus(this.input.getCursorPosition());
     }
 

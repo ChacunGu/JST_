@@ -466,7 +466,7 @@ Etiam eu est non urna commodo interdum.`;
      * @param {int} cursorPosition : cursor's position in the input value
      * @param {bool} doubleTap : true if the user double pressed the tab key false otherwise
      */
-    _autocomplete(currentInputValue, cursorPosition, doubleTap=false) {        
+    _autocomplete(currentInputValue, cursorPosition, doubleTap=false) {
         currentInputValue = this._correctEditedPath(currentInputValue, cursorPosition);
 
         if (currentInputValue != null) {

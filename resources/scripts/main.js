@@ -52,8 +52,6 @@ function initEvents() {
                     event.preventDefault();
                     kernel.getEditor().changeMode(Editor.MODE_INSERT);
                 }
-            } else {
-                // if (kernel.getEditor().getMode() == Editor.MODE_COMMAND)
             }
         }
     };
@@ -71,14 +69,14 @@ function initEvents() {
         if (kernel.getTerminal().isVisible())
             kernel.getTerminal().setCursorPosition(window.getSelection().anchorOffset);
         else
-            return
+            return;
     }
 
     document.getElementById(EditorInput.EDITABLE_NODE_ID).onblur = () => {
-        if (kernel.getEditor().isVisible())
+        if (kernel.getEditor().isVisible()) {
             kernel.getEditor().setCursorPosition(window.getSelection().anchorOffset);
-        else
-            return
+        } else
+            return;
     };
 }
 
