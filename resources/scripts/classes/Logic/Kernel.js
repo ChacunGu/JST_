@@ -127,6 +127,7 @@ Etiam eu est non urna commodo interdum.`;
         bin.addChild(new CommandTail(this));
         bin.addChild(new CommandChmod(this));
         bin.addChild(new CommandSU(this));
+        bin.addChild(new CommandPassWD(this));
     }
 
     /**
@@ -176,8 +177,8 @@ Etiam eu est non urna commodo interdum.`;
                 }
             } else
                 this.terminal.addBlock(this.getHeader(), "", "");
-            }
-        this.currentCommand = null;
+            this.currentCommand = null;
+        }
     }
 
     /**
@@ -257,17 +258,25 @@ Etiam eu est non urna commodo interdum.`;
      * @param {String} userInput : command the user submitted
      */
     _handleFollowUpInput(userInput) {
-        this.terminal.togglePromptMode();
-        this.terminal.togglePasswordMode();
-
         let command = this.root.find("bin").find(this.currentCommand);
         let commandResult = command.executeFollowUp(userInput);
 
-        if (commandResult != undefined && !commandResult.isSuccessful())
+        // display command's feedback message
+        if (commandResult != undefined && commandResult.getContent().length > 0) {
             this.terminal.addSimpleText(commandResult.getContent());
+        }
         
-        this.terminal.addBR();
-        this.currentCommand = null;
+        // add breakline
+        if (commandResult == undefined || commandResult.getAddBreakline()) {
+            this.terminal.addBR();
+        }
+        
+        // end command's execution
+        if (commandResult == undefined || !commandResult.getNewInputNeeded()) {
+            this.terminal.togglePromptMode();
+            this.terminal.togglePasswordMode();
+            this.currentCommand = null;
+        }
     }
 
     /**

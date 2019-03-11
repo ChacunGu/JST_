@@ -20,14 +20,27 @@ class User {
 
     /**
      * changePassword
-     * changes the poassword of the user
+     * changes the password of the user
      * needs the old password to do so!
-     * @param {String} oldPassword 
-     * @param {String} newPassword 
+     * @param {String} oldPassword : old user's password in raw text
+     * @param {String} newPassword : new user's password in raw text
      */
     changePassword(oldPassword, newPassword) {
         if(Kernel.SHA256(oldPassword) == this.password) {
             this.password = Kernel.SHA256(newPassword);
+        }
+    }
+
+    /**
+     * changePasswordSHA
+     * changes the password of the user given in SHA
+     * needs the old password to do so!
+     * @param {String} oldPassword : old user's password in SHA256
+     * @param {String} newPassword : new user's password in SHA256
+     */
+    changePasswordSHA(oldPassword, newPassword) {
+        if(oldPassword == this.password) {
+            this.password = newPassword;
         }
     }
 
