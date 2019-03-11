@@ -11,14 +11,6 @@ class User {
     }
 
     /**
-     * getPassword
-     * Returns user password.
-     */
-    getPassword() {
-        return this.password;
-    }
-
-    /**
      * changePassword
      * changes the password of the user
      * needs the old password to do so!
@@ -81,6 +73,14 @@ class User {
     }
 
     /**
+     * getPassword
+     * returns the user's password (Hashed by sha256)
+     */
+    getPassword() {
+        return this.password;
+    }
+
+    /**
      * getGroups
      * returns the user's list of groups
      */
@@ -104,13 +104,17 @@ class User {
         return this.getMainGroup().getName();
     }
 
+    isRoot() {
+        return this === Kernel.ROOT_USER;
+    }
+
     /**
      * canRead
      * tests if the user can read the file
      * @param {AbstractFile} user 
      */
     canRead(file) {
-        if (this === Kernel.ROOT_USER) {
+        if (this.isRoot()) {
             return true;
         }
         if (this === file.getOwner() && 
@@ -130,7 +134,7 @@ class User {
      * @param {AbstractFile} user 
      */
     canWrite(file) {
-        if (this === Kernel.ROOT_USER) {
+        if (this.isRoot()) {
             return true;
         }
         if (this === file.getOwner() && file.permission.ownerRights.write) {
@@ -149,7 +153,7 @@ class User {
      * @param {AbstractFile} user 
      */
     canExecute(file) {
-        if (this === Kernel.ROOT_USER) {
+        if (this.isRoot()) {
             return true;
         }
         if (this === file.getOwner() && file.permission.ownerRights.execute) {
