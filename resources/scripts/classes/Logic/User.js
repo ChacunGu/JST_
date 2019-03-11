@@ -43,7 +43,7 @@ class User {
      */
     addToGroup(group) {
         group.addUser(this);
-        this.groups.push(group)
+        this.groups.unshift(group);
     }
 
     /**

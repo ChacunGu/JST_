@@ -130,7 +130,7 @@ class Kernel {
                     groupText += ",";
                 }
             }
-            if (i < this.users.length-1) {
+            if (i < this.groups.length-1) {
                 groupText += "\n";
             }
         }
@@ -203,6 +203,8 @@ Etiam eu est non urna commodo interdum.`;
         bin.addChild(new CommandSU(this));
         bin.addChild(new CommandUseradd(this));
         bin.addChild(new CommandPassWD(this));
+        bin.addChild(new CommandGroupadd(this));
+        bin.addChild(new CommandUsermod(this));
     }
 
     /**
@@ -806,6 +808,19 @@ Etiam eu est non urna commodo interdum.`;
     }
 
     /**
+     * addUserToGroup
+     * add a user to a group
+     * @param {User} user 
+     * @param {Group} group 
+     */
+    addUserToGroup(user, group) {
+        if (!user.isInList(group.getUsers())) {
+            user.addToGroup(group);
+        }
+        this._updateEtc();
+    }
+
+    /**
      * changePasswordSHA
      * changes the user's password
      * @param {User} user 
@@ -842,6 +857,23 @@ Etiam eu est non urna commodo interdum.`;
     }
 
     /**
+     * createGroup
+     * create a new group and adds it to the list
+     * @param {String} name 
+     */
+    createGroup(name) {
+        let newGroup = null;
+        if (this.findGroup(name) == null) {
+            newGroup = new Group(name);
+        }
+        this.addGroup(newGroup);
+
+        this._updateEtc();
+
+        return newGroup;
+    }
+
+    /**
      * findUser
      * Returns a user by name if exists
      * @param {String} name 
@@ -850,6 +882,20 @@ Etiam eu est non urna commodo interdum.`;
         for (let i=0 ; i < this.users.length ; i++) {
             if (this.users[i].getName() == name) {
                 return this.users[i];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * findGroup
+     * Returns a group by name if exists
+     * @param {String} name 
+     */
+    findGroup(name) {
+        for (let i=0 ; i < this.groups.length ; i++) {
+            if (this.groups[i].getName() == name) {
+                return this.groups[i];
             }
         }
         return null;
