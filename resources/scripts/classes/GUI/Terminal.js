@@ -19,11 +19,17 @@ class Terminal {
     _append(block) {
         // insert the block before the terminal's input
         this.terminalNode.insertBefore(block, this.input.inputNode);
+        this._scrollToBottom();
+    }
 
-        // scroll to bottom
+    /**
+     * _scrollToBottom
+     * Scrolls page to bottom to kepp input in view.
+     */
+    _scrollToBottom() {
         window.pageYOffset = 
-            document.documentElement.scrollTop = 
-            document.body.scrollTop = this.terminalNode.scrollHeight;
+        document.documentElement.scrollTop = 
+        document.body.scrollTop = this.terminalNode.scrollHeight;
     }
 
     /**
@@ -170,6 +176,7 @@ class Terminal {
      */
     togglePromptMode() {
         this.input.togglePromptMode();
+        this._scrollToBottom();
     }
 
     /**
@@ -178,6 +185,7 @@ class Terminal {
      */
     togglePasswordMode() {
         this.input.togglePasswordMode();
+        this._scrollToBottom();
     }
 }
 

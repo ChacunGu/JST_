@@ -64,7 +64,7 @@ class CommandPassWD extends AbstractCommand {
      * executeFollowUp
      * Handles user response to first command result.
      * 
-     * @param {String} input : user's response (password for root)
+     * @param {String} input : user's response
      */
     executeFollowUp(input) {
         this.commandStepId++;

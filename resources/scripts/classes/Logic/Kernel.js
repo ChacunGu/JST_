@@ -169,7 +169,6 @@ Etiam eu est non urna commodo interdum.`;
                         this.displayBlock("Error : Permission denied");
                     }
                 } catch (e) {
-                    console.log(e);
                     if (e instanceof TypeError) {
                         this.displayBlock("Unknown command");
                     } else {
