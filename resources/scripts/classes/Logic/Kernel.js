@@ -806,6 +806,18 @@ Etiam eu est non urna commodo interdum.`;
     }
 
     /**
+     * changePasswordSHA
+     * changes the user's password
+     * @param {User} user 
+     * @param {String} oldPassword 
+     * @param {String} newPassword 
+     */
+    changePasswordSHA(user, oldPassword, newPassword) {
+        user.changePasswordSHA(oldPassword, newPassword);
+        this._updateEtc();
+    }
+
+    /**
      * createUser
      * create a new user
      * set the group to be at least his name

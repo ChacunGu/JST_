@@ -83,7 +83,7 @@ class CommandPassWD extends AbstractCommand {
             
             case 3: // new user's password: entry n°2 - confirmation
                 if (this.userNewPassword == Kernel.SHA256(input)) { // if passwords match (new and validation)
-                    this.lastUser.changePasswordSHA(this.userOldPassword, this.userNewPassword);
+                    this.kernel.changePasswordSHA(this.lastUser, this.userOldPassword, this.userNewPassword);
                     this._resetState();
                     return new CommandResult(true, "Password changed for " + this.lastUser.getName());
                 }
