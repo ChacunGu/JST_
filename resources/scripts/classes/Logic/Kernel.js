@@ -5,8 +5,8 @@
  */
 class Kernel {
     constructor() {
-        this.groups = [Kernel.ROOT_USER];
-        this.users = [Kernel.ROOT_GROUP];
+        this.groups = [Kernel.ROOT_GROUP];
+        this.users = [Kernel.ROOT_USER];
         
         let rootUser = Kernel.ROOT_USER;
         rootUser.changePassword("", "root");
@@ -26,9 +26,12 @@ class Kernel {
         this.createUser("user2", usersGroup);
         this.createUser("user3", usersGroup);
 
+        this.user = this.findUser("user1");
+
         this.currentDirectory = this.homeDirectory;
         this.terminal = new Terminal(this.getHeader());
         this.editor = new Editor();
+        this.currentCommand = null;
     }
     
     /**
@@ -66,7 +69,6 @@ class Kernel {
      */
     _initHome() {
         this.homeDirectory = this.root.find("home");
-        let userDirectory = new Directory(this.getUser().getName(), this.getUser(), this.homeDirectory);
         let story = new File("story.txt", this.getUser());
         story.setRights("700");
         story.content = `Lorem ipsum dolor sit amet, consectetur adipiscing elit.
@@ -90,6 +92,10 @@ Etiam eu est non urna commodo interdum.`;
         let store = new File("store.txt", this.getUser());
         store.content = `Liste des magasins : CDF, NE, BE`;
         this.homeDirectory.addChild(store);
+
+        let tmpDir = new Directory("a b", this.getUser());
+        this.homeDirectory.addChild(tmpDir);
+        tmpDir.addChild(new Directory("c", this.getUser()));
     }
 
     /**
@@ -119,42 +125,60 @@ Etiam eu est non urna commodo interdum.`;
         bin.addChild(new CommandHead(this));
         bin.addChild(new CommandTail(this));
         bin.addChild(new CommandChmod(this));
+        bin.addChild(new CommandChown(this));
+        bin.addChild(new CommandSU(this));
+        bin.addChild(new CommandUseradd(this));
     }
 
     /**
      * _processInput
      * Processes a given user input.
+     * 
      * @param {String} userInput : command the user submitted
      */
     _processInput(userInput) {
-        if (userInput.length > 0) {
-            let inputs = this._splitArgs(userInput);
-            let commandName = inputs.shift();
-            let args = this._processArgs(inputs);
-            this._addToHistory(userInput);
-
-            try {
-                let command = this.root.find("bin").find(commandName);
-                if (this.getUser().canExecute(command)) {
-                    let commandResult = command.execute(args.options, args.params);
-                    if (commandResult != undefined)
-                        this.displayBlock(  commandResult.getContent(), 
-                                            commandResult.getAddBreakline(), 
-                                            commandResult.getCustomHeader());
-                } else {
-                    this.displayBlock("Error : Permission denied");
-                }
-                
-            } catch (e) {
-                console.log(e);
-                if (e instanceof TypeError) {
-                    this.displayBlock("Unknown command");
-                } else {
+        if (this.currentCommand != null) { // multi part command (input from command's prompt) : su
+            this._handleFollowUpInput(userInput);
+        } else {
+            if (userInput.length > 0) {
+                let inputs = this._splitArgs(userInput);
+                let commandName = inputs.shift();
+                let args = this._processArgs(inputs);
+                this._addToHistory(userInput);
+    
+                try {
+                    let command = this.root.find("bin").find(commandName);
+                    if (this.getUser().canExecute(command)) {
+                        this.currentCommand = commandName;
+                        let commandResult = command.execute(args.options, args.params);
+                        if (commandResult != undefined) {
+                            this.displayBlock(commandResult.getContent(), 
+                                              commandResult.getAddBreakline(), 
+                                              commandResult.getCustomHeader(),
+                                              commandResult.getNewInputNeeded());
+    
+                            // handle prompt mode (for commands like su)
+                            if (commandResult.getNewInputNeeded()) {
+                                this.terminal.togglePromptMode();
+                                this.terminal.togglePasswordMode();
+                                return;
+                            }
+                        }
+                    } else {
+                        this.displayBlock("Error : Permission denied");
+                    }
+                } catch (e) {
                     console.log(e);
+                    if (e instanceof TypeError) {
+                        this.displayBlock("Unknown command");
+                    } else {
+                        console.log(e);
+                    }
                 }
+            } else
+                this.terminal.addBlock(this.getHeader(), "", "");
             }
-        } else
-            this.terminal.addBlock(this.getHeader(), "", "");
+        this.currentCommand = null;
     }
 
     /**
@@ -228,6 +252,26 @@ Etiam eu est non urna commodo interdum.`;
     }
 
     /**
+     * _handleFollowUpInput
+     * Handles user input from a command's follow up prompt (ie: su)
+     * 
+     * @param {String} userInput : command the user submitted
+     */
+    _handleFollowUpInput(userInput) {
+        this.terminal.togglePromptMode();
+        this.terminal.togglePasswordMode();
+
+        let command = this.root.find("bin").find(this.currentCommand);
+        let commandResult = command.executeFollowUp(userInput);
+
+        if (commandResult != undefined && !commandResult.isSuccessful())
+            this.terminal.addSimpleText(commandResult.getContent());
+        
+        this.terminal.addBR();
+        this.currentCommand = null;
+    }
+
+    /**
      * _addToHistory
      * Appends command to history.
      * @param {String} command : command to append to history
@@ -276,128 +320,194 @@ Etiam eu est non urna commodo interdum.`;
     }
 
     /**
+     * _correctEditedPath
+     * Surrounds edited param by quotes if it contains spaces.
+     * 
+     * @param {String} value : current terminal's input value
+     * @param {int} cursorPosition : cursor's position in the input value
+     */
+    _correctEditedPath(value, cursorPosition) {
+        let nbQuotes = value.split("\"").length - 1;
+        let nbApostrophe = value.split("'").length - 1;
+
+        if (nbQuotes%2 == 1 && nbApostrophe%2 == 1)
+            return null;
+        else if (nbQuotes%2 == 1)
+            return value.slice(0, cursorPosition) + "\"" + value.slice(cursorPosition);
+        else if (nbApostrophe%2 == 1)
+            return value.slice(0, cursorPosition) + "'" + value.slice(cursorPosition);
+        else
+            return value;
+    }
+
+    /**
+     * _findComplexEditedPath
+     * Search currently edited path in the terminal's input value. 
+     * Returns the path and its first character position in the input value.
+     * 
+     * @param {String} value : current terminal's input value
+     * @param {int} cursorPosition : cursor's position in the input value
+     * @param {Array} params : parameters extracted from terminal's input value
+     */
+    _findComplexEditedPath(value, cursorPosition, params) {
+        let elemAtCursorPos = cursorPosition < value.length ? value[cursorPosition] : "";
+        let searchedElem = null;
+        let searchedArg = "";
+        let argIndex = null;
+        let argIndexStart = null;
+
+        // identify edited path's delimeter
+        if (elemAtCursorPos == "\"") {
+            searchedElem = "\"";
+            searchedArg = "\"";
+        } else if (elemAtCursorPos == "'") {
+            searchedElem = "'";
+            searchedArg = "'";
+        } else if (elemAtCursorPos == "" || elemAtCursorPos == " ") {
+            searchedElem = " ";
+            searchedArg = "";
+        } else
+            return {path: null};
+
+        // retrieve edited path from terminal's input value
+        for (let i=cursorPosition-1; i>=0; i--) {
+            searchedArg = value[i] + searchedArg;
+            if (value[i] == searchedElem) {
+                argIndexStart = i+1;
+                if (searchedElem == " ") {
+                    searchedArg = searchedArg.slice(1);
+                }
+                break;
+            }
+        }
+
+        // search and retrieve edited arguments from terminal's input value
+        for (let i=0; i<params.length; i++) {
+            if (searchedArg == params[i]) {
+                argIndex = i;
+                break;
+            }
+        }
+
+        // if path is found
+        if (argIndex != null)
+            return {path: this.preparePath(params[argIndex]), argIndex: argIndex, argIndexStart: argIndexStart};
+        return {path: null};
+    }
+
+    /**
+     * _retrieveMatchingDirectoryChildren
+     * Retrieves directory's children elements with name matching given pattern.
+     * 
+     * @param {Directory} directory : searched elements parent directory
+     * @param {String} pattern : searched pattern
+     */
+    _retrieveMatchingDirectoryChildren(directory, pattern) {
+        let children = directory.getChildren();
+        let matchingElements = [];
+
+        // search matching elements
+        for (let i=0; i<children.length; i++) {
+            if (children[i].getName().startsWith(pattern))
+                matchingElements.push(children[i]);
+        }
+
+        return matchingElements;
+    }
+
+    /**
+     * _formatCompletedPath
+     * Formats and returns the new input value after autocompletion.
+     * 
+     * @param {String} currentInputValue : current terminal's input value
+     * @param {int} argIndexStart : edited path's first character position in the input value
+     * @param {int} argIndexEnd : edited path's last character position in the input value
+     * @param {String} currentDirectoryPath : autocompleted path's resulting directory
+     * @param {Array} matchingElements : array of elements in the targeted directory with names containing searched pattern
+     */
+    _formatCompletedPath(currentInputValue, argIndexStart, argIndexEnd, currentDirectoryPath, matchingElements) {
+        let completedPath = currentDirectoryPath + 
+                            (currentDirectoryPath[currentDirectoryPath.length-1] != "/" && currentDirectoryPath.length > 0 ? "/" : "") + 
+                            matchingElements[0].getName() + 
+                            (matchingElements[0] instanceof Directory ? "/" : "");
+
+        // retrieve command part written before and after completed path
+        let newInputValue = [currentInputValue.slice(0, argIndexStart),
+                            currentInputValue.slice(argIndexEnd)];
+        
+        // handle paths not initially surrounded by quotes but containing spaces
+        if (completedPath.split(" ").length > 1) {
+            if (!(newInputValue[0][newInputValue[0].length-1] == "\"" && newInputValue[1][0] == "\"") && 
+                !(newInputValue[0][newInputValue[0].length-1] == "'" && newInputValue[1][0] == "'")) {
+                completedPath = "\"" + completedPath + "\"";
+                argIndexStart--;
+            }
+        }
+
+        // insert completed path in the command
+        newInputValue = newInputValue[0] + completedPath + newInputValue[1];
+
+        return {newInputValue: newInputValue, argIndexStart: argIndexStart, completedPathLength: completedPath.length};
+    }
+
+    /**
      * _autocomplete
-     * complete the user's input if exists
+     * Completes the user's input if possible.
+     * 
      * @param {String} currentInputValue : current terminal's input value
      * @param {int} cursorPosition : cursor's position in the input value
      * @param {bool} doubleTap : true if the user double pressed the tab key false otherwise
      */
-    _autocomplete(currentInputValue, cursorPosition, doubleTap=false) {
+    _autocomplete(currentInputValue, cursorPosition, doubleTap=false) {        
+        currentInputValue = this._correctEditedPath(currentInputValue, cursorPosition);
 
-        let nbQuotes = 0;
-        for (let i=0; i<currentInputValue.length; i++) {
-            if (currentInputValue[i] == "\"")
-                nbQuotes++;
-        }
-
-        if (nbQuotes%2 == 1)
-            currentInputValue += "\"";
-        
-        // input pre processing
-        let inputs = this._splitArgs(currentInputValue);
-        let args = this._processArgs(inputs);
-        
-        // retrieve path
-        let argIndex = null;
-        let argIndexStart = null;
-        let argIndexEnd = null;
-        let path = null;
-        if (args.params.length == 1)
-            path = this.preparePath(args.params[0]);
-        else {
-            // TODO : find specified path
-            let elemAtCursorPos = cursorPosition < currentInputValue.length ? currentInputValue[cursorPosition] : "";
-            // console.log("user input :\t\t", "'" + currentInputValue + "'", 
-            //             "\ncursor position :\t", cursorPosition, 
-            //             "\nchar at cursor pos :\t", cursorPosition < currentInputValue.length ? currentInputValue[cursorPosition] : "",
-            //             "\nargs :\t", args);
-
-            let searchedArg = "";
-            let searchedElem = null;
-            argIndexEnd = cursorPosition;
-
-            if (elemAtCursorPos == "\"") {
-                searchedElem = "\"";
-                searchedArg = "\"";
-            } else if (elemAtCursorPos == "'") {
-                searchedElem = "'";
-                searchedArg = "'";
-            } else if (elemAtCursorPos == "") {
-                searchedElem = " ";
-                searchedArg = "";
-            } else
-                return;
-
-            // retrieve selected argument
-            for (let i=cursorPosition-1; i>=0; i--) {
-                searchedArg = currentInputValue[i] + searchedArg;
-                if (currentInputValue[i] == searchedElem) {
-                    argIndexStart = i+1;
-                    if (searchedElem == " ") {
-                        searchedArg = searchedArg.slice(1);
-                    }
-                    break;
-                }
+        if (currentInputValue != null) {
+            // input pre processing
+            let inputs = this._splitArgs(currentInputValue);
+            let args = this._processArgs(inputs);
+            
+            let argIndexStart = null;
+            let argIndexEnd = cursorPosition;
+            let path = null;
+            
+            // retrieve path
+            if (args.params.length == 1) // only one element in terminal's input value
+                path = this.preparePath(args.params[0]);
+            else { // multiple elements in terminal's input value
+                let res = this._findComplexEditedPath(currentInputValue, cursorPosition, args.params);
+                path = res.path;
+                argIndexStart = res.argIndexStart;
             }
+            
+            if (path != null) {
+                // separate filename from its path
+                let pathInfo = Kernel.retrieveElementNameAndPath(path);
+                let currentDirectoryPath = pathInfo.dir;
+                let currentDirectory = this.findElementFromPath(currentDirectoryPath);
+                let searchedElementName = pathInfo.elem;
 
-            // search and retrieve for selected arguments in arg.params
-            for (let i=0; i<args.params.length; i++) {
-                if (searchedArg == args.params[i]) {
-                    argIndex = i;
-                    break;
-                }
-            }
+                if (currentDirectory != null) { // if path does exist
+                    if (currentDirectory instanceof Directory) { // if path points to a directory
+                        let matchingElements = this._retrieveMatchingDirectoryChildren(currentDirectory, searchedElementName);
 
-            if (argIndex == null)
-                return;
+                        if (matchingElements.length == 1) { // only one matching element found
+                            // format path
+                            let res = this._formatCompletedPath(currentInputValue, argIndexStart, argIndexEnd, currentDirectoryPath, matchingElements);
+                            let newInputValue = res.newInputValue;
+                            argIndexStart = res.argIndexStart;
+                            let completedPathLength = res.completedPathLength;
 
-            path = this.preparePath(args.params[argIndex]);
-        }
-        
-        
-        if (path != null) {
-            // separate filename from its path
-            let pathInfo = Kernel.retrieveElementNameAndPath(path);
-            let currentDirectoryPath = pathInfo.dir;
-            let currentDirectory = this.findElementFromPath(currentDirectoryPath);
-            let searchedElementName = pathInfo.elem;
-
-            // console.log(searchedElementName, currentDirectory);
-
-            if (currentDirectory != null) { // if path does exist
-                if (currentDirectory instanceof Directory) { // if path points to a directory
-                    let children = currentDirectory.getChildren();
-                    let matchingElements = [];
-
-                    // search matching elements
-                    for (let i=0; i<children.length; i++) {
-                        if (children[i].getName().startsWith(searchedElementName))
-                            matchingElements.push(children[i]);
-                    }
-
-                    if (matchingElements.length == 1) { // only one matching element found
-                        // change input's value
-
-                        // console.log(currentDirectoryPath);
-                        
-                        let completedPath = currentDirectoryPath + 
-                                            (currentDirectoryPath[currentDirectoryPath.length-1] != "/" && currentDirectoryPath.length > 0 ? "/" : "") + 
-                                            matchingElements[0].getName() + 
-                                            (matchingElements[0] instanceof Directory ? "/" : "");
-
-                        let newInputValue = currentInputValue.split(currentInputValue.slice(argIndexStart, argIndexEnd));
-                        newInputValue = newInputValue[0] + completedPath + newInputValue[1];
-
-                        this.terminal.setInputContent(newInputValue);
-                        this.terminal.setCursorPosition(argIndexStart + completedPath.length);
-                        this.terminal.focusInput();
-                    } else if (matchingElements.length > 1) { // multiple matching elements found
-                        if (doubleTap) {
-                            // TODO : adapt for autocompletion in the middle of the user input
-                            let paths = "";
-                            for (let i=0; i<matchingElements.length; i++)
-                                paths += matchingElements[i].getName() + "<br/>";
-                                this.terminal.addBlock(this.getHeader(), currentInputValue, paths, false);
+                            // change input's value and set focus
+                            this.terminal.setInputContent(newInputValue);
+                            this.terminal.setCursorPosition(argIndexStart + completedPathLength);
+                            this.terminal.focusInput();
+                        } else if (matchingElements.length > 1) { // multiple matching elements found
+                            if (doubleTap) { // display matching elements
+                                let paths = "";
+                                for (let i=0; i<matchingElements.length; i++)
+                                    paths += matchingElements[i].getName() + "<br/>";
+                                    this.terminal.addBlock(this.getHeader(), currentInputValue, paths, false);
+                            }
                         }
                     }
                 }
@@ -471,12 +581,13 @@ Etiam eu est non urna commodo interdum.`;
      * displayBlock
      * Creates and displays a new block with the last command and its given value.
      * @param {String} value : last command's result
-     * @param {boolean} addBreakLine : true if a break line should be added after the given content false otherwise
+     * @param {bool} addBreakLine : true if a break line should be added after the given content false otherwise
      * @param {String} customHeader : custom command's header
+     * @param {bool} isNewInputNeeded : true if a following input should be displayed after this block false otherwise.
      */
-    displayBlock(value, addBreakLine=true, customHeader="") {
+    displayBlock(value, addBreakLine=true, customHeader="", isNewInputNeeded=false) {
         this.terminal.addBlock(customHeader.length > 0 ? customHeader : this.getHeader(), 
-                                this._getLastCommand(), value, addBreakLine);
+                                this._getLastCommand(), value, addBreakLine, isNewInputNeeded);
     }
 
     /**
@@ -573,7 +684,7 @@ Etiam eu est non urna commodo interdum.`;
             }
 
             return element;
-        } catch {
+        } catch (e) {
             return null;
         }
     }
@@ -636,7 +747,7 @@ Etiam eu est non urna commodo interdum.`;
 
     /**
      * findUser
-     * returns a user by name if exists
+     * Returns a user by name if exists
      * @param {String} name 
      */
     findUser(name) {
@@ -646,6 +757,17 @@ Etiam eu est non urna commodo interdum.`;
             }
         }
         return null;
+    }
+
+    /**
+     * setUser
+     * Changes current user to given one.
+     * 
+     * @param {User} user : new user
+     */
+    setUser(user) {
+        this.user = user;
+        this.terminal.updateHeader(this.getHeader());
     }
 
     /********************************************************************************/

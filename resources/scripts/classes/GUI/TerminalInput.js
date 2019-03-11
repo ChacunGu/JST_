@@ -30,6 +30,7 @@ class TerminalInput extends AbstractInput {
         
         this.headerNode = document.createElement("span");
         this.headerNode.id = TerminalInput.HEADER_ID;
+        this.headerNode.style.display = "";
         this.updateHeader(header);
         
         let inputNode = document.createElement("div");
@@ -48,24 +49,25 @@ class TerminalInput extends AbstractInput {
     _initEvents(insideSpan) {
         let _this = this;
         insideSpan.addEventListener("keydown", event => {
-            if (event.keyCode === 13) { // Enter key pressed
+            let keycode = event.keyCode;
+            if (keycode === 13) { // Enter key pressed
                 event.preventDefault();
                 _this._submit();
                 _this._clear();
                 return false;
-            } else if (event.keyCode === 38) { // Up arrow
+            } else if (keycode === 38) { // Up arrow
                 event.preventDefault();
                 window.dispatchEvent(new Event("historyup"));
                 return false;
-            } else if (event.keyCode === 40) { // Down arrow
+            } else if (keycode === 40) { // Down arrow
                 event.preventDefault();
                 window.dispatchEvent(new Event("historydown"));
                 return false;
-            } else if (event.keyCode === 27) { // Escape
+            } else if (keycode === 27) { // Escape
                 event.preventDefault();
                 this._clear();
                 return false;
-            } else if (event.keyCode === 9) { // TAB
+            } else if (keycode === 9) { // TAB
                 event.preventDefault();
 
                 if (this.tappedTabKey) { // double tap
@@ -111,6 +113,14 @@ class TerminalInput extends AbstractInput {
         this.headerNode.append(document.createTextNode(header));
         this.headerNode.append(document.createElement("br"));
         this.headerNode.append(document.createTextNode(Terminal.SYMBOL));
+    }
+
+    /**
+     * togglePromptMode
+     * Toggles terminal's input prompt mode.
+     */
+    togglePromptMode() {
+        this.headerNode.style.display = this.headerNode.style.display == "none" ? "" : "none";
     }
 }
 
