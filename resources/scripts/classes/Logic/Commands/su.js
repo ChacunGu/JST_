@@ -1,11 +1,12 @@
 /**
  *  class CommandSU
- *  Switch user or become root
+ *  Switch user or become root.
  */
 class CommandSU extends AbstractCommand {
     constructor(kernel) {
         super(kernel, "su");
         this.lastUser = null;
+        this.commandStepId = 0;
 
         this.maxNumberParams = 1;
     }
@@ -17,6 +18,8 @@ class CommandSU extends AbstractCommand {
      * @param {Array} params : command's parameter(s)
      */
     execute(options=[], params=[]) { 
+        this.commandStepId = 0;
+
         // handle invalid options / parameters
         if (this._verifyExecuteArgs(options, params)) {
             
@@ -38,10 +41,10 @@ class CommandSU extends AbstractCommand {
             } else // 0 parameter: switch to root
                 this.lastUser = Kernel.ROOT_USER;
 
-            if (this.lastUser != null) { // if user exists
-                return new CommandResult(true, "Password for " + this.lastUser.getName() + ":", false, "", true);
-            }
-            return new CommandResult(false, "No entry for user '" + username + "'");
+            if (this.lastUser == null) // proceed only if user exists
+                return new CommandResult(false, "No entry for user '" + username + "'");
+            
+            return new CommandResult(true, "Password for " + this.lastUser.getName() + ":", false, "", true);
         }
     }
 
@@ -52,10 +55,13 @@ class CommandSU extends AbstractCommand {
      * @param {String} input : user's response (password for root)
      */
     executeFollowUp(input) {
+        this.commandStepId++;
         if (this.lastUser.getPassword() == Kernel.SHA256(input)) { // if passwords match
             this.kernel.setUser(this.lastUser); // switch user
+            this.commandStepId = 0;
             return new CommandResult(true);
         }
+        this.commandStepId = 0;
         return new CommandResult(false, "Authentication failure");
     }
 

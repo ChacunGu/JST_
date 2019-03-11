@@ -50,6 +50,6 @@ class CommandUseradd extends AbstractCommand {
      * Returns the command's help.
      */
     help() {
-        return "Create a new user<br/>usage: useradd userName";
+        return "Create a new user<br/>usage: useradd username";
     }
 }
