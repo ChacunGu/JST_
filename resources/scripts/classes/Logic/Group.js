@@ -19,6 +19,14 @@ class Group {
     }
 
     /**
+     * getUsers
+     * returns the list of users in the group
+     */
+    getUsers() {
+        return this.users;
+    }
+
+    /**
      * isInList
      * test if the group is in the list of groups
      * @param {Group[]} groups

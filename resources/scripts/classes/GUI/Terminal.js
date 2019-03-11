@@ -48,7 +48,7 @@ class Terminal {
         
         block.append(document.createTextNode(header));
         block.append(document.createElement("br"));
-        block.append(document.createTextNode("$ "));
+        block.append(document.createTextNode(Terminal.SYMBOL + " "));
         
         block.append(document.createTextNode(command));
 
@@ -191,3 +191,4 @@ class Terminal {
 
 Terminal.NODE_ID = "terminal";
 Terminal.BLOCK_NODE_CLS = "terminal-blocks";
+Terminal.SYMBOL = "$";
