@@ -1,7 +1,7 @@
 class Tools {
-
     /**
     *  Secure Hash Algorithm (SHA256)
+    *  This code is not ours! Full crédits to Angel Marin, Paul Johnston for original code.
     *  Source: http://www.webtoolkit.info/
     *
     *  Original code by Angel Marin, Paul Johnston.

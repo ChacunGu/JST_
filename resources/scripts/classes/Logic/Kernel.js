@@ -21,15 +21,8 @@ class Kernel {
         this._initHome();
         this._initEvents();
         this._initCommands();
-        
-        let usersGroup = new Group("users");
-        this.createUser("user1", usersGroup);
-        this.createUser("user2", usersGroup);
-        this.createUser("user3", usersGroup);
 
         this._updateEtc();
-
-        this.user = this.findUser("user1");
 
         this.currentDirectory = this.homeDirectory;
         this.terminal = new Terminal(this.getHeader());
@@ -143,33 +136,28 @@ class Kernel {
      */
     _initHome() {
         this.homeDirectory = this.root.find("home");
-        let story = new File("story.txt", this.getUser());
+        let story = new File("README", this.getUser());
         story.setRights("700");
-        story.content = `Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-Morbi ac dolor vel nunc eleifend tincidunt.
-Donec nec augue at lacus bibendum pellentesque non sit amet quam.
-Nulla bibendum ligula a bibendum aliquet.
-Cras sed urna euismod, porta dui quis, sollicitudin justo.
-Maecenas ac augue at est posuere varius.
-Phasellus sed est vitae magna molestie volutpat.
-Curabitur pellentesque elit vitae dictum mattis.
-Vivamus eleifend nunc id turpis sodales, eget tempor velit gravida.
-Nam condimentum diam ut lacus semper aliquam.
-Curabitur rutrum risus in tellus accumsan, non mollis tortor finibus.
-Nam eleifend augue non velit dapibus dictum.
-Sed sagittis felis sit amet sollicitudin mollis.
-Aliquam vitae ante tempor, eleifend turpis quis, ultricies velit.
-Integer eget orci vitae libero auctor suscipit eu sed ligula.
-Etiam eu est non urna commodo interdum.`;
+        story.content = `
+# JST_
+
+JST_ stands for JavaScript Terminal.
+
+Consists of a plain JavaScript and HTLM5 implementation of a Linux terminal.
+
+## Context
+
+Neuchâtel, 2018-2019.
+
+Developped for the 3rd year's course "Conception OS" of the "Développement Logiciel et Multimédia" Bachelor in HE-Arc (https://www.he-arc.ch/ingenierie).
+
+## Team
+
+- Donzé Célien (https://github.com/Lorkii)
+
+- Chacun Guillaume (https://github.com/ChacunGu)
+        `;
         this.homeDirectory.addChild(story);
-
-        let store = new File("store.txt", this.getUser());
-        store.content = `Liste des magasins : CDF, NE, BE`;
-        this.homeDirectory.addChild(store);
-
-        let tmpDir = new Directory("a b", this.getUser());
-        this.homeDirectory.addChild(tmpDir);
-        tmpDir.addChild(new Directory("c", this.getUser()));
     }
 
     /**
