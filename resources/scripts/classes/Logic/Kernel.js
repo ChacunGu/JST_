@@ -233,6 +233,7 @@ Developped for the 3rd year's course "Conception OS" of the "Développement Logi
                         this.displayBlock("Error : Permission denied");
                     }
                 } catch (e) {
+                    console.log(e);
                     if (e instanceof TypeError) {
                         this.displayBlock("Unknown command");
                     } else {

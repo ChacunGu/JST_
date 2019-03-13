@@ -32,6 +32,9 @@ class CommandUseradd extends AbstractCommand {
 
             if (this.kernel.getUser().isRoot()) {
                 let userName = params[0];
+                if (userName.includes(" ") || userName.includes("\"") || userName.includes("'")) {
+                    return new CommandResult(false, "Error : Name includes illegal character");
+                }
                 if (this.kernel.findUser(userName)) {
                     return new CommandResult(false, "Error : User already exist");
                 }
