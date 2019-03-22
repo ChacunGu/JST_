@@ -59,10 +59,31 @@ class CommandSU extends AbstractCommand {
         if (this.lastUser.getPassword() == Kernel.SHA256(input)) { // if passwords match
             this.kernel.setUser(this.lastUser); // switch user
             this.commandStepId = 0;
+            this.kernel.hiddenHistory.push({commandSuccess: true});
             return new CommandResult(true);
         }
         this.commandStepId = 0;
+        this.kernel.hiddenHistory.push({commandSuccess: false});
         return new CommandResult(false, "Authentication failure");
+    }
+
+    /**
+     * executeForKernelRestoration
+     * Execute command for kernel restoration.
+     * @param {Object} hiddenHistory : kernel's hidden history
+     * @param {Array} options : command's option(s)
+     * @param {Array} params : command's parameters
+     */
+    executeForKernelRestoration(options=[], params=[], hiddenHistory=null) {
+        if (this.execute(options, params).isSuccessful()) {
+            let hiddenState = hiddenHistory.shift();
+            if (hiddenState.commandSuccess)
+                this.kernel.setUser(this.lastUser);
+            this.commandStepId = 0;
+            hiddenHistory.push(hiddenState);
+        }
+
+        return hiddenHistory;
     }
 
     /**

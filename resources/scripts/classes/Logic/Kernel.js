@@ -13,6 +13,7 @@ class Kernel {
         
         this.user = rootUser;
 
+        this.hiddenHistory = [];
         this.history = [];
         this.historySelectedCmdIndex = -1;
         
@@ -26,7 +27,7 @@ class Kernel {
 
         this.currentDirectory = this.homeDirectory;
         this.terminal = new Terminal(this.getHeader());
-        this.editor = new Editor();
+        this.editor = new Editor(this);
         this.currentCommand = null;
     }
     
@@ -193,6 +194,8 @@ Developped for the 3rd year's course "Conception OS" of the "Développement Logi
         bin.addChild(new CommandPassWD(this));
         bin.addChild(new CommandGroupadd(this));
         bin.addChild(new CommandUsermod(this));
+        bin.addChild(new ImportK(this));
+        bin.addChild(new ExportK(this));
     }
 
     /**
@@ -209,7 +212,8 @@ Developped for the 3rd year's course "Conception OS" of the "Développement Logi
                 let inputs = this._splitArgs(userInput);
                 let commandName = inputs.shift();
                 let args = this._processArgs(inputs);
-                this._addToHistory(userInput);
+                if (commandName != "exportk" && commandName != "importk")
+                    this._addToHistory(userInput);
     
                 try {
                     let command = this.root.find("bin").find(commandName);
@@ -220,7 +224,8 @@ Developped for the 3rd year's course "Conception OS" of the "Développement Logi
                             this.displayBlock(commandResult.getContent(), 
                                               commandResult.getAddBreakline(), 
                                               commandResult.getCustomHeader(),
-                                              commandResult.getNewInputNeeded());
+                                              commandResult.getNewInputNeeded(),
+                                              commandName);
     
                             // handle prompt mode (for commands like su)
                             if (commandResult.getNewInputNeeded()) {
@@ -350,8 +355,6 @@ Developped for the 3rd year's course "Conception OS" of the "Développement Logi
      */
     _addToHistory(command) {
         this.history.push(command);
-        if (this.history.length > Kernel.MAX_HISTORY_LENGTH)
-            this.history.shift();
     }
 
     /**
@@ -656,10 +659,12 @@ Developped for the 3rd year's course "Conception OS" of the "Développement Logi
      * @param {bool} addBreakLine : true if a break line should be added after the given content false otherwise
      * @param {String} customHeader : custom command's header
      * @param {bool} isNewInputNeeded : true if a following input should be displayed after this block false otherwise.
+     * @param {String} commandName : last command's name
      */
-    displayBlock(value, addBreakLine=true, customHeader="", isNewInputNeeded=false) {
+    displayBlock(value, addBreakLine=true, customHeader="", isNewInputNeeded=false, commandName=null) {
         this.terminal.addBlock(customHeader.length > 0 ? customHeader : this.getHeader(), 
-                                this._getLastCommand(), value, addBreakLine, isNewInputNeeded);
+                                commandName==null ? this._getLastCommand() : commandName, 
+                                value, addBreakLine, isNewInputNeeded);
     }
 
     /**
@@ -821,6 +826,17 @@ Developped for the 3rd year's course "Conception OS" of the "Développement Logi
     }
 
     /**
+     * setPasswordSHA
+     * Sets the user's password without any verification.
+     * @param {User} user 
+     * @param {String} newPassword 
+     */
+    setPasswordSHA(user, newPassword) {
+        user.setPasswordSHA(newPassword);
+        this._updateEtc();
+    }
+
+    /**
      * createUser
      * create a new user
      * set the group to be at least his name
@@ -900,6 +916,47 @@ Developped for the 3rd year's course "Conception OS" of the "Développement Logi
         this.terminal.updateHeader(this.getHeader());
     }
 
+    /**
+     * import
+     * Import kernel state.
+     * 
+     * @param {Array} history : kernel state command history
+     * @param {Array} hiddenHistory : kernel state hidden history
+     */
+    import(history, hiddenHistory) {
+        for (let i=0; i<history.length; i++) {
+            let inputs = this._splitArgs(history[i]);
+            let commandName = inputs.shift();
+            let args = this._processArgs(inputs);
+            try {
+                let command = this.root.find("bin").find(commandName);
+                hiddenHistory = command.executeForKernelRestoration(args.options, args.params, hiddenHistory);
+            } catch(e) {}
+        }
+
+        this.history = history;
+        this.hiddenHistory = hiddenHistory;
+        this.root.find("bin").find("clear").execute();
+    }
+
+    /**
+     * getKernelStateAsJSON
+     * Returns kernel's state as json.
+     */
+    getKernelStateAsJSON() {
+        return JSON.stringify({history: this.history, hiddenHistory: this.hiddenHistory});
+    }
+
+    /**
+     * exportToFileStorage
+     * Export current kernel state to file storage.
+     * 
+     * @param {String} json : kernel state in json
+     */
+    exportToFileStorage(json) {
+        localStorage.setItem("data", json);
+    }
+
     /********************************************************************************/
     /* Static Part */
     /********************************************************************************/
@@ -971,7 +1028,6 @@ Developped for the 3rd year's course "Conception OS" of the "Développement Logi
 Kernel.DEFAULT_USER = "guillaume.chacun";
 Kernel.DEFAULT_HOSTNAME = "JST";
 Kernel.DEFAULT_PATH = "~";
-Kernel.MAX_HISTORY_LENGTH = 100;
 
 Kernel.ROOT_GROUP = new Group("root");
 Kernel.ROOT_USER = new User("root", Kernel.ROOT_GROUP);

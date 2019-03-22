@@ -3,7 +3,7 @@
  * Class which represents a text editor.
  */
 class Editor {
-    constructor() {
+    constructor(kernel) {
         this.editorNode = document.getElementById(Editor.NODE_ID);
         this.input = null;
         this.commandInput = null;
@@ -13,6 +13,7 @@ class Editor {
 
         this.hide();
 
+        this.kernel = kernel;
         this.modificationSaved = true;
         this.createFile = true;
         this.file = null;
@@ -121,6 +122,7 @@ class Editor {
      * Exits editor.
      */
     _exit() {
+        this.kernel.hiddenHistory.push({commandSuccess: true, content: this.file.getContent(), path: this.file.getPath()});
         window.dispatchEvent(new Event("hideEditor"));
     }
 

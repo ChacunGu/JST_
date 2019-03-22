@@ -16,7 +16,7 @@ class CommandEdit extends AbstractCommand {
      * @param {Array} options : command's option(s)
      * @param {Array} params : command's parameter(s)
      */
-    execute(options=[], params=[]) { 
+    execute(options=[], params=[], openEditor=true) { 
         // handle invalid options / parameters
         if (this._verifyExecuteArgs(options, params)) {
             
@@ -49,14 +49,42 @@ class CommandEdit extends AbstractCommand {
                     if (!this.kernel.getUser().canWrite(file)) {
                         return new CommandResult(false, "Error : Permission denied");
                     }
-                    this.kernel.openEditor(file, parentDirectory, false);
+                    if (openEditor)
+                        this.kernel.openEditor(file, parentDirectory, false);
                 } else {
                     return new CommandResult(false, filename + ": Not a file");
                 }
-            } else // open terminal on a new file and give the parent
-                this.kernel.openEditor(new File(filename), parentDirectory, true);
+            } else { // open terminal on a new file and give the parent
+                if (!this.kernel.getUser().canWrite(file)) {
+                    return new CommandResult(false, "Error : Permission denied");
+                }
+                if (openEditor)
+                    this.kernel.openEditor(new File(filename), parentDirectory, true);
+            }
             return new CommandResult();
         }
+    }
+
+    /**
+     * executeForKernelRestoration
+     * Execute command for kernel restoration.
+     * @param {Object} hiddenHistory : kernel's hidden history
+     * @param {Array} options : command's option(s)
+     * @param {Array} params : command's parameters
+     */
+    executeForKernelRestoration(options=[], params=[], hiddenHistory=null) {
+        if (this.execute(options, params, false).isSuccessful()) {
+            let hiddenState = hiddenHistory.shift();
+            if (hiddenState.commandSuccess) {
+                try {
+                    let res = this.kernel.getRootDirectory().find("bin").find("touch").execute([], [hiddenState.path]);
+                    this.kernel.findElementFromPath(hiddenState.path).setContent(hiddenState.content);
+                } catch(e) {console.log(e);}
+            }
+            hiddenHistory.push(hiddenState);
+        }
+
+        return hiddenHistory;
     }
 
     /**

@@ -32,6 +32,18 @@ class AbstractCommand extends AbstractFile {
     execute(options=[], params=[]) { throw new Error("This method must be implemented by derived classes."); }
     
     /**
+     * executeForKernelRestoration
+     * Execute command for kernel restoration.
+     * @param {Object} hiddenHistory : kernel's hidden history
+     * @param {Array} options : command's option(s)
+     * @param {Array} params : command's parameters
+     */
+    executeForKernelRestoration(options=[], params=[], hiddenHistory=null) {
+        this.execute(options, params);
+        return hiddenHistory;
+    }
+
+    /**
      * help
      * Abstract method. Should return the command's help.
      */

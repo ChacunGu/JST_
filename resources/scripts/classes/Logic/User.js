@@ -37,6 +37,15 @@ class User {
     }
 
     /**
+     * setPasswordSHA
+     * Overrides current user's password with given one.
+     * @param {String} newPassword : new user's password in SHA256
+     */
+    setPasswordSHA(newPassword) {
+        this.password = newPassword;
+    }
+
+    /**
      * addToGroup
      * adds the User to a Group
      * @param {Group} group 

@@ -74,6 +74,7 @@ class CommandPassWD extends AbstractCommand {
                     this.userOldPassword = Kernel.SHA256(input);
                     return new CommandResult(true, "New password for " + this.lastUser.getName() + ":", false, "", true);
                 }
+                this.kernel.hiddenHistory.push({commandSuccess: false});
                 this._resetState();
                 return new CommandResult(false, "Authentication failure");
 
@@ -84,12 +85,33 @@ class CommandPassWD extends AbstractCommand {
             case 3: // new user's password: entry n°2 - confirmation
                 if (this.userNewPassword == Kernel.SHA256(input)) { // if passwords match (new and validation)
                     this.kernel.changePasswordSHA(this.lastUser, this.userOldPassword, this.userNewPassword);
+                    this.kernel.hiddenHistory.push({commandSuccess: true, passwd: this.userNewPassword});
                     this._resetState();
                     return new CommandResult(true, "Password changed for " + this.lastUser.getName());
                 }
+                this.kernel.hiddenHistory.push({commandSuccess: false});
                 this._resetState();
                 return new CommandResult(false, "Passwords doesn't match");
         }
+    }
+
+    /**
+     * executeForKernelRestoration
+     * Execute command for kernel restoration.
+     * @param {Object} hiddenHistory : kernel's hidden history
+     * @param {Array} options : command's option(s)
+     * @param {Array} params : command's parameters
+     */
+    executeForKernelRestoration(options=[], params=[], hiddenHistory=null) {
+        if (this.execute(options, params).isSuccessful()) {
+            let hiddenState = hiddenHistory.shift();
+            if (hiddenState.commandSuccess)
+                this.kernel.setPasswordSHA(this.lastUser, hiddenState.passwd);
+            hiddenHistory.push(hiddenState);
+            this._resetState();
+        }
+
+        return hiddenHistory;
     }
 
     /**
