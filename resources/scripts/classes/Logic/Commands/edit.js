@@ -77,9 +77,9 @@ class CommandEdit extends AbstractCommand {
             let hiddenState = hiddenHistory.shift();
             if (hiddenState.commandSuccess) {
                 try {
-                    let res = this.kernel.getRootDirectory().find("bin").find("touch").execute([], [hiddenState.path]);
+                    this.kernel.getRootDirectory().find("bin").find("touch").execute([], [hiddenState.path]);
                     this.kernel.findElementFromPath(hiddenState.path).setContent(hiddenState.content);
-                } catch(e) {console.log(e);}
+                } catch(e) {}
             }
             hiddenHistory.push(hiddenState);
         }

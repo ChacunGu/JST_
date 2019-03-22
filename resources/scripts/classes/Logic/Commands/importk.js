@@ -25,17 +25,25 @@ class ImportK extends AbstractCommand {
             let filereader = new FileReader();
             filereader.onload = _ => {
                 let data = JSON.parse(filereader.result);
-                let history = data.history;
-                let hiddenHistory = data.hiddenHistory;
-                if(history != null && hiddenHistory != null) {
-                    this.kernel.import(history, hiddenHistory);
-                    alert("Successful kernel restoration");
+                if(data != null) {
+                    this._restoreKernel(data);
                 } else {
                     alert("File error");
                 }
             }
             filereader.readAsText(evt.target.files[0]);
         }
+    }
+
+    /**
+     * _restoreKernel
+     * Dispatch event for kernel restoration.
+     * 
+     * @param {Object} data : kernel's state
+     */
+    _restoreKernel(data) {
+        window.dispatchEvent(new CustomEvent("restoreKernel", 
+                                             {detail: data}));
     }
     
     /**
@@ -68,15 +76,10 @@ class ImportK extends AbstractCommand {
             } else { // import from localStorage
                 let data = JSON.parse(localStorage.getItem("data"));
                 if (data != null) {
-                    let history = data.history;
-                    let hiddenHistory = data.hiddenHistory;
-
-                    this.kernel.import(history, hiddenHistory);
-                    return new CommandResult(true, "Successful kernel restoration");
+                    this._restoreKernel(data);
                 } else
                     return new CommandResult(true, "No kernel state has been found");
             }
-
             return;
         }
     }

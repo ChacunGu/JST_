@@ -5,6 +5,27 @@
  */
 class Kernel {
     constructor() {
+        this.groups = null;
+        this.users = null;
+        let rootUser = null;
+        this.user = null;
+        this.hiddenHistory = [];
+        this.history = [];
+        this.historySelectedCmdIndex = -1;
+        this.currentDirectory = null;
+        this.currentCommand = null;
+
+        this._init();
+        this._initEvents();
+        this.terminal = new Terminal(this.getHeader());
+        this.editor = new Editor(this);
+    }
+
+    /**
+     * _init
+     * Initializes kernel state.
+     */
+    _init() {
         this.groups = [Kernel.ROOT_GROUP];
         this.users = [Kernel.ROOT_USER];
         
@@ -20,14 +41,11 @@ class Kernel {
         this._initRoot();
         this._initEtc();
         this._initHome();
-        this._initEvents();
         this._initCommands();
 
         this._updateEtc();
 
         this.currentDirectory = this.homeDirectory;
-        this.terminal = new Terminal(this.getHeader());
-        this.editor = new Editor(this);
         this.currentCommand = null;
     }
     
@@ -225,7 +243,7 @@ Developped for the 3rd year's course "Conception OS" of the "Développement Logi
                                               commandResult.getAddBreakline(), 
                                               commandResult.getCustomHeader(),
                                               commandResult.getNewInputNeeded(),
-                                              commandName);
+                                              userInput);
     
                             // handle prompt mode (for commands like su)
                             if (commandResult.getNewInputNeeded()) {
@@ -238,7 +256,6 @@ Developped for the 3rd year's course "Conception OS" of the "Développement Logi
                         this.displayBlock("Error : Permission denied");
                     }
                 } catch (e) {
-                    console.log(e);
                     if (e instanceof TypeError) {
                         this.displayBlock("Unknown command");
                     } else {

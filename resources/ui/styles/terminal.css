@@ -8,6 +8,10 @@ body {
     text-decoration: none;
 }
 
+#fileSelector {
+    display: none;
+}
+
 #terminalinput {
     width: 100vw;
     max-width: 100vw;

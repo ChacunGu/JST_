@@ -13,10 +13,24 @@ function initKernel() {
 }
 
 /**
+ * restoreKernel
+ * Initializes a new kernel and restores given state.
+ * 
+ * @param {Object} data : kernel's state
+ */
+function restoreKernel(data) {
+    kernel._init();
+    kernel.import(data.history, data.hiddenHistory);
+    alert("Successful kernel restoration");
+}
+
+/**
  * initEvents
  * Initializes application's events.
  */
 function initEvents() {
+    window.addEventListener("restoreKernel", event => restoreKernel(event.detail));
+
     window.onkeyup = event => {
         let keycode = event.keyCode;
         if (kernel.getTerminal().isVisible()) { // kernel events
