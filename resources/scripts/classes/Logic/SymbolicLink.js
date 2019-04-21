@@ -31,7 +31,7 @@ class SymbolicLink extends AbstractFile {
      * @param {bool} createLink : true if copies creates a symbolic link for the given file false if it creates a real copy
      */
     copy(new_name, destination, createLink=false) { 
-        let copy = new SymbolicLink(new_name, this.file);
+        let copy = new SymbolicLink(new_name, this.file, this.user);
         destination.addChild(copy);
         return copy;
     }

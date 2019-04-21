@@ -39,14 +39,18 @@ class Kernel {
         this.historySelectedCmdIndex = -1;
         
         this._initRoot();
-        this._initEtc();
         this._initHome();
+        this._initEtc();
         this._initCommands();
+        
+        let user = this.createUser("userArc1");
+        this.user = user;
+        
+        this.currentDirectory = this.homeDirectory.find("userArc1");
+        this.currentCommand = null;
 
         this._updateEtc();
 
-        this.currentDirectory = this.homeDirectory;
-        this.currentCommand = null;
     }
     
     /**
@@ -155,10 +159,18 @@ class Kernel {
      */
     _initHome() {
         this.homeDirectory = this.root.find("home");
-        let story = new File("README", this.getUser());
-        story.setRights("700");
-        story.content = `
-# JST_
+        this._createReadMe(this.homeDirectory);
+    }
+
+    /**
+     * Add our custom README file to the directory
+     * @param {Directory} directory 
+     */
+    _createReadMe(directory) {
+        if (directory instanceof Directory) {
+            let story = new File("README", this.getUser());
+            story.setRights("777");
+            story.content = `# JST_
 
 JST_ stands for JavaScript Terminal.
 
@@ -175,8 +187,13 @@ Developped for the 3rd year's course "Conception OS" of the "Développement Logi
 - Donzé Célien (https://github.com/Lorkii)
 
 - Chacun Guillaume (https://github.com/ChacunGu)
-        `;
-        this.homeDirectory.addChild(story);
+
+## Getting root access
+
+Command : su
+password: root`;
+            directory.addChild(story);
+        }
     }
 
     /**
@@ -871,7 +888,7 @@ Developped for the 3rd year's course "Conception OS" of the "Développement Logi
         let newUser = new User(name, group);
         this.addUser(newUser);
 
-        new Directory(newUser.getName(), newUser, this.homeDirectory);
+        this._createReadMe(new Directory(newUser.getName(), newUser, this.homeDirectory));
         
         this._updateEtc();
         
