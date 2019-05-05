@@ -15,3 +15,7 @@ Developped for the 3rd year's course "Conception OS" of the "Développement Logi
 - [Donzé Célien](https://github.com/Lorkii)
 
 - [Chacun Guillaume](https://github.com/ChacunGu)
+
+## How to use
+
+Simply open `index.html` in any web browser. Working on Chrome, Firefox, Opera and Edge.
